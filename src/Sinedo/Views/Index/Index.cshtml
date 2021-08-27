@@ -1,0 +1,292 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>@Localizer["App"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content='@Localizer["App"]'>
+    <meta name="apple-mobile-web-app-status-bar-style" media="(prefers-color-scheme:dark)" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" media="(prefers-color-scheme:light)" content="black">
+
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+    <link rel="mask-icon" href="/images/mask-icon.svg" color="#FFAB40">
+
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-48.png" sizes="48x48" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-64.png" sizes="64x64" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-72.png" sizes="72x72" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-128.png" sizes="128x128" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-144.png" sizes="144x144" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-152.png" sizes="152x152" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-256.png" sizes="256x256" />
+    <link rel="apple-touch-icon" type="image/png" href="/images/manifest/icon-512.png" sizes="512x512" />
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#BB86FC">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#FFAB40">
+
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="stylesheet" href="/css/button.css">
+    <link rel="stylesheet" href="/css/card.css">
+    <link rel="stylesheet" href="/css/container.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/icons.css">
+    <link rel="stylesheet" href="/css/list.css">
+    <link rel="stylesheet" href="/css/site.css">
+    <link rel="stylesheet" href="/css/snackbar.css">
+    <link rel="stylesheet" href="/css/view.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/system.css">
+
+    <script type="text/javascript" src="/scripts/app.js"></script>
+</head>
+
+<body id="body">
+    <div class="snackbar__pin">
+        <div role="alert" id="snackbar" class="snackbar">
+            <p class="snackbar__text">
+                <!-- Übersetzte Fehlermeldungen -->
+                <span hidden data-side="server"></span>
+                <span hidden data-side="server" data-exception='Sinedo.Exceptions.StateMaschineException'>@Localizer["Snackbar:StateMaschineException"]</span>
+                <span hidden data-side="server" data-exception='System.Collections.Generic.KeyNotFoundException'>@Localizer["Snackbar:KeyNotFoundException"]</span>
+                <span hidden data-side="server" data-exception='System.InvalidOperationException'>@Localizer["Snackbar:InvalidOperationException"]</span>
+                <span hidden data-side="server" data-exception='Sinedo.Exceptions.CommandNotAllowedException'>@Localizer["Snackbar:CommandNotAllowedException"]</span>
+                <span hidden data-side="server" data-exception='Sinedo.Exceptions.ClickAndLoadException'>@Localizer["Snackbar:ClickAndLoadException"]</span>
+                <span hidden data-side="server" data-exception='Sinedo.Exceptions.CacheException'>@Localizer["Snackbar:CacheException"]</span>
+                <span hidden data-side="client" data-exception='ClientCommandFailed'>@Localizer["Snackbar:ClientCommandFailed"]</span>
+                <span hidden data-side="client" data-exception='UploadFailed'>@Localizer["Snackbar:UploadFailed"]</span>
+                <span hidden data-side="client" data-exception='UploadSizeExceeded'>@Localizer["Snackbar:UploadSizeExceeded"]</span>
+                <span hidden data-side="client" data-exception='Test'>@Localizer["Snackbar:Test"]</span>
+            </p>
+            <div class="snackbar_progressbar"></div>
+        </div>
+    </div>
+    <main>
+        <div class="box">
+            <div class="box-border">
+                <div class="box-content box-grid">
+                    <div>
+                        <ul id="listbox" class="listbox fadeInOnAfterPageLoad">
+                            <div id="placeholder" hidden>
+                                <h3>@Localizer["Welcome"]</h3>
+                                <p>@Localizer["NoItems"]</p>
+                                <p>@Localizer["Instruction"]</p>
+                            </div>
+                        </ul>
+
+                        <template id="localized_dialog_strings">
+                            <p id="delete_files_message">@Localizer["DeleteDownload"]</p>
+                        </template>
+
+                        <template id="listitem_template">
+                            <li class="listitem" data-group='' data-state=''>
+                                <div class="listitem__icon icon-large"></div>
+                                <div class="listitem__primary"></div>
+                                <div class="listitem__secondary">
+                                    <span data-state="idle">@Localizer["StateIdle"]</span>
+                                    <span data-state="queued">@Localizer["StateQueued"]</span>
+                                    <span data-state="canceled">@Localizer["StateCanceled"]</span>
+                                    <span data-state="failed">@Localizer["StateFailed"]
+                                        <span class="infoError">
+                                            <!-- Übersetzte Fehlermeldungen -->
+                                            <span hidden data-side="server"></span>
+                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidFileException'>@Localizer["List:InvalidFileException"]</span>
+                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidCredentialsException'>@Localizer["List:InvalidCredentialsException"]</span>
+                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.AccountExpiredException'>@Localizer["List:AccountExpiredException"]</span>
+                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidResponseException'>@Localizer["List:InvalidResponseException"]</span>
+                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.MissingCredentialsException'>@Localizer["List:MissingCredentialsException"]</span>
+                                        </span>
+                                    </span>
+                                    <span data-state="running">
+                                        <span class="download">
+                                            <span>@Localizer["StateDownload"]</span>
+                                            <span>@Localizer["StateExtract"]</span>
+
+                                            <span class="infoPercent"><span></span>% – </span>
+                                            <span class="infoTime"><span></span> @Localizer["Minutes"] – </span>
+                                            <span class="infoSpeed"><span></span>@Localizer["SpeedPerSecond"]</span>
+                                        </span>
+                                        <span class="retry">@Localizer["ConnectionLost"]</span>
+                                        <span class="checkStatus">@Localizer["StateCheckStatus"]</span>
+                                    </span>
+                                    <span data-state="completed">@Localizer["StateCompleted"]</span>
+                                    <span data-state="deleting">@Localizer["StateDeleting"]</span>
+                                    <span data-state="stopping">@Localizer["StateStopping"]</span>
+                                    <span data-state="unsupported">@Localizer["StateUnsupported"]</span>
+                                </div>
+                                <div class="listitem-wrapper__button-section">
+                                    <div class="listitem__button" command="2" title='@Localizer["ButtonStart"]'>
+                                        <i class="icon">&#XE145;</i>
+                                    </div>
+                                    <div class="listitem__button" command="3" title='@Localizer["ButtonStop"]'>
+                                        <i class="icon">&#XE14C;</i>
+                                    </div>
+                                    <div class="listitem__button" command="2" title='@Localizer["ButtonRetry"]'>
+                                        <i class="icon">&#XE5D5;</i>
+                                    </div>
+                                    <div class="listitem__button" command="4" title='@Localizer["ButtonDelete"]'>
+                                        <i class="icon">&#XE872;</i>
+                                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </div>
+
+                    <div class="card_pin">
+                        <div class="card" id="card" disabled>
+                            <div class="card__button">
+                                <button class="round-button" id="scheduler">
+                                    <i class="icon fadeInOnAfterPageLoad" id="scheduler_icon">pause</i>
+                                </button>
+                            </div>
+                            <div class="card__header">
+                                <div class="card__title">@Localizer["InternetConnection"]</div>
+                                <div class="card__text">
+                                    <span>@Localizer["CurrentSpeed"] <strong class="fadeInOnAfterPageLoad"><span
+                                                id="card_download">0</span>@Localizer["SpeedPerSecond"]</strong></span>
+                                </div>
+                            </div>
+                            <div class="card__media">
+                                <canvas id="card_canvas" aria-label="Auslastung der Internetverbindung"
+                                    class="card__content fadeInOnAfterPageLoad">@Localizer["CanvasUnsupported"]</canvas>
+                            </div>
+                            <div class="card__footer">
+                                <div class="card__text">
+                                    <span>@Localizer["SessionCard"]</span>
+                                    <strong class="fadeInOnAfterPageLoad">
+                                        <span id="card_summary">0</span>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="settings">
+        <!-- Sprungmarke: /index.html#settings -->
+        <div class="container">
+
+            <div class="panel">
+                <h5>@Localizer["Downloads"]</h5>
+                <div class="panel__wrapper">
+                    <button accesskey="1" id="button_start">
+                        <span>@Localizer["DownloadStart"]</span>
+                    </button>
+                    <button accesskey="2" id="button_stop">
+                        <span>@Localizer["DownloadStop"]</span>
+                    </button>
+                </div>
+                <p>
+                    @Html.Raw(String.Format(Localizer["DownloadsDescription"].Value,
+                        "<b class='shortcut'>1</b>",
+                        "<b class='shortcut'>2</b>")
+                    )
+                </p>
+            </div>
+
+            <div class="panel" id="disk" disabled>
+                <h5>@Localizer["Storage"]</h5>
+                <div class="panel__media">
+                    <canvas id="disk_canvas" class="panel__chart fadeInOnAfterPageLoad"
+                        aria-label="Belegung der Festplatte">@Localizer["NoScript"]</canvas>
+                </div>
+                <p class="fadeInOnAfterPageLoad">
+                    @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
+                        "<strong><span id='disk_free'>0 GB</span></strong>",
+                        "<strong><span id='disk_size'>0 GB</span></strong>")
+                    )
+                </p>
+            </div>
+
+            <div class="panel">
+                <h5>@Localizer["Session"]</h5>
+                <form action="/Change" style="padding-bottom: 10px;">
+                    <button>
+                        <span>@Localizer["ChangePassword"]</span>
+                    </button>
+                </form>
+                <form action="/Settings" style="padding-bottom: 10px;">
+                    <button>
+                        <span>@Localizer["ChangeSettings"]</span>
+                    </button>
+                </form>
+                <form action="/Logout" style="padding-bottom: 10px;">
+                    <button>
+                        <span>@Localizer["Logout"]</span>
+                    </button>
+                </form>
+                <p>@Localizer["SessionDescription"]</p>
+            </div>
+
+            <div class="panel">
+                <h5>@Localizer["System"]</h5>
+                <div class="fadeInOnAfterPageLoad">
+                    <div class="system-mini">
+                        <p>@Localizer["ConnectedMini"]<br><span name="info_hostname"></span></p>
+                        <div class="system__panel">
+                            <div>
+                                <p class="system__color system__color_line1">
+                                    @Localizer["SystemPlatform"]<br>
+                                    @Localizer["SystemArch"]<br>
+                                    @Localizer["SystemPid"]<br>
+                                    @Localizer["SystemVersion"]<br>
+                                </p>
+                            </div>
+                            <div>
+                                <p style="text-align: right;">
+                                    <span name="info_platform"></span><br>
+                                    <span name="info_arch"></span><br>
+                                    <span name="info_pid"></span><br>
+                                    <span name="info_version"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="system">
+                        <p>@Localizer["Connected"] <span name="info_hostname"></span>.</p>
+                        <div class="system__panel">
+                            <div>
+                                <p class="system__color system__color_line2">
+                                    <span>@Localizer["SystemPlatform"]</span><br>
+                                    <span name="info_platform"></span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="system__color system__color_line2">
+                                    <span>@Localizer["SystemPid"]</span><br>
+                                    <span name="info_pid"></span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="system__color system__color_line2">
+                                    <span>@Localizer["SystemArch"]</span><br>
+                                    <span name="info_arch"></span><br>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="system__color system__color_line2">
+                                    <span>@Localizer["SystemVersion"]</span><br>
+                                    <span name="info_version"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+    <script>Application.Startup.Main();</script>
+</body>
+
+</html>

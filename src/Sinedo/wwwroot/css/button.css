@@ -1,0 +1,128 @@
+:root {
+  --button-hover: #ffa42c;
+  --button-active: rgb(220, 220, 220);
+  --button-focus: rgb(228, 228, 228);
+  --button-text: white;
+
+  --button-background: #FF9100;
+  --button-border: #ffffff00;
+
+  --shortcut: #FF9100;
+  --shortcut-icon: rgb(255, 255, 255);
+  --shortcut-icon-active: rgb(255, 255, 255);
+  --shortcut-hover: #ffa42c;
+
+  --button-shadow: #a5a5a5;
+  --button-weight: bolder;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --button-hover: #443270;
+    --button-active: #ffffff;
+    --button-focus: #d4d4d4;
+    --button-text: white;
+
+    --button-background: #2D1B59;
+    --button-border: #3b3b3b;
+
+    --shortcut: #5b3684;
+    --shortcut-icon: #e1e1e1;
+    --shortcut-icon-active: rgb(255, 255, 255);
+    --shortcut-hover: #623a8f;
+
+    --button-shadow: black;
+    --button-weight: 500;
+  }
+}
+
+@media (prefers-color-scheme: -ms-high-contrast) {
+  :root {
+    --button-hover: rgb(255, 255, 0);
+    --button-active: #ffffff;
+    --button-focus: #d4d4d4;
+    --button-text: black;
+
+    --button-background: #ff3;
+    --button-border: #3b3b3b;
+
+    --shortcut: #ff3;
+    --shortcut-icon: black;
+    --shortcut-icon-active: black;
+    --shortcut-hover: rgb(255, 255, 0);
+
+    --button-shadow: black;
+    --button-weight: 500;
+  }
+}
+
+button {
+    height: 36px;
+    min-width: 64px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border-color: var(--button-border) !important;
+    border: none;
+    outline: none;
+    overflow: hidden;
+    transition: background-color 0.1s;
+    color: var(--button-text);
+    background-color: var(--button-background);
+  }
+
+  button span {
+    font-family: Roboto;
+    font-weight: var(--button-weight);
+    font-size: 14px;
+    line-height: 35px;
+    letter-spacing: 1.25px;
+    padding-left: 18px;
+    padding-right: 18px;
+    text-decoration: none;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  button:hover {
+    background-color: var(--button-hover);
+  }
+
+  button:active {
+    background-color: var(--button-active);
+    color: black;
+  }
+  button:focus-visible {
+    background-color: var(--button-focus);
+    color: black;
+    border-width: 1px !important; 
+    border-style: solid !important;
+    border-color: var(--button-active) !important;
+  }
+  .round-button {
+    height: 64px;
+    width: 64px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    box-shadow: 0px 1px 1px 0px var(--button-shadow);
+    color: var(--shortcut-icon);
+    background-color: var(--shortcut);
+  }
+
+  .round-button:hover {
+    color: var(--shortcut-icon-active);
+    background-color: var(--shortcut-hover);
+  } 
+  
+  .round-button:active {
+    color: rgb(0, 0, 0);
+    background-color: rgb(220, 220, 220);
+  }
+
+  .square-button {
+    height: auto;
+    border-style: solid;
+    border-width: 1px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+  }

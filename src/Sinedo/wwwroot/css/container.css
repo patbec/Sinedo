@@ -1,0 +1,80 @@
+@media screen and (max-width: 350px) {
+    .panel__wrapper {
+        flex-wrap: wrap;
+    }
+  }
+
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    place-content: space-evenly;
+}
+
+.container h5 {
+    margin: 10px 0px;
+}
+
+.container p {
+    overflow-wrap: break-word;
+}
+
+.container button {
+    width: 100%;
+}
+
+.panel {
+    margin: 20px;
+    padding: 20px;
+    background-color: var(--color-background-content);
+    border-radius: 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 
+    0px 2px 2px 0px rgba(0, 0, 0, 0.20),
+    0px 1px 2px 0px rgba(0, 0, 0, 0.20),
+    0px 1px 6px 0px rgba(0, 0, 0, 0.20);
+}
+
+.panel__media {
+    background-color: var(--chart-background);
+    border-radius: 24px;
+    height: 120px;
+    margin-top: 20px;
+    overflow: hidden;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--chart-border);
+}
+
+.panel__chart {
+    width: 100%;
+    height: 100%;
+}
+
+.panel__wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.shortcut {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: 2px;
+    margin-right: 2px;
+
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+main {
+    min-height: 100vh;
+    width: 100%;
+}
+footer {
+    min-height: 100vh;
+    width: 100%;
+}

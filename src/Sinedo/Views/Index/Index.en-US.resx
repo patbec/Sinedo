@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App" xml:space="preserve">
+    <value>Sinedo</value>
+    <comment/>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome!</value>
+    <comment/>
+  </data>
+  <data name="NoItems" xml:space="preserve">
+    <value>There are no elements available.</value>
+    <comment/>
+  </data>
+  <data name="Instruction" xml:space="preserve">
+    <value>Move a text file with links to this page or to your downloads folder to get started.</value>
+    <comment/>
+  </data>
+  <data name="StateIdle" xml:space="preserve">
+    <value>Ready to download.</value>
+    <comment/>
+  </data>
+  <data name="StateQueued" xml:space="preserve">
+    <value>Queued for download.</value>
+    <comment/>
+  </data>
+  <data name="StateCanceled" xml:space="preserve">
+    <value>Cancelled by the user.</value>
+    <comment/>
+  </data>
+  <data name="StateFailed" xml:space="preserve">
+    <value>Failed:</value>
+    <comment/>
+  </data>
+  <data name="StateDownload" xml:space="preserve">
+    <value>Download</value>
+    <comment/>
+  </data>
+  <data name="StateExtract" xml:space="preserve">
+    <value>Entpacken</value>
+    <comment/>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+   <value>Minutes</value>
+   <comment/>
+  </data>
+  <data name="StateCheckStatus" xml:space="preserve">
+    <value>Download – Online status is checked...</value>
+    <comment/>
+  </data>
+  <data name="StateCompleted" xml:space="preserve">
+    <value>Successfully completed.</value>
+    <comment/>
+  </data>
+  <data name="StateDeleting" xml:space="preserve">
+    <value>Will be deleted...</value>
+    <comment/>
+  </data>
+  <data name="StateStopping" xml:space="preserve">
+    <value>Will be stopped...</value>
+    <comment/>
+  </data>
+  <data name="StateUnsupported" xml:space="preserve">
+    <value>The content is not supported.</value>
+    <comment/>
+  </data>
+  <data name="ButtonStart" xml:space="preserve">
+    <value>Start</value>
+    <comment/>
+  </data>
+  <data name="ButtonStop" xml:space="preserve">
+    <value>Stop</value>
+    <comment/>
+  </data>
+  <data name="ButtonRetry" xml:space="preserve">
+    <value>Retry</value>
+    <comment/>
+  </data>
+  <data name="ButtonDelete" xml:space="preserve">
+    <value>Delete</value>
+    <comment/>
+  </data>
+  <data name="InternetConnection" xml:space="preserve">
+    <value>Internet Connection</value>
+    <comment/>
+  </data>
+  <data name="CurrentSpeed" xml:space="preserve">
+    <value>Current speed:</value>
+    <comment/>
+  </data>
+  <data name="CanvasUnsupported" xml:space="preserve">
+    <value>The Internet connection load indicator has been blocked or is not supported by your browser.</value>
+    <comment/>
+  </data>
+  <data name="SessionCard" xml:space="preserve">
+    <value>It has been downloaded in this session:</value>
+    <comment/>
+  </data>
+  <data name="SystemPlatform" xml:space="preserve">
+    <value>Platform:</value>
+    <comment/>
+  </data>
+  <data name="SystemArch" xml:space="preserve">
+    <value>Architecture:</value>
+    <comment/>
+  </data>
+  <data name="SystemPid" xml:space="preserve">
+    <value>Process identifier:</value>
+    <comment/>
+  </data>
+  <data name="SystemVersion" xml:space="preserve">
+    <value>Application version:</value>
+    <comment/>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Connected with</value>
+    <comment/>
+  </data>
+  <data name="ConnectedMini" xml:space="preserve">
+    <value>Connected with:</value>
+    <comment/>
+  </data>
+  <data name="SpeedPerSecond" xml:space="preserve">
+    <value>/s</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:StateMaschineException" xml:space="preserve">
+    <value>The state machine is in an undefined state.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:KeyNotFoundException" xml:space="preserve">
+    <value>The download was not found.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:InvalidOperationException" xml:space="preserve">
+    <value>The command could not be executed, for more information see the browser log.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:CommandNotAllowedException" xml:space="preserve">
+    <value>The command is invalid for the download.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:ClientCommandFailed" xml:space="preserve">
+    <value>The action could not be executed. (See log)</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:UploadFailed" xml:space="preserve">
+    <value>The file could not be sent.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:UploadSizeExceeded" xml:space="preserve">
+    <value>The file exceeds the maximum allowed size of 8 MB.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:ClickAndLoadException" xml:space="preserve">
+    <value>Links could not be added via Click&amp;Load. Sorry!</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:CacheException" xml:space="preserve">
+    <value>The added file could not be written to the cache.</value>
+    <comment/>
+  </data>
+  <data name="Snackbar:Test" xml:space="preserve">
+    <value>This is a test message.</value>
+    <comment/>
+  </data>
+  <data name="List:InvalidFileException" xml:space="preserve">
+    <value>A file was not found on the hoster.</value>
+    <comment/>
+  </data>
+  <data name="List:InvalidCredentialsException" xml:space="preserve">
+    <value>Invalid credentials</value>
+    <comment/>
+  </data>
+  <data name="List:AccountExpiredException" xml:space="preserve">
+    <value>Premium access expired</value>
+    <comment/>
+  </data>
+  <data name="List:InvalidResponseException" xml:space="preserve">
+    <value>A response from the sharehoster could not be processed.</value>
+    <comment/>
+  </data>
+  <data name="List:MissingCredentialsException" xml:space="preserve">
+    <value>No login data stored.</value>
+    <comment/>
+  </data>
+  <data name="ConnectionLost" xml:space="preserve">
+    <value>Connection interrupted. Will try again in a moment...</value>
+    <comment/>
+  </data>
+  <data name="DeleteDownload" xml:space="preserve">
+    <value>Delete all downloaded files? Unpacked files are preserved.</value>
+    <comment/>
+  </data>
+  <data name="ChangePassword" xml:space="preserve">
+    <value>Change password</value>
+    <comment/>
+  </data>
+  <data name="ChangeSettings" xml:space="preserve">
+    <value>Change settings</value>
+    <comment/>
+  </data>
+ <data name="Logout" xml:space="preserve">
+   <value>Logout</value>
+   <comment/>
+ </data>
+ <data name="Session" xml:space="preserve">
+   <value>Session</value>
+   <comment/>
+ </data>
+ <data name="SessionDescription" xml:space="preserve">
+   <value>Ends the current session. Downloads will continue to download in the background.</value>
+   <comment/>
+ </data>
+ <data name="Downloads" xml:space="preserve">
+   <value>Downloads</value>
+   <comment/>
+ </data>
+ <data name="DownloadsDescription" xml:space="preserve">
+   <value>Starts or stops all downloads. Downloads can be controlled with the shortcut key and the number {0} or {1}.</value>
+   <comment/>
+ </data>
+ <data name="DownloadStart" xml:space="preserve">
+   <value>Start</value>
+   <comment/>
+ </data>
+ <data name="DownloadStop" xml:space="preserve">
+   <value>Stop</value>
+   <comment/>
+ </data>
+ <data name="NoScript" xml:space="preserve">
+   <value>The display for the used space was blocked or is not supported by your browser.</value>
+   <comment/>
+ </data>
+ <data name="Storage" xml:space="preserve">
+   <value>Storage</value>
+   <comment/>
+ </data>
+ <data name="StorageDescription" xml:space="preserve">
+   <value>It remaining {0} of {1} space on the disk.</value>
+   <comment/>
+ </data>
+ <data name="System" xml:space="preserve">
+   <value>System</value>
+   <comment/>
+ </data>
+</root>

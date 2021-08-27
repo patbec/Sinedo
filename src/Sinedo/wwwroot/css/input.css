@@ -1,0 +1,35 @@
+:root {
+    --input-background: #f5f5f593;
+    --input-border: #dbdbdb;
+    --input-focus: #FF9100;
+}
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+        --input-background: #121212;
+        --input-border: #3b3b3b;
+        --input-focus: #C38FFF;
+    }
+  }
+
+  @media (prefers-color-scheme: -ms-high-contrast) {
+    :root {
+        --input-background: #000000;
+        --input-border: #ffffff;
+        --input-focus: #ffffff;
+    }
+  }
+
+input {
+    color: var(--color-font-title) !important;
+    background-color: var(--input-background) !important;
+    font-size: 24px;
+    border-radius: 6px;
+    border-color: var(--input-border);
+    border-style: solid;
+    border-width: 1px;
+}
+input:focus {
+    border-color: var(--input-focus) !important;
+    outline-style: none;
+}

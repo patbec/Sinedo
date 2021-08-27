@@ -1,0 +1,45 @@
+:root {
+    --bottom-padding: 5vh;
+  }
+
+@media screen and (max-width: 1024px) {
+    :root {
+        --bottom-padding: 0vh;
+      }
+
+    .box-content {
+        background-color: unset !important;
+        border-radius: unset;
+    }
+
+    .card_pin {
+        background-color: var(--color-background-filler) !important; 
+    }
+  }
+
+.box {
+    width: 100%;
+    max-width: 1000px;
+    /* min-width: 400px; */
+
+    min-height: 100vh;
+    margin: auto;
+}
+
+.box-border {
+    padding-top: 6vh;
+    padding-bottom: var(--bottom-padding);
+    min-height: calc(100vh - 6vh - var(--bottom-padding));
+}
+
+.box-content {
+    background-color: var(--color-background-site);
+    border-radius: 24px;
+    padding: 7vh 3vw 2px 3vw;
+    min-height: calc(100vh - 6vh - var(--bottom-padding) - 2px - 7vh);
+}
+
+.box-grid {
+    display: grid;
+    grid-template-rows: auto max-content;
+}

@@ -1,0 +1,11 @@
+[Unit]
+Description=Sinedo
+[Service]
+WorkingDirectory=/usr/share/sinedo
+ExecStart=/usr/share/sinedo/sinedo
+SyslogIdentifier=Sinedo
+Restart=always                  
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

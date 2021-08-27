@@ -1,0 +1,17 @@
+body {
+    height: 100%;
+    width: 100%;
+
+    min-width: 320px;
+    min-height: 400px;
+
+    margin: 0px;
+    overflow: auto;
+
+    transition: filter 500ms linear;
+}
+
+body[connection] {
+    pointer-events: none;
+    filter: grayscale(1);
+}

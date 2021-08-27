@@ -1,0 +1,14 @@
+﻿{
+    "compilerOptions": {
+        "strictFunctionTypes": false,
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "target": "ES2020",
+        "outFile": "../scripts/app.js"
+    },
+    "include": [
+        "*"
+    ]
+}

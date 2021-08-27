@@ -1,0 +1,159 @@
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100;
+    src: url('/fonts/roboto-latin-100-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 300;
+    src: url('/fonts/roboto-latin-300-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 400;
+    src: url('/fonts/roboto-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 500;
+    src: url('/fonts/roboto-latin-500-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 700;
+    src: url('/fonts/roboto-latin-700-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 900;
+    src: url('/fonts/roboto-latin-900-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  :root {
+    --color-theme-primary: #FFAB40;
+    --color-theme-secondary: #FF9100;
+ 
+    --color-font-title: black;
+    --color-font-text: #7A7A7A;
+
+    /* Seiten Hintergrund Füllung bei großen Bildschirmen */
+    --color-background-filler: white;
+    /* Seiten Hintergrund */
+    --color-background-site: rgb(250, 250, 250);
+    /* Inhalts Hintergrund */
+    --color-background-content: white;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-theme-primary: #BB86FC;
+        --color-theme-secondary: #C38FFF;
+
+        --color-font-title: #E1E1E1;
+        --color-font-text: #A4A4A4;
+
+        --color-background-filler: black;
+        --color-background-site: #121212;
+        --color-background-content: #1E1E1E;
+    }
+}
+@media (prefers-color-scheme: -ms-high-contrast) {
+  :root {
+      --color-theme-primary: #ff0;
+      --color-theme-secondary: #ff0;
+
+      --color-font-title: #fff;
+      --color-font-text: #fff;
+
+      --color-background-filler: black;
+      --color-background-site: black;
+      --color-background-content: #181818;
+  }
+}
+
+html {
+    font-family: Roboto;
+    font-size: 16px;
+    font-weight: normal;
+    letter-spacing: normal;
+    line-height: 1.5;
+
+    color: var(--color-font-text);
+    background-color: var(--color-background-filler);
+}
+
+h1 {
+    font-size: 6rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 300;
+    line-height: 1.167;
+    letter-spacing: -0.01562em;
+    color: var(--color-font-title);
+}
+
+h2 {
+    font-size: 3.75rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -0.00833em;
+    color: var(--color-font-title);
+}
+
+h3 {
+    font-size: 3rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.167;
+    letter-spacing: 0em;
+    color: var(--color-font-title);
+}
+
+h4 {
+    font-size: 2.125rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.235;
+    letter-spacing: 0.00735em;
+    color: var(--color-font-title);
+}
+
+h5 {
+    font-size: 1.5rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.334;
+    letter-spacing: 0em;
+    color: var(--color-font-title);
+}
+
+h6 {
+    font-size: 1.25rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.0075em;
+    color: var(--color-font-title);
+}
+
+label {
+  color: var(--color-font-title);
+}

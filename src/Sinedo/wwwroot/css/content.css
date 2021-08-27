@@ -1,0 +1,150 @@
+:root {
+    --background: #fafafa60;
+}
+  
+  @media (prefers-color-scheme: dark) {
+    :root {
+        --background: #1E1E1E;
+    }
+
+    .container__image {
+        content:url("/images/moon.svg");
+        height: 100px;
+    }
+  }
+
+  @media (prefers-color-scheme: -ms-high-contrast) {
+    :root {
+        --background: black;
+    }
+
+    .container__image {
+        content:url("/images/moon.svg");
+        height: 100px;
+    }
+  }
+@media screen and (max-width: 750px) {
+    main {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+
+        border-left-width: 0px !important;
+        border-right-width: 0px !important;
+
+        width: calc(100% - 40px) !important;
+    }
+}
+
+@media screen and (max-height: 560px) {
+    .container__image {
+        display: none;
+    }
+    .container__footer {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .textbox__wrapper {
+        flex-wrap: wrap;
+    }
+    .textbox__wrapper button {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 430px) {
+    .dialog-button {
+        width: 100% !important;
+    }
+}
+
+body {
+    margin: 0px;
+}
+
+main {
+    margin-left: auto;
+    margin-right: auto;
+    
+    border-style: solid;
+    border-color: var(--input-border);
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+
+    padding: 20px;
+    width: 650px;
+    min-height: calc(100vh - 40px);
+    background-color: var(--background);
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+
+    display: grid;
+    grid-template-rows: min-content auto min-content;
+}
+.container__image {
+    justify-self: right;
+}
+.container__content {
+    padding-top: 8vh;
+}
+.container__footer {
+    display: flex;
+    padding-top: 24px;
+}
+
+.content__separator {
+    padding-bottom: 18px;
+}
+
+.textbox__wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.textbox {
+    width: 100%;
+}
+.checkbox {
+    width: 100%;
+}
+.textbox input {
+    width: -webkit-fill-available;
+    padding-top: 31px;
+    padding-bottom: 8px;
+    padding-left: 14px;
+    padding-right: 14px;
+    width: calc(100% - 28px);
+}
+.textbox label {
+    display: block;
+    margin-top: -69px;
+    pointer-events: none;
+    padding-top: 6px;
+    padding-bottom: 39px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.mini-title::before {
+    font-family: 'Material Icons' !important;
+    font-size: 18px;
+    content: '\e2bd';
+    padding-right: 8px;
+    position: relative;
+    top: 3px;
+}
+
+.dialog-button {
+    float: right;
+    margin-top: 20px
+}
+
+.error {
+    color: red;
+}

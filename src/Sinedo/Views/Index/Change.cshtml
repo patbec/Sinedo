@@ -1,0 +1,37 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    Layout = "Content";
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<h4 class="title">@Localizer["Title"]</h4>
+<p>@Localizer["Description"]</p>
+
+
+<form method="post">
+    <div class="textbox__wrapper">
+        <div class="textbox">
+            <input name="newPassword" id="password_field" type="password" autocomplete="new-password"/>
+            <label for="password_field">@Localizer["NewPassword"]</label>
+        </div>
+
+        <button type="submit" name="save" class="square-button">
+            <div class="icon">save_alt</div>
+            <div>@Localizer["Save"]</div>
+        </button>
+    </div>
+
+    @if(Html.ViewData.ModelState.ContainsKey("policy"))
+    {
+        <p class="error">
+            <span>@Localizer["ChangePolicy"]<span>
+        </p>
+    }
+    else if(Html.ViewData.ModelState.ContainsKey("error"))
+    {
+        <p class="error">
+            <span>@Localizer["ChangeError"]</span>
+        </p>
+    }
+</form>

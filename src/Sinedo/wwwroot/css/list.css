@@ -1,0 +1,139 @@
+
+  :root {
+    --list-hover: rgba(0, 0, 0, 0.05);
+    --list-active: rgba(0, 0, 0, 0.08);
+  }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+      --list-hover: rgba(255, 255, 255, 0.1);
+      --list-active: rgba(255, 255, 255, 0.2);
+    }
+}
+
+@media screen and (max-width: 450px) {
+  .listitem {
+    padding: 8px 0px !important;
+  }
+
+  .listitem__icon {
+    display: none;
+  }
+}
+
+.listbox {
+    width: 100%;
+    margin: 0;
+    padding: 8px 0;
+    list-style-type: none;
+    box-sizing: border-box;
+    cursor: default;
+  }
+
+  .listitem {
+    display: grid;
+    grid-template-columns: max-content auto max-content;
+    grid-template-rows: 24px auto;
+    padding: 16px 16px;
+  }
+  .listitem__icon {
+      color: var(--color-theme-secondary);
+      grid-column: 1;
+      grid-row-start: 1;
+      grid-row-end: 3;
+      user-select: none;
+      width: 64px;
+  }
+
+  .listitem__primary {
+      font-weight: 500;
+      font-size: 16px;
+      margin-top: 1px;
+      letter-spacing: 0.15px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--color-font-title);
+      grid-column: 2;
+      grid-row: 1;
+  }
+  .listitem__secondary {
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: 0.25px;
+      text-overflow: ellipsis;
+      /* white-space: nowrap; */
+      /* overflow: hidden; */
+      grid-column: 2;
+      grid-row: 2;
+  }
+  
+  .listitem-wrapper__button-section {
+      grid-column: 3;
+      grid-row-start: 1;
+      grid-row-end: 3;
+      display: flex;
+      user-select: none;
+      margin-left: 2px;
+  }
+
+  .listitem__button {
+    cursor: pointer;
+    border: none;
+    border-radius: 100%;
+    box-sizing: border-box;
+    outline: none;
+    user-select: none;
+    text-indent: 0px;
+    text-shadow: none;
+    overflow: hidden;
+    background-color: transparent;
+    color: var(--color-theme-primary);
+    height: 48px;
+    width: 48px;
+    padding: 12px 12px 12px 12px;
+    transition: background-color 0.1s ;
+  }
+
+  .listitem__button:hover {
+    background-color:var(--list-hover);
+  }
+  .listitem__button:active {
+    background-color: var(--list-active);
+  }
+
+
+
+  .listitem span[data-state] {
+    display: none;
+  }
+
+
+
+  .listitem[data-state="1"] span[data-state="idle"] {
+    display: block;
+  }
+  .listitem[data-state="2"] span[data-state="queued"] {
+    display: block;
+  }
+  .listitem[data-state="3"] span[data-state="canceled"] {
+    display: block;
+  }
+  .listitem[data-state="4"] span[data-state="failed"] {
+    display: block;
+  }
+  .listitem[data-state="5"] span[data-state="running"] {
+    display: block;
+  }
+  .listitem[data-state="6"] span[data-state="completed"] {
+    display: block;
+  }
+  .listitem[data-state="8"] span[data-state="deleting"] {
+    display: block;
+  }
+  .listitem[data-state="9"] span[data-state="stopping"] {
+    display: block;
+  }
+  .listitem[data-state="10"] span[data-state="unsupported"] {
+    display: block;
+  }

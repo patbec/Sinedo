@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Authors>Patrick Becker</Authors>
+    <Version>0.0.3</Version>
+    <AssemblyName>sinedo</AssemblyName>
+    <Description>A Simple Network Downloader for your NAS.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpCompress" Version="0.28.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64' OR '$(RuntimeIdentifier)'=='linux-arm64'">
+    <Content Include="sinedo.service" CopyToPublishDirectory="Always" LinuxFileMode="1755">
+        <LinuxPath>/etc/systemd/system/sinedo.service</LinuxPath>
+    </Content>
+  </ItemGroup>
+</Project>

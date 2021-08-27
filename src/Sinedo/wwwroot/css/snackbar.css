@@ -1,0 +1,71 @@
+
+  :root {
+    --snackbar-background: #333; 
+    --snackbar-text: #FAFAFA;
+    --snackbar-progress: rgb(255, 255, 255);
+  }
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --snackbar-background: #FFFFFF;
+        --snackbar-text: #121212;
+        --snackbar-progress: #636363;
+    }
+}
+
+
+.snackbar__pin {
+    position: fixed;
+    text-align: -webkit-center;
+    width: 100%;
+}
+
+.snackbar {
+    opacity: 0;
+    width: fit-content;
+    max-width: 1000px;
+    min-width: 320px;
+    background-color: var(--snackbar-background);
+    color: var(--snackbar-text);
+    overflow: hidden;
+    word-break: break-word;
+    border-radius: 8px;
+    box-sizing: border-box;
+    z-index: 100;
+    box-shadow:
+        0 3px 5px -1px rgba(0, 0, 0, 0.2),
+        0 6px 10px 0 rgba(0, 0, 0, 0.14),
+        0 1px 18px 0 rgba(0, 0, 0, 0.12);
+}
+
+.snackbar__text {
+    padding: 14px 34px;
+    padding-bottom: 10px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.snackbar_progressbar {
+    background-color: var(--snackbar-progress);
+    width: 100%;
+    height: 4px;
+}
+
+.snackbar[open] {
+    animation-name: snackbarFadeInOut;
+    animation-duration: 4s;
+}
+
+.snackbar[open] div {
+    animation-name: snackbarProgressbar;
+    animation-timing-function: linear;
+    animation-duration: 4s;
+}
+
+.paused {
+    animation-play-state: paused !important;
+}
+
+.paused div {
+    animation-play-state: paused !important;
+}

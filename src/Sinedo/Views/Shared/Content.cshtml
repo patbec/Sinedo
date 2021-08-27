@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>@Localizer["App"] - @ViewData["Title"]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/icons.css">
+    <link rel="stylesheet" href="/css/button.css">
+    <link rel="stylesheet" href="/css/input.css">
+    <link rel="stylesheet" href="/css/content.css">
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div class="container__image">
+                <img height=100 src="/images/clouds.svg"/>
+            </div>
+
+            <div class="container__content">
+                @RenderBody()
+            </div>
+
+            <div class="container__footer">
+                <div class="mini-title">@Localizer["App"]</div>
+            </div>
+        </div>
+    </div>
+</body>
