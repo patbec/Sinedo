@@ -222,9 +222,9 @@ namespace Sinedo.Components.Sharehoster
             string rawUrl = await GetDownloadUrlAsync(file.Uid, token, cancellationToken);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(rawUrl);
-            request.ContinueTimeout = 2000;
-            request.Timeout = 2000;
-            request.ReadWriteTimeout = 2000;
+            request.ContinueTimeout = 4000;
+            request.Timeout = 4000;
+            request.ReadWriteTimeout = 4000;
             request.KeepAlive = false;
 
             // Start- oder Endposition im Stream angeben.
@@ -235,7 +235,7 @@ namespace Sinedo.Components.Sharehoster
             using var webStream = response.GetResponseStream();
 
             // Jumbo-Buffer erstellen.
-            byte[] buffer = new byte[8192];
+            byte[] buffer = new byte[65536];
 
             // Anzahl der gelesenen Bytes in einer Sequenz.
             int bytesRead;
