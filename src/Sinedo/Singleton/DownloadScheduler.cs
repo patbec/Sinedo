@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Sinedo.Components;
 using Sinedo.Components.Common;
 using Sinedo.Exceptions;
@@ -78,6 +79,10 @@ namespace Sinedo.Singleton
         /// Dienst um Benachrichtigungen an verbundene Clients zu senden.
         /// </summary>
         private readonly WebSocketBroadcaster broadcaster;
+        /// <summary>
+        /// Dienst für Logs.
+        /// </summary>
+        private readonly ILogger<DownloadScheduler> logger;
 
         #endregion
 
@@ -90,11 +95,12 @@ namespace Sinedo.Singleton
 
         #endregion
 
-        public DownloadScheduler(DownloadRepository repository, WebSocketBroadcaster broadcaster, Configuration configuration)
+        public DownloadScheduler(DownloadRepository repository, WebSocketBroadcaster broadcaster, Configuration configuration, ILogger<DownloadScheduler> logger)
         {
             this.repository = repository;
             this.configuration = configuration;
             this.broadcaster = broadcaster;
+            this.logger = logger;
 
             BandwidthInfo = new () {
                 BytesReadTotal = 0,
@@ -148,8 +154,8 @@ namespace Sinedo.Singleton
                 // Neue Statusinformationen veröffentlichen.
                 PublishStats(bytesReadCurrent);
             }
-            catch {
-                Debugger.Break();
+            catch (Exception exception) {
+                logger.LogCritical(exception, "Calculation of the progress has failed.");
             }
         }
 
@@ -196,6 +202,8 @@ namespace Sinedo.Singleton
                     Thread additionalThread = new (Worker);
                     threads.Add(additionalThread);  
                     additionalThread.Start();
+
+                    logger.LogDebug("A new background work thread has been created.");
                 }
             });
         }
@@ -239,6 +247,8 @@ namespace Sinedo.Singleton
                     OnDownload(download);
                 }
             } while( ! shutdownThread);
+
+            logger.LogDebug("Background work thread is terminated.");
         }
 
         /// <summary>
@@ -308,7 +318,7 @@ namespace Sinedo.Singleton
                 var downloadToChange = repository.Find(name);
 
                 if(downloadToChange.State == GroupState.Running) {
-                    SetState(GroupState.Running, downloadToChange, lastException, newStatus);
+                    SetState(GroupState.Running, downloadToChange, lastException, newStatus);  
                 }
             });
         }
@@ -391,6 +401,7 @@ namespace Sinedo.Singleton
                     MessageLog = exception.StackTrace
                 };
 
+                logger.LogError(exception, "File could not be cached.");
                 broadcaster.Add(CommandFromServer.Error, WebSocketPackage.PARAMETER_UNSET, clientNotification);
             }
         }
@@ -525,6 +536,7 @@ namespace Sinedo.Singleton
                                 MessageLog = t.Exception.StackTrace
                             };
 
+                            logger.LogError(t.Exception, "Deleting a download failed.");
                             broadcaster.Add(CommandFromServer.Error, WebSocketPackage.PARAMETER_UNSET, clientNotification);
                         }
                         else {
@@ -640,6 +652,8 @@ namespace Sinedo.Singleton
                         GroupPercent      = null,
                         LastException     = exception.GetType().ToString(),
                     };
+
+                    logger.LogError(exception, "Download '{0}' failed.", download.Name);
 
                     break;
                 }
