@@ -55,7 +55,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        Task<SharehosterFile> GetFileInfoAsync(string fileId, string token, CancellationToken cancellationToken);
+        SharehosterFile GetFileInfo(string fileId, string token, CancellationToken cancellationToken);
 
         /// <summary>
         /// Ruft den Link zum Herunterladen ab.
@@ -70,7 +70,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        Task<string> GetDownloadUrlAsync(string fileId, string token, CancellationToken cancellationToken);
+        string GetDownloadUrl(string fileId, string token, CancellationToken cancellationToken);
 
         /// <summary>
         /// Ruft den Anmeldetoken ab.
@@ -84,8 +84,8 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        Task<string> GetAccessToken(string username, string password, CancellationToken cancellationToken);
+        string GetAccessToken(string username, string password, CancellationToken cancellationToken);
 
-        Task DownloadFileAsync(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken);
+        void DownloadFile(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken);
     }
 }

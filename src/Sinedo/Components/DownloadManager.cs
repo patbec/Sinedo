@@ -74,7 +74,9 @@ namespace Sinedo.Components
             }
 
 
-            var token = sharehoster.GetAccessToken(credential.UserName, credential.Password, cancellationTokenSource.Token).GetAwaiter().GetResult();
+            var token = sharehoster.GetAccessToken(credential.UserName,
+                                                   credential.Password, 
+                                                   cancellationTokenSource.Token);
 
             // Neues Verzeichnis für den Download erstellen. 
             var folderPath = CreateAndGetFolder(targetFolder, downloadName);
@@ -117,8 +119,8 @@ namespace Sinedo.Components
                 // Kann Null sein wenn keine Fortschrittsanzeige benötigt wird.
                 monitoring = new MonitoringHelper(sizeTotal, sizeCurrent);
 
-                // Bei Internetproblemen 4 erneute Versuche, 10 Sekunden warten. 
-                RetryIfConnectionLost(4, 10, () =>
+                // Bei Internetproblemen 30 erneute Versuche, 30 Sekunden warten. 
+                RetryIfConnectionLost(30, 30, () =>
                 {
                     Status(downloadName, null, GroupMeta.Download);
 
@@ -135,11 +137,11 @@ namespace Sinedo.Components
                         fileStream.Position = fileStream.Length;
                         
                         // Herunterladen.
-                        sharehoster.DownloadFileAsync(file,
-                                                      fileStream,
-                                                      monitoring.Add,
-                                                      token,
-                                                      cancellationTokenSource.Token).GetAwaiter().GetResult();
+                        sharehoster.DownloadFile(file,
+                                                 fileStream,
+                                                 monitoring.Add,
+                                                 token,
+                                                 cancellationTokenSource.Token);
                         
                         fileStream.Flush();
                     }
@@ -212,7 +214,7 @@ namespace Sinedo.Components
                                 Stream sourceStream = entry.OpenEntryStream();
 
                                 // Jumbo-Buffer erstellen.
-                                byte[] buffer = new byte[65536];
+                                byte[] buffer = new byte[1024];
 
                                 // Anzahl der gelesenen Bytes in einer Sequenz.
                                 int bytesRead;
@@ -268,12 +270,15 @@ namespace Sinedo.Components
 
         private IEnumerable<SharehosterFile> GetFileInfos(string[] filePaths, string token, CancellationToken cancellationToken)
         {
-            SharehosterFile[] files = new SharehosterFile[filePaths.Length];
+            List<SharehosterFile> files = new ();
 
             for (int i = 0; i < filePaths.Length; i++) {
-                string fileId = new Uri(filePaths[i]).Segments[2];
-                fileId = fileId.Remove(fileId.Length - 1, 1);
-                files[i] = sharehoster.GetFileInfoAsync(fileId, token, cancellationToken).GetAwaiter().GetResult();
+                if(Uri.TryCreate(filePaths[i], UriKind.Absolute, out Uri fileUri)) {
+                    string fileId = fileUri.Segments[2];
+                    fileId = fileId.Remove(fileId.Length - 1, 1);
+
+                    files.Add(sharehoster.GetFileInfo(fileId, token, cancellationToken));
+                }
             }
 
             return files;

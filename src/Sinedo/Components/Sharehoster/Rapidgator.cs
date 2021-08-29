@@ -50,7 +50,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public async Task<SharehosterFile> GetFileInfoAsync(string fileId, string token, CancellationToken cancellationToken)
+        public SharehosterFile GetFileInfo(string fileId, string token, CancellationToken cancellationToken)
         {
             // Parameter für die Anfrage. 
             var parameters = new Dictionary<string, string>
@@ -61,7 +61,7 @@ namespace Sinedo.Components.Sharehoster
 
             // Request erstellen und Ergebnis auslesen.
             string requestUrl = QueryHelpers.AddQueryString("https://rapidgator.net/api/v2/file/info", parameters);
-            string requestResult = await client.GetStringAsync(requestUrl ?? "", cancellationToken);
+            string requestResult = client.GetStringAsync(requestUrl ?? "", cancellationToken).Result;
 
             try
             {
@@ -114,7 +114,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public async Task<string> GetDownloadUrlAsync(string fileId, string token, CancellationToken cancellationToken)
+        public string GetDownloadUrl(string fileId, string token, CancellationToken cancellationToken)
         {
             // Parameter für die Anfrage. 
             var parameters = new Dictionary<string, string>
@@ -125,7 +125,7 @@ namespace Sinedo.Components.Sharehoster
 
             // Request erstellen und Ergebnis auslesen.
             string requestUrl = QueryHelpers.AddQueryString("https://rapidgator.net/api/v2/file/download", parameters);
-            string requestResult = await client.GetStringAsync(requestUrl ?? "", cancellationToken);
+            string requestResult = client.GetStringAsync(requestUrl ?? "", cancellationToken).Result;
 
             try
             {
@@ -171,7 +171,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public async Task<string> GetAccessToken(string username, string password, CancellationToken cancellationToken)
+        public string GetAccessToken(string username, string password, CancellationToken cancellationToken)
         {
             // Parameter für die Anfrage. 
             var parameters = new Dictionary<string, string>
@@ -182,7 +182,7 @@ namespace Sinedo.Components.Sharehoster
             
             // Request erstellen und Ergebnis auslesen.
             string requestUrl = QueryHelpers.AddQueryString("https://rapidgator.net/api/v2/user/login", parameters);
-            string requestResult = await client.GetStringAsync(requestUrl, cancellationToken);
+            string requestResult = client.GetStringAsync(requestUrl, cancellationToken).Result;
 
             try
             {
@@ -217,9 +217,9 @@ namespace Sinedo.Components.Sharehoster
             }
         }
 
-        public async Task DownloadFileAsync(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken)
+        public void DownloadFile(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken)
         {
-            string rawUrl = await GetDownloadUrlAsync(file.Uid, token, cancellationToken);
+            string rawUrl = GetDownloadUrl(file.Uid, token, cancellationToken);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(rawUrl);
             request.ContinueTimeout = 4000;
@@ -229,13 +229,13 @@ namespace Sinedo.Components.Sharehoster
 
             // Start- oder Endposition im Stream angeben.
             if (targetStream.Length != 0)
-                request.Headers.Add("Range", $"bytes={targetStream.Length}-{file.Size}");
+                request.Headers.Add("Range", $"bytes {targetStream.Length}-{file.Size}");
 
             using var response = request.GetResponse();
             using var webStream = response.GetResponseStream();
 
             // Jumbo-Buffer erstellen.
-            byte[] buffer = new byte[65536];
+            byte[] buffer = new byte[2048];
 
             // Anzahl der gelesenen Bytes in einer Sequenz.
             int bytesRead;
@@ -250,7 +250,7 @@ namespace Sinedo.Components.Sharehoster
 
                 // Gelesene Bytes an den Fortschrittsanbieter übermitteln.
                 report(bytesRead);
-            } 
+            }
         }
     }
 }

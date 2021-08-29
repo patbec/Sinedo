@@ -200,6 +200,7 @@ namespace Sinedo.Singleton
                 // Threads erstellen bis die gewünschte Anzahl gestartet wurden.
                 while(threads.Count < requestedThreads) {
                     Thread additionalThread = new (Worker);
+                    additionalThread.Priority = ThreadPriority.BelowNormal;
                     threads.Add(additionalThread);  
                     additionalThread.Start();
 
