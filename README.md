@@ -1,5 +1,9 @@
-<img align="right" width="200" src="/src/Sinedo/wwwroot/images/clouds.svg" alt="Clouds"/>
+<img align="right" width="30%" src="/src/Sinedo/wwwroot/images/clouds.svg" alt="Clouds"/>
+
 # Sinedo
+
+A small application to download files from sharehosters like Rapidgator. This application is made to run on your own Linux home server. The interface is designed to be used from a PC, tablet or mobile phone.
+This software is a beta that is in the testing phase and may still contain bugs. 
 
 <img src="/screenshots/screencapture-desktop-title.png" alt="Screenshot Banner"/>
 
@@ -7,11 +11,7 @@
     <a href="/Screenshots.md">See more images</a>
 </p>
 
-### Description
-A small application to download files from sharehosters like Rapidgator. This application is made to run on your own Linux home server. The interface is designed to be used from a PC, tablet or mobile phone.
-This software is a beta that is in the testing phase and may still contain bugs. 
-
-### Installation
+## Installation
 
 The software can be installed with the following command after downloading:
 ```
@@ -52,7 +52,7 @@ In case of problems with paths, e.g. the download folder remains empty, the curr
 http://<hostname or ip>:2222/api/debug
 ```
 
-### Features
+## Features
 
 The application supports **Click&Load**, which originally comes from the *JDownloader 2* application. In order to use this feature, the Click&Load requests must be redirected **to the server**.
 The extension Redirect Click'n'Load is available for [Firefox](https://addons.mozilla.org/de/firefox/addon/redirect-click-n-load/), [Edge](https://chrome.google.com/webstore/detail/redirect-clicknload/hnjbnefgkiickkpfidpnlmcodicfgakk) and [Google Chrome](https://chrome.google.com/webstore/detail/redirect-clicknload/hnjbnefgkiickkpfidpnlmcodicfgakk).
@@ -62,34 +62,34 @@ Links can also be downloaded by saving them directly to the **Download directory
 Currently text files (only with the extension .txt) are supported, these must contain links with line breaks from the Rapidgator service.
 Support for DLC files is planned for later.
 
-### Web-Api
+## Web-Api
 
 To control downloads with other programs or add new ones in an automated way there is a REST api. Examples of how to use it can be found here: [Documentation REST-API](/REST-API.md).
 
 Code contributions or criticism are welcome.
 
-### Build from Source
+## Build from Source
 
-As development environment **Visual Studio Code** is used, the project can be opened via the file 'Sinedo Workspace.code-workspace'.
+As development environment **Visual Studio Code** is used, the project can be opened via the file `Sinedo Workspace.code-workspace`.
 
 To build the source code manually there is the option **dotnet Build**, under build tasks.
 The file `tasks.json` contains the exact commands to perform the build via the terminal.
 
-### Author
+## Author
 
 * **Patrick Becker** - [GitHub](https://github.com/patbec)
 
 E-Mail: [git.bec@outlook.de](mailto:git.bec@outlook.de)
 
-### Languages
+## Languages
 
 The translation of the app is browser dependent, currently the app is available in German and English.
 
-### License
+## License
 
 This project is licensed under the GPL2 license - See the [LICENSE](LICENSE) file for more information.
 
-### tl;dr
+## tl;dr
 ```
 # Install app
 sudo apt install ./sinedo_<version>.deb
