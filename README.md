@@ -64,7 +64,7 @@ Support for DLC files is planned for later.
 
 ## Web-Api
 
-To control downloads with other programs or add new ones in an automated way there is a REST api. Examples of how to use it can be found here: [Documentation REST-API](/REST-API.md).
+To control downloads with other programs or add new ones in an automated way there is a REST api. Examples of how to use it can be found here: [Documentation REST-API](/REST-Api.md).
 
 Code contributions or criticism are welcome.
 
