@@ -235,16 +235,16 @@ namespace Sinedo.Components.Sharehoster
             using var webStream = response.GetResponseStream();
 
             // Jumbo-Buffer erstellen.
-            byte[] buffer = new byte[2048];
+            Span<byte> buffer = new byte[2048];
 
             // Anzahl der gelesenen Bytes in einer Sequenz.
             int bytesRead;
 
             // Kopieren bis keine Bytes mehr gelesen wurden.
-            while ((bytesRead = webStream.Read(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = webStream.Read(buffer)) > 0)
             {
                 // Buffer in die Datei schreiben.
-                targetStream.Write(buffer, 0, bytesRead);
+                targetStream.Write(buffer.Slice(0, bytesRead));
 
                 cancellationToken.ThrowIfCancellationRequested();
 
