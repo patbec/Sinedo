@@ -17,8 +17,8 @@ namespace Sinedo.Hosted
     public class AutoDiscovery : IHostedService
     {
         private readonly ILogger<AutoDiscovery> logger;
-        private readonly byte[] magicPacketBytes = new byte[] { 0x2, 0x2, 0x2, 0x2 };
-        private readonly int autoDiscoveryPort = 2222;
+        private static readonly byte[] magicPacketBytes = new byte[] { 0x2, 0x2, 0x2, 0x2 };
+        private static readonly int autoDiscoveryPort = 2222;
 
         private Task listener;
         private CancellationTokenSource cancellationTokenSource;
@@ -95,7 +95,7 @@ namespace Sinedo.Hosted
         /// <summary>
         /// Versucht ein Info Paket vom Server zu erhalten.
         /// </summary>
-        public DiscoveryRecord ReceiveDiscoveryMessage()
+        public static DiscoveryRecord ReceiveDiscoveryMessage()
         {
             var udpClient = new UdpClient();
             var serverEndPoint = new IPEndPoint(IPAddress.Any, 0);
