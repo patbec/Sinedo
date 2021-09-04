@@ -5,10 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Sinedo.Components;
 using Sinedo.Singleton;
 
 namespace Sinedo.Hosted

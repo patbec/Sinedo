@@ -41,7 +41,8 @@ namespace Sinedo
                     .AddSingleton<Configuration>();
                     
             services.AddHostedService<FileSystemMonitor>()
-                    .AddHostedService<DiskSpaceMonitor>();
+                    .AddHostedService<DiskSpaceMonitor>()
+                    .AddHostedService<AutoDiscovery>();
       
             AddLocalizationSupport(services);
 
