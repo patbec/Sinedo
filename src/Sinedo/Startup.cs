@@ -38,7 +38,8 @@ namespace Sinedo
                     .AddSingleton<DownloadRepository>()
                     .AddSingleton<DownloadScheduler>()
                     .AddSingleton<DiskSpaceHelper>()
-                    .AddSingleton<Configuration>();
+                    .AddSingleton<Configuration>()
+                    .AddSingleton<HyperlinkManager>();
                     
             services.AddHostedService<FileSystemMonitor>()
                     .AddHostedService<DiskSpaceMonitor>()

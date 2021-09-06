@@ -361,4 +361,32 @@
    <value>System</value>
    <comment/>
  </data>
+ <data name="UsefulLinks" xml:space="preserve">
+   <value>Nützliche Links</value>
+   <comment/>
+ </data>
+ <data name="EditLinks" xml:space="preserve">
+   <value>Links bearbeiten</value>
+   <comment/>
+ </data>
+ <data name="Save" xml:space="preserve">
+   <value>Speichern</value>
+   <comment/>
+ </data>
+ <data name="Cancel" xml:space="preserve">
+   <value>Abbrechen</value>
+   <comment/>
+ </data>
+ <data name="DisplayName" xml:space="preserve">
+   <value>Anzeigename</value>
+   <comment/>
+ </data>
+ <data name="Url" xml:space="preserve">
+   <value>Url</value>
+   <comment/>
+ </data>
+ <data name="HardDiskUsage" xml:space="preserve">
+   <value>Belegung der Festplatte</value>
+   <comment/>
+ </data>
 </root>

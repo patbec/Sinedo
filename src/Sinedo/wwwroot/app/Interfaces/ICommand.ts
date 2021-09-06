@@ -32,6 +32,11 @@ namespace Application.Interfaces
          * Gibt Informationen über die Auslastung der Internetverbindung zurück.
          */
         bandwidthInfo: ICommandBandwidth;
+
+        /**
+         * Gibt Informationen über gespeicherte Links zurück.
+         */
+        links: ICommandHyperlink[];
     }
 
     /**
@@ -88,6 +93,12 @@ namespace Application.Interfaces
         architecture: string;
         pid: number;
         version: string;
+    }
+
+    export interface ICommandHyperlink {
+
+        url: string;
+        displayName: string;
     }
 
     /**

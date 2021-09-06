@@ -10,7 +10,5 @@ namespace Sinedo.Flags
         Stop    = 1 << 2,
         Update  = 1 << 3,
         Delete  = 1 << 4,
-        Recycle = 1 << 5,
-        Restore = 1 << 6,
     }
 }

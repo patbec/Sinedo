@@ -21,5 +21,10 @@ namespace Sinedo.Models
         /// Gibt eine Auflistung von Gruppen zurück.
         /// </summary>
         public DownloadRecord[] Downloads { get; init; }
+
+        /// <summary>
+        /// Gibt Informationen über gespeicherte Links zurück.
+        /// </summary>
+        public HyperlinkRecord[] Links { get; init; }
     }
 }

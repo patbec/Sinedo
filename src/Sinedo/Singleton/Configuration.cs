@@ -97,14 +97,14 @@ namespace Sinedo.Singleton
                 // Aktuelle Einstellungen übernehmen
                 //
 
-                PasswordHash = configurationData.PasswordHash;
-                SharehosterUsername = configurationData.SharehosterUsername;
-                SharehosterPassword = configurationData.SharehosterPassword;
-                InternetConnectionInMbits = configurationData.InternetConnectionInMbits;
-                ConcurrentDownloads = configurationData.ConcurrentDownloads;
-                DownloadDirectory = configurationData.DownloadDirectory;
-                IsExtractingEnabled = configurationData.IsExtractingEnabled;
-                ExtractingDirectory = configurationData.ExtractingDirectory;
+                PasswordHash                = configurationData.PasswordHash;
+                SharehosterUsername         = configurationData.SharehosterUsername;
+                SharehosterPassword         = configurationData.SharehosterPassword;
+                InternetConnectionInMbits   = configurationData.InternetConnectionInMbits;
+                ConcurrentDownloads         = configurationData.ConcurrentDownloads;
+                DownloadDirectory           = configurationData.DownloadDirectory;
+                IsExtractingEnabled         = configurationData.IsExtractingEnabled;
+                ExtractingDirectory         = configurationData.ExtractingDirectory;
             }
             catch(Exception ex)
             {
@@ -112,7 +112,7 @@ namespace Sinedo.Singleton
                     logger.LogInformation("A new settings file will be created.");
                 }
                 else {
-                    logger.LogError(ex, "The settings could not be loaded due to an error, the setup mode is used.");
+                    logger.LogCritical(ex, "The settings could not be loaded due to an error, the setup mode is used.");
                 }
 
                 //
@@ -154,14 +154,14 @@ namespace Sinedo.Singleton
         private void Save() {
             SettingsFile configurationData = new ()
             {
-                PasswordHash = PasswordHash,
-                SharehosterUsername = SharehosterUsername,
-                SharehosterPassword = SharehosterPassword,
-                InternetConnectionInMbits = InternetConnectionInMbits,
-                ConcurrentDownloads = ConcurrentDownloads,
-                DownloadDirectory = DownloadDirectory,
-                IsExtractingEnabled = IsExtractingEnabled,
-                ExtractingDirectory = ExtractingDirectory,
+                PasswordHash                = PasswordHash,
+                SharehosterUsername         = SharehosterUsername,
+                SharehosterPassword         = SharehosterPassword,
+                InternetConnectionInMbits   = InternetConnectionInMbits,
+                ConcurrentDownloads         = ConcurrentDownloads,
+                DownloadDirectory           = DownloadDirectory,
+                IsExtractingEnabled         = IsExtractingEnabled,
+                ExtractingDirectory         = ExtractingDirectory,
             };
 
             configurationFile.Save(configurationData);
@@ -229,7 +229,7 @@ namespace Sinedo.Singleton
                 CreateDirectories();
 
                 //
-                // Der hinterlegte Password-Hash zum Anmelden wird unverändert übernommen.
+                // Der hinterlegte Password-Hash zum Anmelden sowie Links werden unverändert übernommen.
                 //
 
                 // Neue Einstellungen übernehmen.
@@ -240,7 +240,7 @@ namespace Sinedo.Singleton
                 DownloadDirectory           = downloadDirectory;
                 IsExtractingEnabled         = isExtractingEnabled;
                 ExtractingDirectory         = extractingDirectory;
-
+                
                 Save();
 
                 logger.LogInformation("The general settings have been updated.");
@@ -260,13 +260,13 @@ namespace Sinedo.Singleton
                 // Erstellt eine neue Struktur ohne geschützte Daten.
                 return new SettingsRecord()
                 {
-                    SharehosterUsername = this.SharehosterUsername,
-                    SharehosterPassword = this.SharehosterPassword,
-                    InternetConnectionInMbits = this.InternetConnectionInMbits,
-                    ConcurrentDownloads = this.ConcurrentDownloads,
-                    DownloadDirectory = this.DownloadDirectory,
-                    ExtractingDirectory = this.ExtractingDirectory,
-                    IsExtractingEnabled = this.IsExtractingEnabled,
+                    SharehosterUsername         = this.SharehosterUsername,
+                    SharehosterPassword         = this.SharehosterPassword,
+                    InternetConnectionInMbits   = this.InternetConnectionInMbits,
+                    ConcurrentDownloads         = this.ConcurrentDownloads,
+                    DownloadDirectory           = this.DownloadDirectory,
+                    ExtractingDirectory         = this.ExtractingDirectory,
+                    IsExtractingEnabled         = this.IsExtractingEnabled,
                 };
             }
         }

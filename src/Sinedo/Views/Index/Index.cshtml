@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="/css/view.css">
     <link rel="stylesheet" href="/css/animations.css">
     <link rel="stylesheet" href="/css/system.css">
+    <link rel="stylesheet" href="/css/links.css">
+    <link rel="stylesheet" href="/css/input.css">
 
     <script type="text/javascript" src="/scripts/app.js"></script>
 </head>
@@ -193,11 +195,13 @@
                 </p>
             </div>
 
+
             <div class="panel" id="disk" disabled>
                 <h5>@Localizer["Storage"]</h5>
                 <div class="panel__media">
                     <canvas id="disk_canvas" class="panel__chart fadeInOnAfterPageLoad"
-                        aria-label="Belegung der Festplatte">@Localizer["NoScript"]</canvas>
+                            aria-label='@Localizer["HardDiskUsage"]'
+                            title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
                 </div>
                 <p class="fadeInOnAfterPageLoad">
                     @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
@@ -206,6 +210,7 @@
                     )
                 </p>
             </div>
+
 
             <div class="panel">
                 <h5>@Localizer["Session"]</h5>
@@ -226,6 +231,72 @@
                 </form>
                 <p>@Localizer["SessionDescription"]</p>
             </div>
+
+
+            <div class="panel" id="links">
+                <h5><span>@Localizer["UsefulLinks"]</span></h5>
+
+                <div class="fadeInOnAfterPageLoad">
+                    <button id="buttonLinksEdit">
+                        <span>@Localizer["EditLinks"]</span>
+                    </button>
+
+                    <ul id="linkbox" class="linkbox">
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary"></div>
+                                <div class="linkitem__secondary"></div>
+                            </a>
+                        </li>
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary"></div>
+                                <div class="linkitem__secondary"></div>
+                            </a>
+                        </li>
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary"></div>
+                                <div class="linkitem__secondary"></div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="fadeInOnAfterPageLoad" hidden>
+                    <div class="panel__wrapper">
+                        <button id="buttonLinksCancel">
+                            <span>@Localizer["Cancel"]</span>
+                        </button>
+                        <button id="buttonLinksSave">
+                            <span>@Localizer["Save"]</span>
+                        </button>
+                    </div>
+
+                    <ul id="linkedit" class="linkbox">
+                        <li class="linkitem">
+                              <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
+                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            </div>
+                        </li>
+                        <li class="linkitem">
+                              <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
+                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            </div>
+                        </li>
+                        <li class="linkitem">
+                              <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
+                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
 
             <div class="panel">
                 <h5>@Localizer["System"]</h5>

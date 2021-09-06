@@ -12,6 +12,7 @@
         StopAll = 8,
 
         Upload = 9,
+        Links = 10,
     }
 
     /**
@@ -61,5 +62,7 @@
 
 
         BandwidthInfo = 8,
+
+        LinksChanged = 9,
     }
 }

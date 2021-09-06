@@ -36,5 +36,6 @@ namespace Sinedo.Flags
 
         Upload = 9,
 
+        Links = 10,
     }
 }

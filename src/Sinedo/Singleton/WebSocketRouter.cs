@@ -20,6 +20,7 @@ namespace Sinedo.Singleton
         private readonly WebSocketConnections serviceConnections;
         private readonly DownloadScheduler serviceScheduler;
         private readonly DownloadRepository serviceRepository;
+        private readonly HyperlinkManager serviceHyperlink;
         private readonly DiskSpaceHelper serviceDiskSpaceHelper;
 
         private static readonly SystemRecord systemInfo = SystemRecord.GetSystemInfo();
@@ -29,12 +30,14 @@ namespace Sinedo.Singleton
         /// </summary>
         public WebSocketRouter(WebSocketConnections serviceConnections,
                                DownloadScheduler    serviceScheduler,
-                               DownloadRepository   serviceRepository, 
+                               DownloadRepository   serviceRepository,
+                               HyperlinkManager     serviceHyperlink,
                                DiskSpaceHelper      serviceDiskSpaceHelper) {
 
             this.serviceConnections     = serviceConnections;
             this.serviceScheduler       = serviceScheduler;
             this.serviceRepository      = serviceRepository;
+            this.serviceHyperlink       = serviceHyperlink;
             this.serviceDiskSpaceHelper = serviceDiskSpaceHelper;
         }
 
@@ -82,7 +85,8 @@ namespace Sinedo.Singleton
                             SystemInfo = systemInfo,
                             Downloads = downloads,
                             DiskInfo = serviceDiskSpaceHelper.DiskInfo,
-                            BandwidthInfo = serviceScheduler.BandwidthInfo
+                            BandwidthInfo = serviceScheduler.BandwidthInfo,
+                            Links = serviceHyperlink.GetLinks()
                     };
 
                     // Verbindung zum Cache hinzufügen.
@@ -165,6 +169,13 @@ namespace Sinedo.Singleton
 
                     string name = Path.GetFileNameWithoutExtension(fileToUpload.FileName);
                     serviceScheduler.Create(name, fileToUpload.Files, fileToUpload.Autostart);
+                    break;
+                }
+                 case CommandFromClient.Links:
+                {
+                    var links = webSocketPackage.ReadContentAs<HyperlinkRecord[]>();
+
+                    serviceHyperlink.SetLinks(links);
                     break;
                 }
                 default:

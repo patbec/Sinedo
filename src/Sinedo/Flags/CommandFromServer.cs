@@ -41,6 +41,8 @@ namespace Sinedo.Flags
 
         DiskInfo = 7,
 
-        BandwidthInfo = 8
+        BandwidthInfo = 8,
+
+        LinksChanged = 9,
     }
 }

@@ -67,6 +67,7 @@ var Application;
             ClientCommands[ClientCommands["StartAll"] = 7] = "StartAll";
             ClientCommands[ClientCommands["StopAll"] = 8] = "StopAll";
             ClientCommands[ClientCommands["Upload"] = 9] = "Upload";
+            ClientCommands[ClientCommands["Links"] = 10] = "Links";
         })(ClientCommands = Flags.ClientCommands || (Flags.ClientCommands = {}));
         /**
          * Befehle die vom Server an den Client gesendet werden.
@@ -106,6 +107,7 @@ var Application;
              */
             ServerCommands[ServerCommands["DiskInfo"] = 7] = "DiskInfo";
             ServerCommands[ServerCommands["BandwidthInfo"] = 8] = "BandwidthInfo";
+            ServerCommands[ServerCommands["LinksChanged"] = 9] = "LinksChanged";
         })(ServerCommands = Flags.ServerCommands || (Flags.ServerCommands = {}));
     })(Flags = Application.Flags || (Application.Flags = {}));
 })(Application || (Application = {}));
@@ -1495,6 +1497,188 @@ var Application;
         Services.DragAndDropEndpoint = DragAndDropEndpoint;
     })(Services = Application.Services || (Application.Services = {}));
 })(Application || (Application = {}));
+/// <reference path="../Common/Control.ts" />
+/// <reference path="../Interfaces/ICommand.ts" />
+var Application;
+(function (Application) {
+    var Services;
+    (function (Services) {
+        class HyperlinkControl {
+            constructor() {
+                this._elementRoot = Application.Common.Control.get("links");
+                this._elementRootShow = this._elementRoot.children[1];
+                this._elementRootEdit = this._elementRoot.children[2];
+                this._elementLinkBox = Application.Common.Control.get("linkbox");
+                this._elementLinkEdit = Application.Common.Control.get("linkedit");
+                this._buttonEdit = Application.Common.Control.get("buttonLinksEdit");
+                this._buttonSave = Application.Common.Control.get("buttonLinksSave");
+                this._buttonCancel = Application.Common.Control.get("buttonLinksCancel");
+                this._buttonEdit.addEventListener("click", ((e) => {
+                    this.updateEditMode();
+                    this.editMode = true;
+                }).bind(this));
+                this._buttonCancel.addEventListener("click", ((e) => {
+                    this.clearEditMode();
+                    this.editMode = false;
+                }).bind(this));
+                this._buttonSave.addEventListener("click", ((e) => {
+                    this.sendNewLinks();
+                    this.editMode = false;
+                }).bind(this));
+            }
+            set editMode(value) {
+                this._elementRootShow.hidden = value;
+                this._elementRootEdit.hidden = !value;
+            }
+            /**
+             * Setzt die angegebenen Links.
+             * Während das Steuerelement bearbeitet wird, werden keine neuen Links angezeigt.
+             * @value
+             */
+            updateLinks(links) {
+                let linkBox = this._elementLinkBox;
+                for (let index = 0; index < HyperlinkControl.MAX_LINKS; index++) {
+                    let listElement = linkBox.children[index];
+                    let linkElement = listElement.firstElementChild;
+                    let textPrimary = linkElement.firstElementChild;
+                    let textSecondary = linkElement.lastElementChild;
+                    if (links[index] != null) {
+                        listElement.hidden = false;
+                        // Link zuweisen.
+                        linkElement.href = links[index].url;
+                        textPrimary.textContent = links[index].displayName;
+                        textSecondary.textContent = links[index].url;
+                    }
+                    else {
+                        listElement.hidden = true;
+                        textPrimary.textContent = "";
+                        textSecondary.textContent = "";
+                        linkElement.removeAttribute("href");
+                    }
+                }
+            }
+            /**
+             * Aktualisiert die Eingabesteuerelemente.
+             * @value
+             */
+            updateEditMode() {
+                let linkBox = this._elementLinkBox;
+                let linkEdit = this._elementLinkEdit;
+                for (let index = 0; index < HyperlinkControl.MAX_LINKS; index++) {
+                    let listElement = linkBox.children[index];
+                    let linkElement = listElement.firstElementChild;
+                    let editDiv = linkEdit.children[index].firstElementChild;
+                    let editFieldDisplayName = editDiv.firstElementChild;
+                    let editFieldUrl = editDiv.lastElementChild;
+                    if (listElement.hidden == false) {
+                        editFieldDisplayName.value = linkElement.firstElementChild.textContent;
+                        editFieldUrl.value = linkElement.href;
+                    }
+                    else {
+                        editFieldDisplayName.value = "";
+                        editFieldUrl.value = "";
+                    }
+                }
+            }
+            /**
+             * Bereinigt die Eingabesteuerelemente.
+             * @value
+             */
+            clearEditMode() {
+                let linkEdit = this._elementLinkEdit;
+                for (let index = 0; index < HyperlinkControl.MAX_LINKS; index++) {
+                    let editDiv = linkEdit.children[index].firstElementChild;
+                    let editFieldDisplayName = editDiv.firstElementChild;
+                    let editFieldUrl = editDiv.lastElementChild;
+                    editFieldDisplayName.value = "";
+                    editFieldUrl.value = "";
+                }
+            }
+            /**
+             * Sendet die Eingaben an den Server.
+             * @value
+             */
+            sendNewLinks() {
+                let links = [null, null, null];
+                let linkEdit = this._elementLinkEdit;
+                for (let index = 0; index < HyperlinkControl.MAX_LINKS; index++) {
+                    let editDiv = linkEdit.children[index].firstElementChild;
+                    let editFieldDisplayName = editDiv.firstElementChild;
+                    let editFieldUrl = editDiv.lastElementChild;
+                    links[index] =
+                        {
+                            displayName: editFieldDisplayName.value,
+                            url: editFieldUrl.value,
+                        };
+                }
+                this.onaction(links);
+            }
+        }
+        HyperlinkControl.MAX_LINKS = 3;
+        Services.HyperlinkControl = HyperlinkControl;
+    })(Services = Application.Services || (Application.Services = {}));
+})(Application || (Application = {}));
+/// <reference path="../Interfaces/IServiceEndpoint.ts" />
+/// <reference path="../Interfaces/ICommand.ts" />
+/// <reference path="../Flags/Commands.ts" />
+/// <reference path="../Common/Control.ts" />
+/// <reference path="../Controller.ts" />
+/// <reference path="HyperlinkControl.ts" />
+var Application;
+(function (Application) {
+    var Services;
+    (function (Services) {
+        class HyperlinkEndpoint {
+            /**
+             * Initialisiert das Links-Steuerelement.
+             */
+            onactivate(ev) {
+                this._controller = ev;
+                this._control = new Services.HyperlinkControl();
+                this._control.onaction = this.onuseraction.bind(this);
+            }
+            /**
+             * Bereitet das Links-Steuerelement für die Verwendung vor.
+             */
+            onopened(ev) {
+                if (ev.command == Application.Flags.ServerCommands.Setup) {
+                    let contract = ev.message;
+                    if (contract != null) {
+                        // Steuerelement aktualisieren.
+                        this._control.updateLinks(contract.links);
+                    }
+                }
+            }
+            /**
+             * Verarbeitet einen eingehenden Befehl.
+             */
+            onmessage(ev) {
+                if (ev.command == Application.Flags.ServerCommands.LinksChanged) {
+                    let contract = ev.message;
+                    this._control.updateLinks(contract);
+                }
+            }
+            /**
+             * Bereinigt das Links-Steuerelement.
+             */
+            onclosed(ev) {
+            }
+            onuseraction(links) {
+                try {
+                    let result = this._controller.send(Application.Flags.ClientCommands.Links, 0, links);
+                    if (!result) {
+                        throw new Error("The socket has refused to send data.");
+                    }
+                }
+                catch (e) {
+                    console.error("Action could not be executed: " + e);
+                    Services.NotificationControl.current.addException("ClientCommandFailed");
+                }
+            }
+        }
+        Services.HyperlinkEndpoint = HyperlinkEndpoint;
+    })(Services = Application.Services || (Application.Services = {}));
+})(Application || (Application = {}));
 /// <reference path="./Services/NotificationControl.ts" />
 /// <reference path="./Services/DiskEndpoint.ts" />
 /// <reference path="./Services/ListboxEndpoint.ts" />
@@ -1502,6 +1686,7 @@ var Application;
 /// <reference path="./Services/CardEndpoint.ts" />
 /// <reference path="./Services/SystemEndpoint.ts" />
 /// <reference path="./Services/DragAndDropEndpoint.ts" />
+/// <reference path="./Services/HyperlinkEndpoint.ts" />
 var Application;
 (function (Application) {
     class Startup {
@@ -1530,37 +1715,9 @@ https://github.com/patbec/Sinedo
                 new Application.Services.CardEndpoint(),
                 new Application.Services.SystemEndpoint(),
                 new Application.Services.DragAndDropEndpoint(),
+                new Application.Services.HyperlinkEndpoint(),
             ];
             this._controller = new Application.Controller(services, 2000);
-            // var n = new Application.Services.CardControl();
-            // n.isEnabled = true;
-            // var data: number[] = new Array(30);
-            // data[0] = 50;
-            // data[1] = 50;
-            // data[2] = 50;
-            // data[3] = 0;
-            // data[4] = 50;
-            // data[5] = 100;
-            // data[8] = 100;
-            // data[28] = 0;
-            // data[29] = 100;
-            // window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", ((ev: object) => {
-            //     console.info("Changed");
-            //     n.draw(data);
-            // }).bind(this));
-            // n.draw(data);
-            // var element1: Application.Interfaces.IGroupRecord = { id: 1, name: "Test 1", state: Application.Flags.State.Running};
-            // var element2: Application.Interfaces.IGroupRecord = { id: 2, name: "Test 2", state: Application.Flags.State.Completed};
-            // var element3: Application.Interfaces.IGroupRecord = { id: 3, name: "Test 3", state: Application.Flags.State.Canceled};
-            // var element4: Application.Interfaces.IGroupRecord = { id: 4, name: "Test 4", state: Application.Flags.State.Read};
-            // var element5: Application.Interfaces.IGroupRecord = { id: 5, name: "Test 5", state: Application.Flags.State.Failed};
-            // Startup.y = new Application.Services.ListboxControl();
-            // Startup.y.onaction = Startup.callback.bind(this);
-            // Startup.y.add(element1);
-            // Startup.y.add(element2);
-            // Startup.y.add(element3);
-            // Startup.y.add(element4);
-            // Startup.y.add(element5);
         }
     }
     Application.Startup = Startup;

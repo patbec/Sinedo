@@ -1,3 +1,5 @@
+using Sinedo.Models;
+
 namespace Sinedo.Components
 {
     /// <summary>
