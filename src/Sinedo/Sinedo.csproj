@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Authors>Patrick Becker</Authors>
-    <Version>0.0.5</Version>
+    <Version>0.1.0</Version>
     <AssemblyName>sinedo</AssemblyName>
     <Description>A Simple Network Downloader for your NAS.</Description>
   </PropertyGroup>
