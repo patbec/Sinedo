@@ -69,7 +69,7 @@ namespace Sinedo.Singleton
         {
             this.logger = logger;
 
-            string configFile = Path.Combine(AppDirectories.ConfigDirectory, "sinedo", "config.json");
+            string configFile = Path.Combine(AppDirectories.ConfigDirectory, "config.json");
 
             configurationFile = new Serializer(configFile);
 

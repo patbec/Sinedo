@@ -36,7 +36,7 @@ namespace Sinedo.Controllers
                     string appName = nameof(Sinedo).ToLower();
 
 
-                    string applicationConfig    = Path.Combine(AppDirectories.ConfigDirectory, "sinedo", "config.json");
+                    string applicationConfig    = AppDirectories.ConfigDirectory;
                     string applicationHome      = AppDirectories.HomeDirectory;
                     string applicationData      = Directory.GetCurrentDirectory();
 

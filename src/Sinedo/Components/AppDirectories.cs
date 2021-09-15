@@ -13,7 +13,7 @@ namespace Sinedo.Components
         /// <summary>
         /// Application directory for configuration data.
         /// Here the settings of the application are stored, the path is resolved as follows:
-        /// Linux and macOS to '/home/$USER/.config/', Windows to 'C:\Users\%USER%\AppData\Roaming\'.
+        /// Linux and macOS to '/home/$USER/.config/sinedo', Windows to 'C:\Users\%USER%\AppData\Roaming\Sinedo'.
         /// </summary>
         /// 
         /// <exception cref="EnvironmentNotSupportedException"/>
@@ -21,7 +21,12 @@ namespace Sinedo.Components
         /// <returns>The path to the specified special system folder with the application name.</returns>
         public static string ConfigDirectory
         {
-            get => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) ?? throw new EnvironmentNotSupportedException(Environment.SpecialFolder.ApplicationData);
+            get
+            {
+                return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) ?? throw new EnvironmentNotSupportedException(Environment.SpecialFolder.ApplicationData),
+                    OperatingSystem.IsWindows() ? "Sinedo" : "sinedo");
+            }
         }
 
         /// <summary>

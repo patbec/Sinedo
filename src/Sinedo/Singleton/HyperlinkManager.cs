@@ -24,7 +24,7 @@ namespace Sinedo.Singleton
             this.broadcaster = broadcaster;
             this.logger = logger;
             
-            string linksPath = Path.Combine(AppDirectories.ConfigDirectory, "sinedo", "links.json");
+            string linksPath = Path.Combine(AppDirectories.ConfigDirectory, "links.json");
 
             linksFile = new Serializer(linksPath);
 
