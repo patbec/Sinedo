@@ -47,6 +47,12 @@ namespace Sinedo.Controllers
                     paths.Add("Download Directory", configuration.DownloadDirectory);
                     paths.Add("Extracting Directory", configuration.ExtractingDirectory);
 
+                    SystemRecord systemInfo = SystemRecord.GetSystemInfo();
+
+                    paths.Add("System Platform", systemInfo.Platform);
+                    paths.Add("System Architecture", systemInfo.Architecture);
+                    paths.Add("System Version", systemInfo.Version);
+
                     return Ok(paths);
                 } catch (Exception ex) {
                     return Problem(ex.Message);
