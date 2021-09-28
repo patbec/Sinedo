@@ -14,9 +14,13 @@ This software is a beta that is in the testing phase and may still contain bugs.
 ## Installation
 
 The software can be installed with the following command after downloading:
+
 ```
-# Install app
-sudo apt install ./sinedo_<version>.deb
+# Debian and Ubuntu:
+sudo apt install ./sinedo.<version>.deb
+
+# Red Hat Enterprise Linux:
+sudo yum install -y ./sinedo.<version>.rpm
 ```
 
 **Recommended:** To run the application with limited privileges, open the service file with the command `sudo nano /etc/systemd/system/sinedo.service` and enter the value `User=youruser` with your user name after a new line behind `[Service]`. Enter the command `systemctl daemon-reload` to complete the process. This will run the application as a normal user with limited privileges. Additionally, for safety, this application should not run with administrator privileges. ([Click here for an example](https://github.com/patbec/Sinedo/wiki/Service-File))

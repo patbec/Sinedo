@@ -19,7 +19,7 @@
             ],
             "group": "build",
             "dependsOn": "tsc: build",
-            "label": "dotnet: publish (linux-arm64)",
+            "label": "dotnet: publish deb (linux-arm64)",
             "problemMatcher": "$msCompile"
         },
         {
@@ -40,7 +40,49 @@
             ],
             "group": "build",
             "dependsOn": "tsc: build",
-            "label": "dotnet: publish (linux-x64)",
+            "label": "dotnet: publish deb (linux-x64)",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/t:CreateRpm",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:DebugSymbols=false",
+                "/p:RuntimeIdentifier=linux-arm64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "dependsOn": "tsc: build",
+            "label": "dotnet: publish rpm (linux-arm64)",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "/t:CreateRpm",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:DebugSymbols=false",
+                "/p:RuntimeIdentifier=linux-x64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "dependsOn": "tsc: build",
+            "label": "dotnet: publish rpm (linux-x64)",
             "problemMatcher": "$msCompile"
         },
         {
