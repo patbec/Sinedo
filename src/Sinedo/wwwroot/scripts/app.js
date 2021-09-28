@@ -404,7 +404,7 @@ var Application;
 })(Application || (Application = {}));
 class Debug {
     /**
-     * Beginnt die Anwendung zu laden.
+     * Dieser Code kann mit 'Debug.Show()' über die Browser-Console aufgerufen werden.
      */
     static Show() {
         var snackbar = Application.Services.NotificationControl.current;

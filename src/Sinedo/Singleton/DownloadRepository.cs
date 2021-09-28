@@ -47,16 +47,16 @@ namespace Sinedo.Singleton
             }
         }
 
-        public bool Add(DownloadRecord torrent)
+        public bool Add(DownloadRecord download)
         {
-            if (torrent is null)
+            if (download is null)
             {
-                throw new ArgumentNullException(nameof(torrent));
+                throw new ArgumentNullException(nameof(download));
             }
 
-            _repository.Add(torrent.Name, torrent);
-            _broadcaster.Add(CommandFromServer.Added, WebSocketPackage.PARAMETER_UNSET, torrent);
-            _logger.LogDebug("Download with name '{0}' was added.", torrent.Name);
+            _repository.Add(download.Name, download);
+            _broadcaster.Add(CommandFromServer.Added, WebSocketPackage.PARAMETER_UNSET, download);
+            _logger.LogDebug("Download with name '{0}' was added.", download.Name);
 
             return true;
         }
@@ -84,19 +84,19 @@ namespace Sinedo.Singleton
             return _repository.ContainsKey(name);
         }
 
-        public bool Update(DownloadRecord torrent)
+        public bool Update(DownloadRecord download)
         {
-            bool contains = _repository.ContainsKey(torrent.Name);
+            bool contains = _repository.ContainsKey(download.Name);
 
             if ( ! contains)
             {
                 return false;
             }
 
-            _repository[torrent.Name] = torrent;
+            _repository[download.Name] = download;
 
-            _broadcaster.Add(CommandFromServer.Changed, WebSocketPackage.PARAMETER_UNSET, torrent);
-            _logger.LogDebug("Download with name '{0}' was updated.", torrent.Name);
+            _broadcaster.Add(CommandFromServer.Changed, WebSocketPackage.PARAMETER_UNSET, download);
+            _logger.LogDebug("Download with name '{0}' was updated.", download.Name);
 
             return true;
         }
