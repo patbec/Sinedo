@@ -9,7 +9,7 @@ namespace Sinedo.Models
     public record DownloadRecord
     {
         /// <summary>
-        /// Anzeigename des Torrents.
+        /// Anzeigename des Downloads.
         /// </summary>
         public string Name { get; init; }
 
@@ -30,7 +30,7 @@ namespace Sinedo.Models
         public string Password { get; init; }
 
         /// <summary>
-        /// Links des Torrents.
+        /// Links des Downloads.
         /// </summary>
         public string[] Files { get; init; }
 
@@ -40,7 +40,7 @@ namespace Sinedo.Models
         public string LastException { get; init; }
 
         /// <summary>
-        /// Datum / Uhrzeit wann der Download fertigstellt oder abgeschlossen wurde.
+        /// Sekunden bis der Download fertigstellt wird.
         /// </summary>
         public long? SecondsToComplete { get; init; }
 
