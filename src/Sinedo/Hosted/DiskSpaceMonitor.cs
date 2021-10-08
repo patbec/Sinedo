@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Sinedo.Components;
 using Sinedo.Flags;
 using Sinedo.Models;
@@ -30,25 +31,38 @@ namespace Sinedo.Hosted
         private readonly DiskSpaceHelper _diskSpaceHelper;
         private readonly WebSocketBroadcaster _broadcaster;
         private readonly Configuration _configuration;
+        private readonly ILogger<DiskSpaceMonitor> _logger;
 
-        private DriveInfo drive;
+        private DriveInfo _drive;
 
-        public DiskSpaceMonitor(DiskSpaceHelper diskSpaceHelper, WebSocketBroadcaster broadcaster, Configuration configuration)
+        public DiskSpaceMonitor(DiskSpaceHelper diskSpaceHelper, WebSocketBroadcaster broadcaster, Configuration configuration, ILogger<DiskSpaceMonitor> logger)
         {
-            _list = new();
-            _timer = new(Update, null, Timeout.Infinite, Timeout.Infinite);
-            _diskSpaceHelper = diskSpaceHelper;
-            _broadcaster = broadcaster;
-            _configuration = configuration;
+            _list   = new();
+            _timer  = new(Update, null, Timeout.Infinite, Timeout.Infinite);
 
-            drive = new (_configuration.DownloadDirectory);
+            _diskSpaceHelper    = diskSpaceHelper;
+            _broadcaster        = broadcaster;
+            _configuration      = configuration;
+            _logger             = logger;
+
+            CreateDriveInfo(_configuration.DownloadDirectory);
 
             configuration.RegisterForUpdates(() => {
-                lock(drive)
+                lock(_drive)
                 {
-                    drive = new (_configuration.DownloadDirectory);
+                    CreateDriveInfo(_configuration.DownloadDirectory);
                 }
             });
+        }
+
+        private void CreateDriveInfo(string path)
+        {
+            try {
+                _drive = new (_configuration.DownloadDirectory);
+                
+            } catch (Exception ex) {
+                _logger.LogError(ex, $"The specified path '{path}' cannot be monitored for disk space.");
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -75,19 +89,26 @@ namespace Sinedo.Hosted
 
             long totalBytes = 0;
             long freeBytes = 0;   
+            ushort percent = 0;
 
-            lock(drive)
+            lock(_drive)
             {
-                totalBytes = drive.TotalSize;
-                freeBytes = drive.AvailableFreeSpace;
-            }
+                if(_drive != null && _drive.IsReady)
+                {
+                    totalBytes = _drive.TotalSize;
+                    freeBytes = _drive.AvailableFreeSpace;
 
-            var freePercent = (ushort)(100 - (100 * freeBytes / totalBytes));
+                    percent = (ushort)(100 - (100 * freeBytes / totalBytes));
+                }
+                else {
+                    percent = 0;
+                }
+            }
 
             // Wenn Liste leer, mit aktuellen Werten auffüllen.
             while (_list.Count <= 30)
             {
-                _list.Add(freePercent);
+                _list.Add(percent);
             }
 
             _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()

@@ -13,9 +13,10 @@ namespace Sinedo.Hosted
 {
     public class FileSystemMonitor : IHostedService
     {
-        private readonly FileSystemWatcher fileWatcher;
         private readonly DownloadScheduler scheduler;
         private readonly ILogger<FileSystemMonitor> logger;
+
+        private FileSystemWatcher fileWatcher;
 
         #region Constants
 
@@ -32,26 +33,39 @@ namespace Sinedo.Hosted
             this.logger = logger;
 
             // Dateisystemüberwachung einrichten.
-            fileWatcher = new FileSystemWatcher(configuration.DownloadDirectory, FileSystemMonitorFilter)
-            {
-                // Dateinamen und letzten Schreibzugriff überwachen.
-                // Letzten Schreibzugriff = Erkennen wenn in einer leeren Datei Links via Notepad eingefügt werden. 
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size
-            };
-            fileWatcher.Created += OnCreated;
-            fileWatcher.Changed += OnCreated;
-            fileWatcher.IncludeSubdirectories = false;
+            CreateFileSystemWatcher(configuration.DownloadDirectory);
 
             configuration.RegisterForUpdates(() => {
-                lock (fileWatcher)
+                lock (this)
                 {
-                    string path = configuration.DownloadDirectory;
-
-                    if (fileWatcher.Path != path) {
-                        fileWatcher.Path = path;
-                    }
+                    CreateFileSystemWatcher(configuration.DownloadDirectory);
                 }
             });
+        }
+
+        private void CreateFileSystemWatcher(string path)
+        {
+            try {
+                // Ressourcen der vorherigen Dateiüberwachung freigeben.
+                if (fileWatcher != null) {
+                    fileWatcher.Dispose();
+                }
+
+                Directory.CreateDirectory(path);
+
+                // Dateisystemüberwachung einrichten.
+                fileWatcher = new FileSystemWatcher(path, FileSystemMonitorFilter)
+                {
+                    // Dateinamen und Veränderungen der Dateigröße überwachen.
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size
+                };
+                fileWatcher.Created += OnCreated;
+                fileWatcher.Changed += OnCreated;
+                fileWatcher.IncludeSubdirectories = false;
+                
+            } catch (Exception ex) {
+                logger.LogError(ex, $"The specified path '{path}' cannot be monitored for changes.");
+            }
         }
 
         /// <summary>
@@ -59,16 +73,22 @@ namespace Sinedo.Hosted
         /// </summary>
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            // Vorhandene Dateien hinzufügen.
-            foreach (string filepath in Directory.GetFiles(
-                fileWatcher.Path,
-                fileWatcher.Filter, SearchOption.TopDirectoryOnly))
+            lock(this)
             {
+                if(fileWatcher != null)
+                {
+                    // Vorhandene Dateien hinzufügen.
+                    foreach (string filepath in Directory.GetFiles(
+                        fileWatcher.Path,
+                        fileWatcher.Filter, SearchOption.TopDirectoryOnly))
+                    {
 
-                AddToDownloads(filepath, false);
+                        AddToDownloads(filepath, false);
+                    }
+                    // Monitor aktivieren.
+                    fileWatcher.EnableRaisingEvents = true;              
+                }
             }
-            // Monitor aktivieren.
-            fileWatcher.EnableRaisingEvents = true;
 
             return Task.CompletedTask;
         }
@@ -79,10 +99,13 @@ namespace Sinedo.Hosted
         public Task StopAsync(CancellationToken cancellationToken)
         {
             // Monitor deaktivieren.
-            lock (fileWatcher)
+            lock (this)
             {
-                fileWatcher.EnableRaisingEvents = false;
-                fileWatcher.Dispose();
+                if(fileWatcher != null)
+                {
+                    fileWatcher.EnableRaisingEvents = false;
+                    fileWatcher.Dispose();
+                }
             }
 
             return Task.CompletedTask;
@@ -103,9 +126,9 @@ namespace Sinedo.Hosted
                     scheduler.Create(filename, files, autostart, skipIfContains: true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Log
+                logger.LogWarning(ex, $"The file with path {filepath} could not be added.");
             }
         }
 
@@ -116,7 +139,7 @@ namespace Sinedo.Hosted
         /// </summary>
         private void OnCreated(object sender, FileSystemEventArgs fileSystemEventArgs)
         {
-            lock(fileWatcher)
+            lock(this)
             {
                 switch(fileSystemEventArgs.ChangeType) {
                     case WatcherChangeTypes.Created:

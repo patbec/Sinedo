@@ -128,12 +128,6 @@ namespace Sinedo.Singleton
                 ExtractingDirectory = Path.Combine(AppDirectories.HomeDirectory, "Sinedo");
                 IsExtractingEnabled = false;
             }
-
-            // Versuchen die Ordner zu erstellen, Dienste wie die Dateisystemüberwachung
-            // setzen ein erstelltes Downloadverzeichnis voraus.
-            // Zusätzlich sollen ungültige Pfadangaben oder fehlende Rechte zum Erstellen
-            // des Pfades bereits hier zum Beenden der Anwendung führen.
-            CreateDirectories();
         }
         
         #endregion
@@ -225,9 +219,6 @@ namespace Sinedo.Singleton
                     throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), concurrentDownloads, "The value must be within 1 to 20.");
                 }
 
-                // Versuchen die Ordner zu erstellen.
-                CreateDirectories();
-
                 //
                 // Der hinterlegte Password-Hash zum Anmelden sowie Links werden unverändert übernommen.
                 //
@@ -268,20 +259,6 @@ namespace Sinedo.Singleton
                     ExtractingDirectory         = this.ExtractingDirectory,
                     IsExtractingEnabled         = this.IsExtractingEnabled,
                 };
-            }
-        }
-
-        /// <summary>
-        /// Erstellt die in den Einstellungen hinterlegten Ordner.
-        /// </summary>
-        private void CreateDirectories() {
-            try {
-                // Versuchen die Ordner zu erstellen.
-                Directory.CreateDirectory(DownloadDirectory);
-                Directory.CreateDirectory(ExtractingDirectory);
-            } catch (Exception ex) {
-                this.logger.LogCritical(ex, "The folders stored in the settings cannot be created or rights are missing.");
-                throw new PathException(ex);
             }
         }
         

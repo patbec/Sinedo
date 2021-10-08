@@ -22,7 +22,7 @@ namespace Sinedo.Singleton
                 repository.EnterWriteLock(() => { });
             }, cancellationToken);
 
-            // Kann der Aufruf nicht innerhalb von 5 Sekunden ausgeführt werden, ist ein DeadLock aufgetreten.
+            // Kann der Aufruf nicht innerhalb von 5 Sekunden ausgefÃ¼hrt werden, ist ein DeadLock aufgetreten.
             bool canAccessStatePattern = task.Wait(5000, cancellationToken);
 
 
