@@ -48,7 +48,7 @@ namespace Sinedo.Hosted
             CreateDriveInfo(_configuration.DownloadDirectory);
 
             configuration.RegisterForUpdates(() => {
-                lock(_drive)
+                lock(this)
                 {
                     CreateDriveInfo(_configuration.DownloadDirectory);
                 }
@@ -58,8 +58,15 @@ namespace Sinedo.Hosted
         private void CreateDriveInfo(string path)
         {
             try {
-                _drive = new (_configuration.DownloadDirectory);
-                
+                _drive = null;
+                _drive = new (path);
+
+                // Nach einer Änderung alte Werte Löschen.
+                _list.Clear();
+
+                // Cache neu aufbauen.
+                Update(null);
+
             } catch (Exception ex) {
                 _logger.LogError(ex, $"The specified path '{path}' cannot be monitored for disk space.");
             }
@@ -83,42 +90,54 @@ namespace Sinedo.Hosted
 
         private void Update(object state)
         {
-            if (_list.Count >= 30) {
-                _list.RemoveAt(0);
-            }
-
-            long totalBytes = 0;
-            long freeBytes = 0;   
-            ushort percent = 0;
-
-            lock(_drive)
+            lock(this)
             {
+                // Prüfen ob der Datenträger eingesteckt und bereit ist. (z.B. ein USB-Stick)
                 if(_drive != null && _drive.IsReady)
                 {
-                    totalBytes = _drive.TotalSize;
-                    freeBytes = _drive.AvailableFreeSpace;
+                    // Gesamtgröße des Datenträgers.
+                    long totalBytes = _drive.TotalSize;
 
-                    percent = (ushort)(100 - (100 * freeBytes / totalBytes));
+                    // Freier Speicherplatz des Datenträgers.
+                    long freeBytes = _drive.AvailableFreeSpace;
+
+                    // Belegung des Datenträgers in Prozent.
+                    ushort percent = (ushort)(100 - (100 * freeBytes / totalBytes));
+
+
+                    // Wenn Liste leer, mit aktuellen Werten auffüllen.
+                    while (_list.Count <= 30)
+                    {
+                        _list.Add(percent);
+                    }
+
+                    // Ausgelesene Informationen in den Cache schreiben.
+                    _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
+                    {
+                        TotalSize = totalBytes,
+                        FreeBytes = freeBytes,
+                        Data = _list.ToArray()
+                    };
                 }
-                else {
-                    percent = 0;
+                else
+                {
+                    // Alte Werte Löschen.
+                    _list.Clear();
+
+                    // Wenn kein Datenträger gefunden wurde, ein leeres Datenpaket verteilen.
+                    _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
+                    {
+                        TotalSize = 0,
+                        FreeBytes = 0,
+                        Data = new ushort[] { 0,0,0,0,0,0,0,0,0,0,
+                                              0,0,0,0,0,0,0,0,0,0,
+                                              0,0,0,0,0,0,0,0,0,0 }
+                    };
                 }
+
+                // In beiden Fällen, Paket an Clients verteilen.
+                _broadcaster.Add(CommandFromServer.DiskInfo, WebSocketPackage.PARAMETER_UNSET, _diskSpaceHelper.DiskInfo);
             }
-
-            // Wenn Liste leer, mit aktuellen Werten auffüllen.
-            while (_list.Count <= 30)
-            {
-                _list.Add(percent);
-            }
-
-            _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
-            {
-                TotalSize = totalBytes,
-                FreeBytes = freeBytes,
-                Data = _list.ToArray()
-            };
-
-            _broadcaster.Add(CommandFromServer.DiskInfo, WebSocketPackage.PARAMETER_UNSET, _diskSpaceHelper.DiskInfo);
         }
     }
 }
