@@ -220,7 +220,7 @@ namespace Sinedo.Singleton
                 }
 
                 //
-                // Der hinterlegte Password-Hash zum Anmelden sowie Links werden unverändert übernommen.
+                // Der hinterlegte Password-Hash zum Anmelden wird unverändert übernommen.
                 //
 
                 // Neue Einstellungen übernehmen.

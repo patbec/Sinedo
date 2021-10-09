@@ -359,11 +359,6 @@ namespace Sinedo.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (PathException pe)
-            {
-                Logger.LogError(pe, "The specified folder could not be created.");
-                ModelState.AddModelError("path", "The specified folder could not be created: " + pe.Message);
-            }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Settings cloud not be saved.");
