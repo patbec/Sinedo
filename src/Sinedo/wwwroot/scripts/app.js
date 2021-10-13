@@ -724,10 +724,16 @@ var Application;
         class DiskControl {
             constructor() {
                 this._elementRoot = Application.Common.Control.get("disk");
+                this._elementOnline = Application.Common.Control.get("diskOnline");
+                this._elementOffline = Application.Common.Control.get("diskOffline");
                 this._elementCanvas = Application.Common.Control.get("disk_canvas");
                 this._labelFree = Application.Common.Control.get("disk_free");
                 this._labelSize = Application.Common.Control.get("disk_size");
                 this._context = new Services.CanvasContext(this._elementCanvas);
+            }
+            set status(online) {
+                this._elementOffline.hidden = online;
+                this._elementOnline.hidden = !online;
             }
             /**
              * Schreibt die Anzahl an heruntergeladenen Bytes in das Steuerelement.
@@ -795,11 +801,19 @@ var Application;
                 }
             }
             update(diskInfo) {
-                // Steuerelemente einrichten.
-                this._control.free = diskInfo.freeBytes;
-                this._control.size = diskInfo.totalSize;
-                // Auslastung zeichnen.
-                this._control.draw(diskInfo.data);
+                if (diskInfo.isAvailable) {
+                    // Steuerelemente einrichten.
+                    this._control.free = diskInfo.freeBytes;
+                    this._control.size = diskInfo.totalSize;
+                    // Auslastung zeichnen.
+                    this._control.draw(diskInfo.data);
+                    this._control.status = true;
+                }
+                else {
+                    // Auslastung mit leeren Werten überschreiben.
+                    this._control.draw(new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+                    this._control.status = false;
+                }
             }
             /**
              * Bereinigt das Speicherplatzsteuerelement.

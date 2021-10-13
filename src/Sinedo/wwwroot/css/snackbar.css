@@ -1,9 +1,9 @@
 
-  :root {
+:root {
     --snackbar-background: #333; 
     --snackbar-text: #FAFAFA;
     --snackbar-progress: rgb(255, 255, 255);
-  }
+}
 
 @media (prefers-color-scheme: dark) {
     :root {

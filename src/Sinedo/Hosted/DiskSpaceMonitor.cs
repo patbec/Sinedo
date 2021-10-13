@@ -27,76 +27,72 @@ namespace Sinedo.Hosted
     public class DiskSpaceMonitor : IHostedService
     {
         private readonly List<ushort> _list;
-        private readonly Timer _timer;
         private readonly DiskSpaceHelper _diskSpaceHelper;
         private readonly WebSocketBroadcaster _broadcaster;
         private readonly Configuration _configuration;
         private readonly ILogger<DiskSpaceMonitor> _logger;
 
         private DriveInfo _drive;
+        private StorageMonitor _monitor;
 
         public DiskSpaceMonitor(DiskSpaceHelper diskSpaceHelper, WebSocketBroadcaster broadcaster, Configuration configuration, ILogger<DiskSpaceMonitor> logger)
         {
             _list   = new();
-            _timer  = new(Update, null, Timeout.Infinite, Timeout.Infinite);
 
             _diskSpaceHelper    = diskSpaceHelper;
             _broadcaster        = broadcaster;
             _configuration      = configuration;
             _logger             = logger;
 
-            CreateDriveInfo(_configuration.DownloadDirectory);
+            _monitor = new (configuration.DownloadDirectory);
+            _monitor.StorageOnline += StorageOnline;
+            _monitor.StorageUpdate += StorageUpdate;
+            _monitor.StorageOffline += StorageOffline;
 
             configuration.RegisterForUpdates(() => {
-                lock(this)
-                {
-                    CreateDriveInfo(_configuration.DownloadDirectory);
+                lock(this) {
+                    _monitor.Stop();
+                    _monitor.StorageOnline -= StorageOnline;
+                    _monitor.StorageUpdate -= StorageUpdate;
+                    _monitor.StorageOffline -= StorageOffline;
+
+                    _monitor = new (configuration.DownloadDirectory);
+                    _monitor.StorageOnline += StorageOnline;
+                    _monitor.StorageUpdate += StorageUpdate;
+                    _monitor.StorageOffline += StorageOffline;
+                    _monitor.Start();
                 }
             });
         }
 
-        private void CreateDriveInfo(string path)
+        private void StorageOnline()
         {
-            try {
-                _drive = null;
-                _drive = new (path);
+            try
+            {
+                lock(this)
+                {
+                    _drive = null;
+                    _drive = new (_configuration.DownloadDirectory);
 
-                // Nach einer Änderung alte Werte Löschen.
-                _list.Clear();
-
-                // Cache neu aufbauen.
-                Update(null);
-
+                    StorageUpdate();
+                }
             } catch (Exception ex) {
-                _logger.LogError(ex, $"The specified path '{path}' cannot be monitored for disk space.");
+                _logger.LogError(ex, $"The specified path '{_configuration.DownloadDirectory}' cannot be monitored for disk space.");
             }
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        private void StorageUpdate()
         {
-            // Daten sammeln und den Cache befüllen.
-            Update(null);
-
-            // Nächstes Update in 1 Minute.
-            _timer.Change(60000, 60000);
-
-            return Task.CompletedTask;
-        }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-             await _timer.DisposeAsync();
-        }
-
-        private void Update(object state)
-        {
-            lock(this)
+            try
             {
-                // Prüfen ob der Datenträger eingesteckt und bereit ist. (z.B. ein USB-Stick)
                 if(_drive != null && _drive.IsReady)
                 {
                     // Gesamtgröße des Datenträgers.
                     long totalBytes = _drive.TotalSize;
+
+                    if(totalBytes == 0) {
+                        return;
+                    }
 
                     // Freier Speicherplatz des Datenträgers.
                     long freeBytes = _drive.AvailableFreeSpace;
@@ -106,38 +102,56 @@ namespace Sinedo.Hosted
 
 
                     // Wenn Liste leer, mit aktuellen Werten auffüllen.
-                    while (_list.Count <= 30)
-                    {
+                    while (_list.Count <= 30) {
                         _list.Add(percent);
                     }
 
                     // Ausgelesene Informationen in den Cache schreiben.
                     _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
                     {
+                        IsAvailable = true,
                         TotalSize = totalBytes,
                         FreeBytes = freeBytes,
                         Data = _list.ToArray()
                     };
-                }
-                else
-                {
-                    // Alte Werte Löschen.
-                    _list.Clear();
 
-                    // Wenn kein Datenträger gefunden wurde, ein leeres Datenpaket verteilen.
-                    _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
-                    {
-                        TotalSize = 0,
-                        FreeBytes = 0,
-                        Data = new ushort[] { 0,0,0,0,0,0,0,0,0,0,
-                                              0,0,0,0,0,0,0,0,0,0,
-                                              0,0,0,0,0,0,0,0,0,0 }
-                    };
+                    _broadcaster.Add(CommandFromServer.DiskInfo, WebSocketPackage.PARAMETER_UNSET, _diskSpaceHelper.DiskInfo);         
                 }
-
-                // In beiden Fällen, Paket an Clients verteilen.
-                _broadcaster.Add(CommandFromServer.DiskInfo, WebSocketPackage.PARAMETER_UNSET, _diskSpaceHelper.DiskInfo);
+            } catch (Exception ex) {
+                _logger.LogError(ex, $"Calculation of free space for path '{_configuration.DownloadDirectory}' x failed.");
             }
+        }
+
+        private void StorageOffline()
+        {
+            _list.Clear();
+            _drive = null;
+
+             // Wenn kein Datenträger gefunden wurde, Anzeige in der Benutzeroberfläche Offline schalten.
+            _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
+            {
+                IsAvailable = false
+            };
+
+            _broadcaster.Add(CommandFromServer.DiskInfo, WebSocketPackage.PARAMETER_UNSET, _diskSpaceHelper.DiskInfo);
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            lock(this) {
+                _monitor.Start();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            lock(this) {
+                _monitor.Stop();
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

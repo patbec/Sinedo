@@ -32,15 +32,15 @@
 
     <link rel="manifest" href="/manifest.json">
 
+    <link rel="stylesheet" href="/css/default.css">
     <link rel="stylesheet" href="/css/button.css">
     <link rel="stylesheet" href="/css/card.css">
     <link rel="stylesheet" href="/css/container.css">
-    <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/icons.css">
     <link rel="stylesheet" href="/css/list.css">
     <link rel="stylesheet" href="/css/site.css">
     <link rel="stylesheet" href="/css/snackbar.css">
-    <link rel="stylesheet" href="/css/view.css">
+    <link rel="stylesheet" href="/css/box.css">
     <link rel="stylesheet" href="/css/animations.css">
     <link rel="stylesheet" href="/css/system.css">
     <link rel="stylesheet" href="/css/links.css">
@@ -196,19 +196,26 @@
             </div>
 
 
-            <div class="panel" id="disk" disabled>
+            <div class="panel" id="disk">
                 <h5>@Localizer["Storage"]</h5>
                 <div class="panel__media">
                     <canvas id="disk_canvas" class="panel__chart fadeInOnAfterPageLoad"
                             aria-label='@Localizer["HardDiskUsage"]'
                             title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
                 </div>
-                <p class="fadeInOnAfterPageLoad">
-                    @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
-                        "<strong><span id='disk_free'>0 GB</span></strong>",
-                        "<strong><span id='disk_size'>0 GB</span></strong>")
-                    )
-                </p>
+                <div class="fadeInOnAfterPageLoad" style="min-height: 48px;">
+                    <div id="diskOnline" hidden>
+                        <p>
+                            @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
+                                "<strong><span id='disk_free'>0 GB</span></strong>",
+                                "<strong><span id='disk_size'>0 GB</span></strong>")
+                            ) 
+                        </p>
+                    </div>
+                    <div id="diskOffline">
+                        <p>Der Datenträger ist nicht verfügbar.</p>
+                    </div>
+                </div>
             </div>
 
 

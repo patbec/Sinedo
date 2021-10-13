@@ -103,6 +103,7 @@ namespace Sinedo.Singleton
             this.logger = logger;
 
             BandwidthInfo = new () {
+                
                 BytesReadTotal = 0,
                 BytesRead = 0,
                 Data = monitoringCache.ToArray(),

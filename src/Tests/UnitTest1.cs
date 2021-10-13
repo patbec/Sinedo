@@ -56,7 +56,7 @@ namespace Tests
             Console.WriteLine($"BufferTest[{bufferSize}]: " + FormatTime(timeDiff));
         }
 
-        private string FormatTime(long timeDiff) {
+        private static string FormatTime(long timeDiff) {
             return timeDiff * 100 + " ns";
         }
     }

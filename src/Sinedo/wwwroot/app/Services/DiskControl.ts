@@ -7,6 +7,8 @@ namespace Application.Services {
     export class DiskControl {
 
         private _elementRoot: HTMLDivElement;
+        private _elementOnline: HTMLDivElement;
+        private _elementOffline: HTMLDivElement;
         private _elementCanvas: HTMLCanvasElement;
 
         private _labelFree: HTMLSpanElement;
@@ -16,12 +18,19 @@ namespace Application.Services {
 
         public constructor() {
             this._elementRoot = Common.Control.get("disk");
+            this._elementOnline = Common.Control.get("diskOnline");
+            this._elementOffline = Common.Control.get("diskOffline");
             this._elementCanvas = Common.Control.get("disk_canvas");
 
             this._labelFree = Common.Control.get("disk_free");
             this._labelSize = Common.Control.get("disk_size");
 
             this._context = new CanvasContext(this._elementCanvas);
+        }
+
+        public set status(online: boolean) {
+            this._elementOffline.hidden = online;
+            this._elementOnline.hidden = ! online;
         }
 
         /**

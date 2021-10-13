@@ -44,12 +44,26 @@ namespace Application.Services {
         }
 
         private update(diskInfo: Interfaces.ICommandDiskSpace) {
-            // Steuerelemente einrichten.
-            this._control.free = diskInfo.freeBytes;
-            this._control.size = diskInfo.totalSize;
 
-            // Auslastung zeichnen.
-            this._control.draw(diskInfo.data);
+            if(diskInfo.isAvailable) {
+                // Steuerelemente einrichten.
+                
+                this._control.free = diskInfo.freeBytes;
+                this._control.size = diskInfo.totalSize;
+
+                // Auslastung zeichnen.
+                this._control.draw(diskInfo.data);
+                this._control.status = true;
+            } else {
+                // Auslastung mit leeren Werten überschreiben.
+                this._control.draw(new Array(
+                    0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0)
+                );
+
+                this._control.status = false;
+            }
         }
 
         /**

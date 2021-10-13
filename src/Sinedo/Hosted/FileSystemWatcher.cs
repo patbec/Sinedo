@@ -49,6 +49,7 @@ namespace Sinedo.Hosted
                 // Ressourcen der vorherigen Dateiüberwachung freigeben.
                 if (fileWatcher != null) {
                     fileWatcher.Dispose();
+                    fileWatcher = null;
                 }
 
                 Directory.CreateDirectory(path);

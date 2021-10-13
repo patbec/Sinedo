@@ -19,8 +19,8 @@ namespace Sinedo.Hosted
         private readonly ILogger<AutoDiscovery> logger;
         private static readonly byte[] magicPacketBytes = new byte[] { 0x2, 0x2, 0x2, 0x2 };
         private static readonly int autoDiscoveryPort = 2222;
-
         private Task listener;
+        
         private CancellationTokenSource cancellationTokenSource;
 
         public AutoDiscovery(ILogger<AutoDiscovery> logger) {

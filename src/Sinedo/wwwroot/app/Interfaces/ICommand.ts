@@ -131,6 +131,7 @@ namespace Application.Interfaces
      * Schnittstelle für ein DiskInfo-Paket.
      */
      export interface ICommandDiskSpace {
+        isAvailable: boolean;
         totalSize: number;
         freeBytes: number;
         data: Array<number>;
