@@ -22,7 +22,6 @@ namespace Sinedo.Components
         private readonly Timer timer;
         private readonly string path;
         private bool lastDeviceState;
-        private bool isInit;
         private uint tickCount = 0;
 
         public delegate void StorageEvent();
@@ -45,7 +44,7 @@ namespace Sinedo.Components
                 lastDeviceState = false;
                 StorageOffline?.Invoke();
             }
-            
+
             timer.Change(3000, 3000);
         }
 

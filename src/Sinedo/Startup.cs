@@ -42,8 +42,7 @@ namespace Sinedo
                     .AddSingleton<Configuration>()
                     .AddSingleton<HyperlinkManager>();
                     
-            services.AddHostedService<FileSystemMonitor>()
-                    .AddHostedService<DiskSpaceMonitor>()
+            services.AddHostedService<StorageService>()
                     .AddHostedService<AutoDiscovery>();
       
             AddLocalizationSupport(services);
