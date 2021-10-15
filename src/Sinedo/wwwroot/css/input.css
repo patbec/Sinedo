@@ -33,3 +33,7 @@ input:focus {
     border-color: var(--input-focus) !important;
     outline-style: none;
 }
+
+input:autofill + label {
+  color: black;
+}
