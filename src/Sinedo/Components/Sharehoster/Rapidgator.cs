@@ -244,7 +244,7 @@ namespace Sinedo.Components.Sharehoster
             while ((bytesRead = webStream.Read(buffer)) > 0)
             {
                 // Buffer in die Datei schreiben.
-                targetStream.Write(buffer.Slice(0, bytesRead));
+                targetStream.Write(buffer[..bytesRead]);
 
                 cancellationToken.ThrowIfCancellationRequested();
 

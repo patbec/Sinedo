@@ -203,7 +203,7 @@
                             aria-label='@Localizer["HardDiskUsage"]'
                             title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
                 </div>
-                <div class="fadeInOnAfterPageLoad" style="min-height: 54px;">
+                <div id="diskText" class="fadeInOnAfterPageLoad" style="min-height: 54px;">
                     <div id="diskOnline" hidden>
                         <p>
                             @Html.Raw(String.Format(Localizer["StorageDescription"].Value,

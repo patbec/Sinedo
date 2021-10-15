@@ -43,6 +43,7 @@ namespace Sinedo.Hosted
             lock(this)
             {
                 cancellationTokenSource.Cancel();
+                listener = null;
             }
 
             return Task.CompletedTask;
