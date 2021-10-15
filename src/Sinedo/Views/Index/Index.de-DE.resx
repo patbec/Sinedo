@@ -389,4 +389,8 @@
    <value>Belegung der Festplatte</value>
    <comment/>
  </data>
+ <data name="FolderNotFound" xml:space="preserve">
+   <value>Ordner nicht gefunden.</value>
+   <comment/>
+ </data>
 </root>

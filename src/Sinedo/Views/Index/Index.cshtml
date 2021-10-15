@@ -203,7 +203,7 @@
                             aria-label='@Localizer["HardDiskUsage"]'
                             title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
                 </div>
-                <div class="fadeInOnAfterPageLoad" style="min-height: 48px;">
+                <div class="fadeInOnAfterPageLoad" style="min-height: 54px;">
                     <div id="diskOnline" hidden>
                         <p>
                             @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
@@ -213,7 +213,7 @@
                         </p>
                     </div>
                     <div id="diskOffline">
-                        <p>Der Datenträger ist nicht verfügbar.</p>
+                        <p>@Localizer["FolderNotFound"]</p>
                     </div>
                 </div>
             </div>
