@@ -390,7 +390,7 @@
    <comment/>
  </data>
  <data name="FolderNotFound" xml:space="preserve">
-   <value>The folder not found.</value>
+   <value>The folder was not found.</value>
    <comment/>
  </data>
 </root>
