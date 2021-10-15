@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -110,6 +109,7 @@ namespace Sinedo.Hosted
             {
                 try
                 {
+                    // Im Speicherplatz-Verlauf einen neuen Wert hinzufügen und an verbundene Clients senden.
                     UpdateDiskSpace();
                 }
                 catch (Exception ex)
@@ -207,7 +207,7 @@ namespace Sinedo.Hosted
         }
 
         /// <summary>
-        /// Alle 10 Minuten wird der verfügbare Speicherplatz an die verbundenen Clients gesendet.
+        /// Alle 10 Minuten wird der verfügbare Speicherplatz Wert an die verbundenen Clients gesendet.
         /// </summary>
         private void UpdateDiskSpace()
         {

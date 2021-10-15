@@ -7,6 +7,10 @@
         --background: #1E1E1E;
     }
 
+    body {
+        background-color: #141313;
+    }
+    
     .container__image {
         content:url("/images/moon.svg");
         height: 100px;
@@ -35,7 +39,8 @@
     }
 }
 
-@media screen and (max-height: 560px) {
+@media screen and (max-height: 560px),
+       screen and (max-width: 400px)  {
     .container__image {
         display: none;
     }
@@ -91,7 +96,7 @@ main {
     justify-self: right;
 }
 .container__content {
-    padding-top: 8vh;
+    margin-top: -25px;
 }
 .container__footer {
     display: flex;
