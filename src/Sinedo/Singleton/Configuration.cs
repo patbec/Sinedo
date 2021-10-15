@@ -190,6 +190,10 @@ namespace Sinedo.Singleton
         {
             lock(this)
             {
+                if(string.IsNullOrWhiteSpace(password)) {
+                    return false;
+                }
+
                 return ComputeHash(password).SequenceEqual(PasswordHash);
             }
         }
