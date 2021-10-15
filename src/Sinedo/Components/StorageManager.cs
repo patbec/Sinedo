@@ -68,7 +68,7 @@ namespace Sinedo.Components
             // Nach 1 Minute eine aktualisieren senden.
             if(tickCount % 20 == 0 && lastDeviceState == true)
             {
-                StorageUpdate();
+                StorageUpdate?.Invoke();
             }
 
             if (tickCount == uint.MaxValue) {
