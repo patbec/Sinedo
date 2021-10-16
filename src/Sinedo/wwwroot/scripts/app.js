@@ -723,30 +723,17 @@ var Application;
     (function (Services) {
         class DiskControl {
             constructor() {
-                this._lastStatus = false;
                 this._elementRoot = Application.Common.Control.get("disk");
                 this._elementOnline = Application.Common.Control.get("diskOnline");
                 this._elementOffline = Application.Common.Control.get("diskOffline");
-                this._elementText = Application.Common.Control.get("diskText");
                 this._elementCanvas = Application.Common.Control.get("disk_canvas");
                 this._labelFree = Application.Common.Control.get("disk_free");
                 this._labelSize = Application.Common.Control.get("disk_size");
                 this._context = new Services.CanvasContext(this._elementCanvas);
             }
             set status(online) {
-                if (this._lastStatus != online) {
-                    this._lastStatus = online;
-                    this._elementText.classList.remove("fadeInOnAfterPageLoad");
-                    this._elementCanvas.classList.remove("fadeInOnAfterPageLoad");
-                    setTimeout(() => {
-                        this._elementText.classList.add("fadeInOnAfterPageLoad");
-                        this._elementCanvas.classList.add("fadeInOnAfterPageLoad");
-                        setTimeout(() => {
-                            this._elementOffline.hidden = online;
-                            this._elementOnline.hidden = !online;
-                        }, 20);
-                    }, 0);
-                }
+                this._elementOffline.hidden = online;
+                this._elementOnline.hidden = !online;
             }
             /**
              * Schreibt die Anzahl an heruntergeladenen Bytes in das Steuerelement.
