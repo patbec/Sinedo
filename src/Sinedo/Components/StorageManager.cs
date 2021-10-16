@@ -71,6 +71,7 @@ namespace Sinedo.Components
                 StorageUpdate?.Invoke();
             }
 
+            tickCount++;
             if (tickCount == uint.MaxValue) {
                 tickCount = 0;
             }
