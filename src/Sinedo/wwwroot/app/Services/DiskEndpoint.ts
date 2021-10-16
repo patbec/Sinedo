@@ -9,6 +9,7 @@ namespace Application.Services {
     export class DiskEndpoint implements Interfaces.IServiceEndpoint {
 
         private _control: DiskControl;
+        private _lastDeviceState: boolean = true;
 
         /**
          * Initialisiert das Bandbreitensteuerelement.
@@ -23,9 +24,9 @@ namespace Application.Services {
         public onopened(ev: Common.ExWebSocket.WebSocketMessage): void {
             if (ev.command == Flags.ServerCommands.Setup) {
                 let contract: Interfaces.ICommandSetup = ev.message;
-
                 if(contract.diskInfo != null) {
                     // Steuerelemente aktualisieren.
+                    this._lastDeviceState = true;
                     this.update(contract.diskInfo);
                 }
             }
@@ -53,7 +54,11 @@ namespace Application.Services {
 
                 // Auslastung zeichnen.
                 this._control.draw(diskInfo.data);
-                this._control.status = true;
+
+                if (this._lastDeviceState != true) {
+                    this._lastDeviceState = true;
+                    this._control.status = true;
+                }
             } else {
                 // Auslastung mit leeren Werten überschreiben.
                 this._control.draw(new Array(
@@ -62,7 +67,10 @@ namespace Application.Services {
                     0,0,0,0,0,0,0,0,0,0)
                 );
 
-                this._control.status = false;
+                if (this._lastDeviceState != false) {
+                    this._lastDeviceState = false;
+                    this._control.status = false;
+                }
             }
         }
 

@@ -772,6 +772,9 @@ var Application;
     var Services;
     (function (Services) {
         class DiskEndpoint {
+            constructor() {
+                this._lastDeviceState = true;
+            }
             /**
              * Initialisiert das Bandbreitensteuerelement.
              */
@@ -786,6 +789,7 @@ var Application;
                     let contract = ev.message;
                     if (contract.diskInfo != null) {
                         // Steuerelemente aktualisieren.
+                        this._lastDeviceState = true;
                         this.update(contract.diskInfo);
                     }
                 }
@@ -807,12 +811,18 @@ var Application;
                     this._control.size = diskInfo.totalSize;
                     // Auslastung zeichnen.
                     this._control.draw(diskInfo.data);
-                    this._control.status = true;
+                    if (this._lastDeviceState != true) {
+                        this._lastDeviceState = true;
+                        this._control.status = true;
+                    }
                 }
                 else {
                     // Auslastung mit leeren Werten überschreiben.
                     this._control.draw(new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-                    this._control.status = false;
+                    if (this._lastDeviceState != false) {
+                        this._lastDeviceState = false;
+                        this._control.status = false;
+                    }
                 }
             }
             /**
