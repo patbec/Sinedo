@@ -1,6 +1,6 @@
-<img align="right" width="30%" src="https://github.com/patbec/Sinedo/blob/master/src/Sinedo/wwwroot/images/clouds.svg" alt="Clouds"/>
+<img align="right" width="30%" src="https://github.com/patbec/Sinedo/raw/master/src/Sinedo/wwwroot/images/clouds.svg" alt="Clouds"/>
 
-# Sinedo
+# Welcome
 
 A small application to download files from sharehosters like Rapidgator. This application is made to run on your own Linux home server. The interface is designed to be used from a PC, tablet or mobile phone.
 This software is a beta that is in the testing phase and may still contain bugs. 
