@@ -10,7 +10,7 @@
     body {
         background-color: #141313;
     }
-    
+
     .container__image {
         content:url("/images/moon.svg");
         height: 100px;
@@ -147,7 +147,8 @@ main {
 
 .dialog-button {
     float: right;
-    margin-top: 20px
+    margin-top: 20px;
+    margin-left: 8px;
 }
 
 .error {

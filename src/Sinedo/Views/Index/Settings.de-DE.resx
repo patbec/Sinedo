@@ -197,8 +197,8 @@
     <value>Die Einstellungen konnten nicht gespeichert werden.</value>
     <comment/>
   </data>
-  <data name="PathError" xml:space="preserve">
-    <value>Der angegebene Ordnerpfad konnte nicht erstellt werden.</value>
+  <data name="Abort" xml:space="preserve">
+    <value>Abbrechen</value>
     <comment/>
   </data>
 </root>

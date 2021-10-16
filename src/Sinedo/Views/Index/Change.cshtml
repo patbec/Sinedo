@@ -18,11 +18,6 @@
             <input name="newPassword" id="password_field" type="password" autocomplete="new-password"/>
             <label for="password_field">@Localizer["NewPassword"]</label>
         </div>
-
-        <button type="submit" name="save" class="square-button">
-            <div class="icon">save_alt</div>
-            <div>@Localizer["Save"]</div>
-        </button>
     </div>
 
     @if(Html.ViewData.ModelState.ContainsKey("policy"))
@@ -37,4 +32,12 @@
             <span>@Localizer["ChangeError"]</span>
         </p>
     }
+
+    <button class="dialog-button square-button" type="submit" name="save">
+            <span>@Localizer["Save"]</span>
+    </button>
 </form>
+
+<button class="dialog-button square-button" onclick="window.location='/'" name="abort">
+    <span>@Localizer["Abort"]</span>
+</button>

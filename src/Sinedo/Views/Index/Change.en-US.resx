@@ -145,4 +145,8 @@
     <value>The password entered does not match the policy.</value>
     <comment/>
   </data>
+  <data name="Abort" xml:space="preserve">
+    <value>Abort</value>
+    <comment/>
+  </data>
 </root>

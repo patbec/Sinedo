@@ -111,11 +111,15 @@
     <button class="dialog-button square-button" type="submit" name="save">
         <span>@Localizer["Save"]</span>
     </button>
-
-    @if(Html.ViewData.ModelState.ContainsKey("error"))
-    {
-        <p class="error">
-            <span>@Localizer["SaveError"]</span>
-        </p>
-    }
 </form>
+
+<button class="dialog-button square-button" onclick="window.location='/'" name="abort">
+    <span>@Localizer["Abort"]</span>
+</button>
+
+@if(Html.ViewData.ModelState.ContainsKey("error"))
+{
+    <p class="error">
+        <span>@Localizer["SaveError"]</span>
+    </p>
+}

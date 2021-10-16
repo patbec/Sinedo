@@ -125,10 +125,10 @@
     <value>Save Settings</value>
     <comment/>
   </data>
- <data name="SerivceCredentials" xml:space="preserve">
-   <value>Login data for the Rapidgator service:</value>
-   <comment/>
- </data>
+  <data name="SerivceCredentials" xml:space="preserve">
+    <value>Login data for the Rapidgator service:</value>
+    <comment/>
+  </data>
   <data name="Username" xml:space="preserve">
     <value>Username</value>
     <comment/>
@@ -137,68 +137,68 @@
     <value>Password</value>
     <comment/>
   </data>
- <data name="SetupDescription" xml:space="preserve">
-   <value>Specify the speed of your Internet connection and the number of simultaneous downloads:</value>
-   <comment/>
- </data>
- <data name="InternetConnection" xml:space="preserve">
-   <value>Internet connection</value>
-   <comment/>
- </data>
- <data name="Option16" xml:space="preserve">
-   <value>16 MBit/s</value>
-   <comment/>
- </data>
- <data name="Option50" xml:space="preserve">
-   <value>50 MBit/s</value>
-   <comment/>
- </data>
- <data name="Option100" xml:space="preserve">
-   <value>100 MBit/s</value>
-   <comment/>
- </data>
- <data name="Option250" xml:space="preserve">
-   <value>250 MBit/s</value>
-   <comment/>
- </data>
- <data name="Option1000" xml:space="preserve">
-   <value>1 GBit/s</value>
-   <comment/>
- </data>
- <data name="Option10000" xml:space="preserve">
-   <value>10 GBit/s</value>
-   <comment/>
- </data>
- <data name="ConcurrentDownloads" xml:space="preserve">
-   <value>Concurrent downloads</value>
-   <comment/>
- </data>
- <data name="DownloadDescription" xml:space="preserve">
-   <value>Specify a folder where the files will be downloaded:</value>
-   <comment/>
- </data>
- <data name="ExtractDescription" xml:space="preserve">
-   <value>Specify a folder where the files will be extracted:</value>
-   <comment/>
- </data>
- <data name="ExtractFiles" xml:space="preserve">
-   <value>Extracted files</value>
-   <comment/>
- </data>
- <data name="ArchiveCheckbox" xml:space="preserve">
-   <value>Extract RAR archives after download?</value>
-   <comment/>
- </data>
- <data name="SavePath" xml:space="preserve">
-   <value>Location</value>
-   <comment/>
- </data>
+  <data name="SetupDescription" xml:space="preserve">
+    <value>Specify the speed of your Internet connection and the number of simultaneous downloads:</value>
+    <comment/>
+  </data>
+  <data name="InternetConnection" xml:space="preserve">
+    <value>Internet connection</value>
+    <comment/>
+  </data>
+  <data name="Option16" xml:space="preserve">
+    <value>16 MBit/s</value>
+    <comment/>
+  </data>
+  <data name="Option50" xml:space="preserve">
+    <value>50 MBit/s</value>
+    <comment/>
+  </data>
+  <data name="Option100" xml:space="preserve">
+    <value>100 MBit/s</value>
+    <comment/>
+  </data>
+  <data name="Option250" xml:space="preserve">
+    <value>250 MBit/s</value>
+    <comment/>
+  </data>
+  <data name="Option1000" xml:space="preserve">
+    <value>1 GBit/s</value>
+    <comment/>
+  </data>
+  <data name="Option10000" xml:space="preserve">
+    <value>10 GBit/s</value>
+    <comment/>
+  </data>
+  <data name="ConcurrentDownloads" xml:space="preserve">
+    <value>Concurrent downloads</value>
+    <comment/>
+  </data>
+  <data name="DownloadDescription" xml:space="preserve">
+    <value>Specify a folder where the files will be downloaded:</value>
+    <comment/>
+  </data>
+  <data name="ExtractDescription" xml:space="preserve">
+    <value>Specify a folder where the files will be extracted:</value>
+    <comment/>
+  </data>
+  <data name="ExtractFiles" xml:space="preserve">
+    <value>Extracted files</value>
+    <comment/>
+  </data>
+  <data name="ArchiveCheckbox" xml:space="preserve">
+    <value>Extract RAR archives after download?</value>
+    <comment/>
+  </data>
+  <data name="SavePath" xml:space="preserve">
+    <value>Location</value>
+    <comment/>
+  </data>
   <data name="SaveError" xml:space="preserve">
     <value>The settings could not be saved.</value>
     <comment/>
   </data>
-  <data name="PathError" xml:space="preserve">
-    <value>The specified folder path could not be created.</value>
+  <data name="Abort" xml:space="preserve">
+    <value>Abort</value>
     <comment/>
   </data>
 </root>

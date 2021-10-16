@@ -138,11 +138,15 @@
     <comment/>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Speich.</value>
+    <value>Speichern</value>
     <comment/>
   </data>
   <data name="ChangePolicy" xml:space="preserve">
     <value>Das eingegebene Passwort entspricht nicht den Richtlinien.</value>
+    <comment/>
+  </data>
+  <data name="Abort" xml:space="preserve">
+    <value>Abbrechen</value>
     <comment/>
   </data>
 </root>
