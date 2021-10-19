@@ -190,7 +190,7 @@ namespace Sinedo.Components
 
                     // Passwort zum entschlüsseln festlegen.
                     ReaderOptions options = new () {
-                        Password = downloadPassword
+                        Password = downloadPassword ?? ""
                     };
 
                     // Startarchive suchen und öffnen.
