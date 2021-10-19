@@ -226,6 +226,10 @@ namespace Sinedo.Hosted
                 // Belegung des Datenträgers in Prozent.
                 ushort percent = (ushort)(100 - (100 * freeBytes / totalBytes));
 
+                // Ersten Eintrag entfernen.
+                if( _list.Count != 0) {
+                    _list.RemoveAt(0);
+                }
 
                 // Wenn Liste leer, mit aktuellen Werten auffüllen.
                 while (_list.Count <= 30) {
