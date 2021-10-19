@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -176,7 +177,11 @@ namespace Sinedo.Components
                 var extractPath = CreateAndGetFolder(targetFolder, downloadName);
 
                 // Startdateien suchen.
-                var archivesToExtract = Directory.GetFiles(downloadPath, "*.part1.rar");
+                var archivesToExtract = Directory.EnumerateFiles(downloadPath, "*.*")
+                                                 .Where(fileName => fileName.EndsWith("part1.rar", StringComparison.OrdinalIgnoreCase) ||
+                                                                    fileName.EndsWith("part01.rar", StringComparison.OrdinalIgnoreCase) ||
+                                                                    fileName.EndsWith("part001.rar", StringComparison.OrdinalIgnoreCase))
+                                                 .ToArray();
 
                 if(archivesToExtract.Length != 0)
                 {
@@ -210,8 +215,8 @@ namespace Sinedo.Components
                             // Dateien entpacken.
                             if ( ! entry.IsDirectory)
                             {
-                                Stream targetStream = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
-                                Stream sourceStream = entry.OpenEntryStream();
+                                using Stream targetStream = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
+                                using Stream sourceStream = entry.OpenEntryStream();
 
                                 // Jumbo-Buffer erstellen.
                                 byte[] buffer = new byte[1024];
@@ -234,6 +239,9 @@ namespace Sinedo.Components
                             }
                         }               
                     }
+                }
+                else {
+                    Debug.WriteLine("No files found to extract.");
                 }
             }
             finally
