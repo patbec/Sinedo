@@ -70,7 +70,7 @@ namespace Application.Common.ExWebSocket {
                                           bufferView.buffer.byteLength - 2);
 
                 /* Byte-Array zu einer Zeichenfolge konvertieren. */
-                let content: string = String.fromCharCode.apply(String, data);
+                let content: string = new TextDecoder().decode(data);
 
                 message = JSON.parse(content);
             }
