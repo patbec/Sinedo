@@ -12,6 +12,7 @@ using Sinedo.Exceptions;
 using Sinedo.Components;
 using System.Net;
 using Sinedo.Components.Common;
+using System.Security.Principal;
 
 namespace Sinedo.Components.Sharehoster
 {
@@ -19,6 +20,9 @@ namespace Sinedo.Components.Sharehoster
     {
         private readonly HttpClient client = new();
         private readonly Uri identifier = new("https://rapidgator.net");
+        private readonly NetworkCredential credentials;
+
+        private static string currentApiToken;
 
         #region  Properties
 
@@ -33,7 +37,14 @@ namespace Sinedo.Components.Sharehoster
         
         #endregion
 
-        public Rapidgator() {
+        public Rapidgator(NetworkCredential credentials)
+        {
+            if(string.IsNullOrEmpty(credentials.UserName) || string.IsNullOrEmpty(credentials.Password)) {
+                throw new MissingCredentialsException();
+            }
+
+            this.credentials = credentials;
+
             client.Timeout = TimeSpan.FromSeconds(10);
         }
 
@@ -50,8 +61,10 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public SharehosterFile GetFileInfo(string fileId, string token, CancellationToken cancellationToken)
+        public SharehosterFile GetInfos(string fileId, CancellationToken cancellationToken)
         {
+            string token = GetToken(cancellationToken);
+
             // Parameter für die Anfrage. 
             var parameters = new Dictionary<string, string>
             {
@@ -85,6 +98,7 @@ namespace Sinedo.Components.Sharehoster
                         };
                     }
                     case 401: {
+                        currentApiToken = null;
                         throw new InvalidCredentialsException();
                     }
                     case 404: {
@@ -114,8 +128,10 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public string GetDownloadUrl(string fileId, string token, CancellationToken cancellationToken)
+        public string GetDownloadUrl(string fileId, CancellationToken cancellationToken)
         {
+            string token = GetToken(cancellationToken);
+
             // Parameter für die Anfrage. 
             var parameters = new Dictionary<string, string>
             {
@@ -143,6 +159,7 @@ namespace Sinedo.Components.Sharehoster
                         return downloadUrl;
                     }
                     case 401: {
+                        currentApiToken = null;
                         throw new InvalidCredentialsException();
                     }
                     case 404: {
@@ -171,55 +188,64 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        public string GetAccessToken(string username, string password, CancellationToken cancellationToken)
+        public string GetToken(CancellationToken cancellationToken)
         {
-            // Parameter für die Anfrage. 
-            var parameters = new Dictionary<string, string>
+            lock(this)
             {
-                { "login", username },
-                { "password", password }
-            };
-            
-            // Request erstellen und Ergebnis auslesen.
-            string requestUrl = QueryHelpers.AddQueryString("https://rapidgator.net/api/v2/user/login", parameters);
-            string requestResult = client.GetStringAsync(requestUrl, cancellationToken).Result;
+                if(currentApiToken != null) {
+                    return currentApiToken;
+                }
 
-            try
-            {
-                var document = JsonSerializer.Deserialize<JsonElement>(requestResult);
+                // Parameter für die Anfrage. 
+                var parameters = new Dictionary<string, string>
+                {
+                    { "login", credentials.UserName },
+                    { "password", credentials.Password }
+                };
+                
+                // Request erstellen und Ergebnis auslesen.
+                string requestUrl = QueryHelpers.AddQueryString("https://rapidgator.net/api/v2/user/login", parameters);
+                string requestResult = client.GetStringAsync(requestUrl, cancellationToken).Result;
 
-                var statusCode = document.GetProperty("status").GetInt32();
-                var statusDetails = document.GetProperty("details").GetString();
+                try
+                {
+                    var document = JsonSerializer.Deserialize<JsonElement>(requestResult);
 
-                switch(statusCode) {
-                    case 200: {
-                        var node = document.GetProperty("response");
-                        var token = node.GetProperty("token").GetString();
-                        var isPremium = node.GetProperty("user").GetProperty("is_premium").GetBoolean();
+                    var statusCode = document.GetProperty("status").GetInt32();
+                    var statusDetails = document.GetProperty("details").GetString();
 
-                        if( ! isPremium) {
-                            throw new AccountExpiredException();
+                    switch(statusCode) {
+                        case 200: {
+                            var node = document.GetProperty("response");
+                            var token = node.GetProperty("token").GetString();
+                            var isPremium = node.GetProperty("user").GetProperty("is_premium").GetBoolean();
+
+                            if( ! isPremium) {
+                                throw new AccountExpiredException();
+                            }
+
+                            currentApiToken = token;
+                            return token;
                         }
-
-                        return token;
-                    }
-                    case 401: {
-                        throw new InvalidCredentialsException();
-                    }
-                    default: {
-                        throw new BadHttpRequestException(statusDetails);
+                        case 401: {
+                            currentApiToken = null;
+                            throw new InvalidCredentialsException();
+                        }
+                        default: {
+                            throw new BadHttpRequestException(statusDetails);
+                        }
                     }
                 }
-            }
-            catch (Exception ex) when (ex is KeyNotFoundException|| ex is JsonException)
-            {
-                throw new InvalidResponseException(ex);
+                catch (Exception ex) when (ex is KeyNotFoundException|| ex is JsonException)
+                {
+                    throw new InvalidResponseException(ex);
+                }   
             }
         }
 
-        public void DownloadFile(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken)
+        public Stream GetFile(SharehosterFile file, long startPosition, CancellationToken cancellationToken)
         {
-            string rawUrl = GetDownloadUrl(file.Uid, token, cancellationToken);
+            string rawUrl = GetDownloadUrl(file.Uid, cancellationToken);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(rawUrl);
             request.ContinueTimeout = 4000;
@@ -228,29 +254,10 @@ namespace Sinedo.Components.Sharehoster
             request.KeepAlive = false;
 
             // Start- oder Endposition im Stream angeben.
-            if (targetStream.Length != 0)
-                request.Headers.Add("Range", $"bytes {targetStream.Length}-{file.Size}");
+            if (startPosition != 0)
+                request.Headers.Add("Range", $"bytes {startPosition}-{file.Size}");
 
-            using var response = request.GetResponse();
-            using var webStream = response.GetResponseStream();
-
-            // Jumbo-Buffer erstellen.
-            Span<byte> buffer = new byte[2048];
-
-            // Anzahl der gelesenen Bytes in einer Sequenz.
-            int bytesRead;
-
-            // Kopieren bis keine Bytes mehr gelesen wurden.
-            while ((bytesRead = webStream.Read(buffer)) > 0)
-            {
-                // Buffer in die Datei schreiben.
-                targetStream.Write(buffer[..bytesRead]);
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Gelesene Bytes an den Fortschrittsanbieter übermitteln.
-                report(bytesRead);
-            }
+            return request.GetResponse().GetResponseStream();
         }
     }
 }

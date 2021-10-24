@@ -61,7 +61,7 @@ namespace Sinedo.Singleton
         /// <summary>
         /// Liste mit Downloads die aktuell heruntergeladen werden.
         /// </summary>
-        private readonly Dictionary<string, DownloadManager> downloads = new();
+        private readonly Dictionary<string, Downloader> currentDownloads = new();
 
         #endregion
 
@@ -115,6 +115,7 @@ namespace Sinedo.Singleton
             // Einstellungen wurden aktualisiert. Prüfen ob neue Threads erstellt werden sollen.
             configuration.RegisterForUpdates(() => CreateThreads());
 
+            // Berechnet jede Sekunde die aktuelle Download-Geschwindigkeit.
             monitoringTimer = new Timer(OnUpdate, null, 1000, 1000);
         }
 
@@ -128,11 +129,11 @@ namespace Sinedo.Singleton
 
                 // Download-Geschwindigkeit etc. berechnen. 
                 repository.EnterWriteLock(() => {
-                    foreach (var item in downloads)
+                    foreach (var item in currentDownloads)
                     {
-                        var manager     = item.Value;
-                        var bytesRead   = manager.Update();
-                        var monitoring  = manager.Monitoring;
+                        var downloader  = item.Value;
+                        var bytesRead   = downloader.Update();
+                        var monitoring  = downloader.Monitoring;
 
                         // Download Informationen aktualisieren.
                         var download = repository.Find(item.Key) with
@@ -259,27 +260,18 @@ namespace Sinedo.Singleton
         private void OnDownload(DownloadRecord download)
         {
             Exception exception = null;
-            DownloadManager manager = new (configuration.SharehosterUsername,
-                                           configuration.SharehosterPassword, download);
+            Downloader downloader = new (download);
 
             // Zu den aktiven Downloads hinzufügen.
-            repository.EnterWriteLock(() => downloads.Add(download.Name, manager));
+            repository.EnterWriteLock(() => currentDownloads.Add(download.Name, downloader));
 
             try
             {
-                // Statusupdates über Fehlermeldungen oder neuen Unterzuständen.
-                manager.Status += OnStatusUpdate;
+                // Statusupdates über den Fortschritt.
+                downloader.Status += StatusUpdate;
                 
                 // Lädt alle Dateien in der Gruppe herunter; kann sehr lange dauern.
-                manager.DownloadTo(configuration.DownloadDirectory);
-
-                // Entpackt die heruntergeladenen Dateien; kann sehr lange dauern.
-                if (configuration.IsExtractingEnabled) {
-                    manager.ExtractTo(
-                        configuration.DownloadDirectory,
-                        configuration.ExtractingDirectory
-                    );
-                }
+                downloader.DownloadTo(configuration);
             }
             catch (AggregateException ae)
             {
@@ -290,11 +282,10 @@ namespace Sinedo.Singleton
                 exception = ex;
             }
 
-            // Den neuen Zustand setzten.
+            // Den neuen Zustand setzen.
             repository.EnterWriteLock(() => {
-                // Aufräumen - Wichtig: Handle entfernen.
-                manager.Status -= OnStatusUpdate;
-                downloads.Remove(download.Name);
+                downloader.Status -= StatusUpdate;
+                currentDownloads.Remove(download.Name);
 
                 // Zustand setzen.
                 if (exception == null) {
@@ -305,6 +296,10 @@ namespace Sinedo.Singleton
                     SetState(GroupState.Failed, download, exception);
                 }
             });
+
+            void StatusUpdate(GroupMeta meta) {
+                OnStatusUpdate(download.Name, null, meta);
+            }
         }
 
         /// <summary>
@@ -312,15 +307,15 @@ namespace Sinedo.Singleton
         /// </summary>
         /// <param name="name">Name des Downloads.</param>
         /// <param name="lastException">Optional: Aufgetretene Fehlermeldung.</param>
-        /// <param name="newStatus">Der neue Unterstatus.</param>
-        private void OnStatusUpdate(string name, Exception lastException, GroupMeta newStatus)
+        /// <param name="progress">Der neue Unterstatus.</param>
+        private void OnStatusUpdate(string name, Exception lastException, GroupMeta progress)
         {
             repository.EnterWriteLock(() => 
             {
                 var downloadToChange = repository.Find(name);
 
                 if(downloadToChange.State == GroupState.Running) {
-                    SetState(GroupState.Running, downloadToChange, lastException, newStatus);  
+                    SetState(GroupState.Running, downloadToChange, lastException, progress);  
                 }
             });
         }
@@ -350,7 +345,7 @@ namespace Sinedo.Singleton
             repository.EnterWriteLock(() =>
             {
                 var nameCount = 1;
-                var nameDownload = PathHelper.Sanitize(name);
+                var nameDownload = Sanitizer.Sanitize(name);
                 
                 if(skipIfContains && repository.Contains(nameDownload)) {
                     return;
@@ -480,7 +475,7 @@ namespace Sinedo.Singleton
                     SetState(GroupState.Stopping, download);
 
                     // Abbruchsanforderung senden.
-                    downloads[download.Name].Cancel();
+                    currentDownloads[download.Name].Cancel();
                 }
                 else
                 {

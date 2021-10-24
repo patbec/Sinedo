@@ -5,7 +5,7 @@
 
     namespace Sinedo.Components
     {
-        public class MonitoringHelper {
+        public class Monitoring {
             private const int STORED_HISTORY_IN_SECONDS = 30;
 
             private readonly long _sizeTotal;
@@ -31,7 +31,7 @@
 
             #endregion
 
-            public MonitoringHelper(long sizeTotal, long currentSize) {
+            public Monitoring(long sizeTotal, long currentSize) {
                 _sizeTotal = sizeTotal;
                 _sizeCurrent = currentSize;
 
@@ -44,7 +44,7 @@
             /// <summary>
             /// Anzahl an gelesenen Bytes hinzufügen.
             /// </summary>
-            public void Add(long bytesRead) {
+            public void Report(long bytesRead) {
                 Interlocked.Add(ref _bytesRead, bytesRead);
             }
 

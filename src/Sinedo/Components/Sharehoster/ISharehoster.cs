@@ -55,7 +55,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        SharehosterFile GetFileInfo(string fileId, string token, CancellationToken cancellationToken);
+        SharehosterFile GetInfos(string fileId, CancellationToken cancellationToken);
 
         /// <summary>
         /// Ruft den Link zum Herunterladen ab.
@@ -70,22 +70,22 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        string GetDownloadUrl(string fileId, string token, CancellationToken cancellationToken);
+        string GetDownloadUrl(string fileId, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Ruft den Anmeldetoken ab.
-        /// </summary>
-        /// <param name="username">Benutzername</param>
-        /// <param name="password">Passwort</param>
-        /// <param name="cancellationToken">Abbruchstoken</param>
-        /// <returns>Das abgerufene Zugriffstoken.</returns>
-        /// <exception cref="BadHttpRequestException">Der Server hat beim Verarbeiten der Anfrage einen Fehlercode zurückgegeben.</exception>
-        /// <exception cref="HttpRequestException">Die Anfrage konnte nicht an den Server gesendet werden.</exception>
-        /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
-        /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
-        /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
-        string GetAccessToken(string username, string password, CancellationToken cancellationToken);
+        // /// <summary>
+        // /// Ruft den Anmeldetoken ab.
+        // /// </summary>
+        // /// <param name="username">Benutzername</param>
+        // /// <param name="password">Passwort</param>
+        // /// <param name="cancellationToken">Abbruchstoken</param>
+        // /// <returns>Das abgerufene Zugriffstoken.</returns>
+        // /// <exception cref="BadHttpRequestException">Der Server hat beim Verarbeiten der Anfrage einen Fehlercode zurückgegeben.</exception>
+        // /// <exception cref="HttpRequestException">Die Anfrage konnte nicht an den Server gesendet werden.</exception>
+        // /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
+        // /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
+        // /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
+        // string GetToken(CancellationToken cancellationToken);
 
-        void DownloadFile(SharehosterFile file, Stream targetStream, Action<long> report, string token, CancellationToken cancellationToken);
+        Stream GetFile(SharehosterFile file, long startPosition, CancellationToken cancellationToken);
     }
 }
