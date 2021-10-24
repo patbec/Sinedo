@@ -6,7 +6,7 @@ using System.Linq;
 using Sinedo.Components;
 using Sinedo.Flags;
 using Sinedo.Exceptions;
-using Sinedo.Hosted;
+using Sinedo.Background;
 using Sinedo.Models;
 using System.IO;
 

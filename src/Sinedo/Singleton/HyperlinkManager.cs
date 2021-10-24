@@ -32,6 +32,8 @@ namespace Sinedo.Singleton
             {
                 HyperlinkRecord[] linksData = linksFile.Load<HyperlinkRecord[]>();
                 links = linksData.ToList();
+
+                logger.LogInformation("Links file loaded successfully.");
             }
             catch (Exception ex)
             {

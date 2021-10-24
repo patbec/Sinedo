@@ -595,6 +595,8 @@ namespace Sinedo.Singleton
         {
             DownloadRecord updatedDownload = null;
 
+            logger.LogDebug("State changed: {0} - {1}", state, download.Name);
+
             switch(state)
             {
                 case GroupState.Canceled:
@@ -650,7 +652,7 @@ namespace Sinedo.Singleton
                         LastException     = exception.GetType().ToString(),
                     };
 
-                    logger.LogError(exception, "Download '{0}' failed.", download.Name);
+                    logger.LogWarning(exception, "Download '{0}' failed.", download.Name);
 
                     break;
                 }

@@ -56,7 +56,8 @@ namespace Sinedo.Components.Logging
         /// </summary>
         public bool IsEnabled(LogLevel logLevel)
         {
-            return logLevel == LogLevel.Information || 
+            return logLevel == LogLevel.Debug ||
+                   logLevel == LogLevel.Information || 
                    logLevel == LogLevel.Error ||
                    logLevel == LogLevel.Critical ||
                    logLevel == LogLevel.Warning;

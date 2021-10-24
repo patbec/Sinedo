@@ -1,14 +1,18 @@
 :root {
     --color-header-background: #fbfbfb;
     --color-header-border: #dbdbdb;
-    --color-background: #ffffff;
+
+    --color-menu-selection: #eeeeee;
+    --color-menu-hover: #eeeeee5b;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
         --color-header-background: #121212;
         --color-header-border: #2f2f32;
-        --color-background: black;
+
+        --color-menu-selection: #202020;
+        --color-menu-hover: #202020;
     }
 }
 
@@ -30,8 +34,8 @@ body {
     display: grid;
     grid-template-rows: 100%;
     grid-template-columns: 300px auto;
-    height: 100vh;
-    width: 100vw;
+    min-height: 100vh;
+    min-width: 100%;
 }
 
 .header {
@@ -114,10 +118,10 @@ body {
 .sidebar {
     border-radius: 10px;
     list-style: none;
-    background-color: white;
+    background-color: var(--color-background);
     margin: 0px;
     padding: 0px;
-    border-color: lightgray;
+    border-color: var(--color-header-border);
     border-width: 1px;
     border-style: solid;
 
@@ -137,20 +141,20 @@ body {
 
   .menu__item {
     cursor: pointer;
-    border-color: lightgray;
+    border-color: var(--color-header-border);
     border-top-width: 1px;
     border-top-style: solid;
   }
   .menu__item:last-child {
-    border-color: lightgray;
+    border-color: var(--color-header-border);
     border-bottom-width: 1px;
     border-bottom-style: solid;
   }
   .menu__item:hover {
-    background-color: rgba(238, 238, 238, 0.356);
+    background-color: var(--color-menu-hover);
   }
   .menu__item[selected] {
-    background-color: rgb(238, 238, 238);
+    background-color: var(--color-menu-selection);
   }
   .menu__item a {
       text-decoration: none;

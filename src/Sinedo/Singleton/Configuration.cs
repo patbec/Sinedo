@@ -105,6 +105,8 @@ namespace Sinedo.Singleton
                 DownloadDirectory           = configurationData.DownloadDirectory;
                 IsExtractingEnabled         = configurationData.IsExtractingEnabled;
                 ExtractingDirectory         = configurationData.ExtractingDirectory;
+
+                logger.LogInformation("Settings file loaded successfully.");
             }
             catch(Exception ex)
             {

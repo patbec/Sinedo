@@ -12,7 +12,7 @@ using Sinedo.Flags;
 using Sinedo.Models;
 using Sinedo.Singleton;
 
-namespace Sinedo.Hosted
+namespace Sinedo.Background
 {
     public class DiskSpaceHelper
     {
@@ -62,6 +62,7 @@ namespace Sinedo.Hosted
 
             configuration.RegisterForUpdates(() => {
                 lock(this) {
+                    _logger.LogInformation("Settings changed, new path is set.");
                     _monitor.Stop();
                     _monitor.StorageOnline -= StorageOnline;
                     _monitor.StorageUpdate -= StorageUpdate;
@@ -87,6 +88,8 @@ namespace Sinedo.Hosted
             {
                 lock(this)
                 {
+                    _logger.LogInformation("The path '{0}' is available.", _configuration.DownloadDirectory);
+
                     // Datenträgerüberwachung einrichten.
                     CreateDiskSpaceWatcher(_configuration.DownloadDirectory);
 
@@ -124,6 +127,8 @@ namespace Sinedo.Hosted
         /// </summary>
         private void StorageOffline()
         {
+            _logger.LogInformation("The path '{0}' is not accessible.", _configuration.DownloadDirectory);
+
             // Datenträgerüberwachung beenden.
             DestroyDiskSpaceWatcher();
 
@@ -142,6 +147,8 @@ namespace Sinedo.Hosted
         {
             lock(this)
             {
+                _logger.LogInformation("The path '{0}' is being scanned for existing files.", _configuration.DownloadDirectory);
+                
                 _monitor.Start();
 
                 if(fileWatcher != null)
@@ -291,12 +298,15 @@ namespace Sinedo.Hosted
         {
             try
             {
+               
                 string filename = Path.GetFileNameWithoutExtension(filepath);
                 string[] files = File.ReadAllLines(filepath);
 
                 if(files.Any()) {
                     _scheduler.Create(filename, files, autostart, skipIfContains: true);
                 }
+
+                _logger.LogInformation("The '{0}' file has been added.", filename);
             }
             catch (Exception ex)
             {

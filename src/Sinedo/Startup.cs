@@ -16,7 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Sinedo.Components;
 using Sinedo.Components.Logging;
 using Sinedo.Components.Sharehoster;
-using Sinedo.Hosted;
+using Sinedo.Background;
 using Sinedo.Middleware;
 using Sinedo.Singleton;
 
