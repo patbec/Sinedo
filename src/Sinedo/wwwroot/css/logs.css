@@ -44,6 +44,7 @@ body {
     border-right-width: 1px;
     border-right-color: var(--color-header-border);
     padding: 24px;
+    padding-bottom: 5px;
 }
 
 .header h4 {
@@ -125,7 +126,7 @@ body {
     border-width: 1px;
     border-style: solid;
 
-    margin-bottom: 40px;
+    margin-bottom: 24px;
     padding-bottom: 12px;
   }
 
@@ -178,4 +179,12 @@ body {
   }
   .status__icon[red] {
     color: red;
+  }
+
+  .footer {
+    position: sticky;
+    bottom: 0px;
+    padding-top: 12px;
+    padding-bottom: 14px;
+    background-color: var(--color-header-background);
   }
