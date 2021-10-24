@@ -393,4 +393,8 @@
    <value>The folder was not found.</value>
    <comment/>
  </data>
+ <data name="List:ExceededTrafficException" xml:space="preserve">
+   <value>The download limit was reached at the provider.</value>
+   <comment/>
+ </data>
 </root>

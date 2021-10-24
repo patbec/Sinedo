@@ -127,6 +127,7 @@ namespace Sinedo.Components.Sharehoster
         /// <exception cref="InvalidFileException">Die Datei ist nicht mehr online oder wurde nicht gefunden.</exception>
         /// <exception cref="InvalidCredentialsException">Der Anmeldetoken ist abgelaufen oder ungültig.</exception>
         /// <exception cref="InvalidResponseException">Die Antwort vom Server konnte nicht gelesen werden.</exception>
+        /// <exception cref="ExceededTrafficException">Das Downloadlimit wurde beim Hoster überschritten.</exception>
         /// <exception cref="TaskCanceledException">Die Anfrage wurde abgebrochen.</exception>
         public string GetDownloadUrl(string fileId, CancellationToken cancellationToken)
         {
@@ -164,6 +165,9 @@ namespace Sinedo.Components.Sharehoster
                     }
                     case 404: {
                         throw new InvalidFileException(fileId);
+                    }
+                    case 423: {
+                         throw new ExceededTrafficException(fileId);  
                     }
                     default: {
                         throw new BadHttpRequestException(statusDetails);

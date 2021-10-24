@@ -393,4 +393,8 @@
    <value>Der Ordner wurde nicht gefunden.</value>
    <comment/>
  </data>
+ <data name="List:ExceededTrafficException" xml:space="preserve">
+   <value>Das Download-Limit wurde beim Anbieter erreicht.</value>
+   <comment/>
+ </data>
 </root>
