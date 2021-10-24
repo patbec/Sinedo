@@ -1,0 +1,115 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Logging
+@inject IViewLocalizer Localizer
+@model Sinedo.Controllers.LogsController.Test
+@{
+    ViewData["Title"] = Localizer["Title"];
+}
+
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Logs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" href="/css/default.css" type="text/css">
+    <link rel="stylesheet" href="/css/logs.css" type="text/css">
+    <link rel="stylesheet" href="/css/button.css" type="text/css">
+    <link rel="stylesheet" href="/css/icons.css" type="text/css">
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#161b22">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#fbfbfb">
+</head>
+
+<body>
+    <div class="grid">
+        <div class="header">
+            <h4>Logs</h4>
+            <p>Komponente auswählen:</p>
+
+            <ul class="sidebar">
+            @{
+                var loggers = Model.Loggers.Where(e => ! e.Internal || e.ComponentName == "Lifetime")
+                                           .GroupBy(o => o.ComponentNamespace.Split('.').Skip(1).First())
+                                           .OrderBy(o => o.Key)
+                                           .ToArray();
+
+                foreach (var group in loggers)
+                {
+                    <li>
+                        <p><b>@group.Key</b></p>
+                        <ul class="menu">
+                            @{
+                                foreach(var item in group.OrderBy(e => e.ComponentName))
+                                {
+                                    <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
+                                        <a href="/Logs?component=@item.ComponentName">
+                                              <div class="status">
+                                                @if(item.GetStatusLevel() < LogLevel.Error) {
+                                                    <div class="status__icon icon" green>check_circle</div>
+                                                } else {
+                                                    <div class="status__icon icon" red>error</div>
+                                                }
+                                                <div class="status__text">@item.ComponentName</div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                }
+            }
+            </ul>
+
+            <div class="footer">
+                <form target="_blank" action="/Logs/CreateBackup"  method="get">
+                    <button class="menu-button">
+                        <span>Daten exportieren</span>
+                    </button>
+                </form>
+            </div>
+
+            <p>Exportierte Logs enthalten persönliche Informationen.</p>
+        </div>
+        
+        <div class="content">
+            @{
+                if(Model.SelectedLogger != null) {
+                    <p class="content__title">
+                        <span>@Model.SelectedLogger.ComponentName</span>
+                        <span> (@Model.SelectedLogger.GetLogItemsCount() Zeilen)</span>
+                    </p>
+
+                    <ul class="log">
+                        @{
+                            if(Model.SelectedLogger.GetLogItemsCount() != 0) {
+                                foreach (var logItem in Model.SelectedLogger.GetLogItems())
+                                {
+                                     <li data-level="@logItem.LogLevel.ToString()">
+                                        <p>                                          
+                                            <span><b>@logItem.TimeGenerated.ToLocalTime().ToString("HH:mm:ss")</b></span>
+                                            <span>@logItem.Message</span>
+                                        </p>
+                                    </li>
+                                }
+                            }
+                            else {
+                                 <li data-level="information">
+                                    <p>Es sind keine Einträge vorhanden</p>
+                                </li> 
+                            }
+                        }
+                    </ul>
+                }
+                else {
+                    <p class="content__title">[Keine Auswahl]</p> 
+                }
+            }
+        </div>
+    </div>
+</body>
+</html>
