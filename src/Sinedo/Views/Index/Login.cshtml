@@ -1,7 +1,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    Layout = "Content";
+    Layout = "Layout";
     ViewData["Title"] = Localizer["Title"];
 }
 
@@ -22,7 +22,7 @@
             <label for="password_field">@Localizer["Password"]</label>
         </div>
 
-        <button type="submit" name="login" class="square-button" style="height: auto;">
+        <button type="submit" name="login" class="square-button">
             <div class="icon">login</div>
             <div>@Localizer["Login"]</div>
         </button>

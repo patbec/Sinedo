@@ -14,6 +14,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Sinedo.Components;
+using Sinedo.Components.Logging;
 using Sinedo.Components.Sharehoster;
 using Sinedo.Hosted;
 using Sinedo.Middleware;
@@ -40,7 +41,8 @@ namespace Sinedo
                     .AddSingleton<DownloadScheduler>()
                     .AddSingleton<DiskSpaceHelper>()
                     .AddSingleton<Configuration>()
-                    .AddSingleton<HyperlinkManager>();
+                    .AddSingleton<HyperlinkManager>()
+                    .AddSingleton<WebViewLoggerProvider>(e => WebViewLoggerProvider.Default);
                     
             services.AddHostedService<StorageService>()
                     .AddHostedService<AutoDiscovery>();

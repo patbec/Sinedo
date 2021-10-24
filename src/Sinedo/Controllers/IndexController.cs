@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Sinedo.Components;
+using Sinedo.Components.Logging;
 using Sinedo.Exceptions;
 using Sinedo.Models;
 using Sinedo.Singleton;
@@ -20,7 +21,7 @@ namespace Sinedo.Controllers
         private readonly ILogger<IndexController> _logger;
         private readonly Configuration _configuration;
         private readonly DownloadScheduler _scheduler;
-
+        private readonly WebViewLoggerProvider _webViewLoggerProvider;
 
         #region Properties
 
@@ -34,15 +35,17 @@ namespace Sinedo.Controllers
         /// </summary>
         private Configuration Configuration => _configuration;
 
+
         #endregion
 
         /// <summary>
         /// Klasse mit Dependency-Injection erstellen.
         /// </summary>
-        public IndexController(Configuration configuration, DownloadScheduler scheduler, ILogger<IndexController> logger)
+        public IndexController(Configuration configuration, WebViewLoggerProvider webViewLoggerProvider, DownloadScheduler scheduler, ILogger<IndexController> logger)
         {
             _logger = logger;
             _configuration = configuration;
+            _webViewLoggerProvider = webViewLoggerProvider;
             _scheduler = scheduler;
         }
 
@@ -379,5 +382,12 @@ namespace Sinedo.Controllers
         }
 
         #endregion
+
+
+    //     [Route("Backups")]
+    //     public IActionResult Backups()
+    //     {
+    //         return View();
+    //     }
     }
 }

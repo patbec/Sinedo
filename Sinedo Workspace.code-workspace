@@ -12,7 +12,6 @@
 		],
 	},
 	"settings": {
-		"telemetry.enableCrashReporter": false,
 		"telemetry.enableTelemetry": false,
 		"window.autoDetectColorScheme": true,
 		"window.title": "${dirty}${activeEditorShort}${separator}${rootName}",

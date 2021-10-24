@@ -25,6 +25,12 @@ namespace Sinedo.Hosted
 
         public AutoDiscovery(ILogger<AutoDiscovery> logger) {
             this.logger = logger;
+
+            logger.LogDebug(new NotImplementedException(), "Sample Debug");
+            logger.LogInformation(new NotImplementedException(), "Sample Information");
+            logger.LogWarning(new NotImplementedException(), "Sample Warning");
+            logger.LogError(new NotImplementedException(), "Sample Error");
+            logger.LogCritical(new NotImplementedException(), "Sample Critical");
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

@@ -167,7 +167,7 @@ var Application;
                         /* Byte-Array aus dem Inhalt erstellen. */
                         let data = new Uint8Array(bufferView.buffer, 2, bufferView.buffer.byteLength - 2);
                         /* Byte-Array zu einer Zeichenfolge konvertieren. */
-                        let content = String.fromCharCode.apply(String, data);
+                        let content = new TextDecoder().decode(data);
                         message = JSON.parse(content);
                     }
                     return new WebSocketMessage(command, parameter, message);
