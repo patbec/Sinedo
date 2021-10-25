@@ -71,17 +71,26 @@ namespace Sinedo.Controllers
         public IActionResult CreateBackup()
         {
             using MemoryStream ms = new();
-            using ZipArchive archive = new(ms, ZipArchiveMode.Create, true);
 
-            foreach (WebViewLogger logger in _webViewLoggerProvider.Loggers)
-            {
-                ZipArchiveEntry archiveEntry = archive.CreateEntry(logger.ComponentNamespace + ".txt", CompressionLevel.Fastest);
+            using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true)) {
+                foreach (WebViewLogger logger in _webViewLoggerProvider.Loggers)
+                {
+                    ZipArchiveEntry archiveEntry = archive.CreateEntry(logger.ComponentNamespace + ".txt", CompressionLevel.Fastest);
 
-                byte[] data = JsonSerializer.SerializeToUtf8Bytes(logger.GetLogItems());
+                    byte[] data = JsonSerializer.SerializeToUtf8Bytes(logger.GetLogItems());
 
-                using Stream zipStream = archiveEntry.Open();
-                zipStream.Write(data, 0, data.Length);
-                zipStream.Flush();
+                    using Stream zipStream = archiveEntry.Open();
+                    zipStream.Write(data, 0, data.Length);
+                    zipStream.Flush();
+                }
+
+                ZipArchiveEntry infoEntry = archive.CreateEntry("Info.txt", CompressionLevel.Fastest);
+
+                byte[] infoData = JsonSerializer.SerializeToUtf8Bytes(SystemRecord.GetSystemInfo());
+
+                using Stream zipInfoStream = infoEntry.Open();
+                zipInfoStream.Write(infoData, 0, infoData.Length);
+                zipInfoStream.Flush();          
             }
 
             return File(ms.ToArray(), "application/zip", "Sinedo Logs - UTC " + DateTime.UtcNow + ".zip");

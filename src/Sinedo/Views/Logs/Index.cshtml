@@ -26,54 +26,53 @@
 
 <body>
     <div class="grid">
-        <div class="header">
-            <h4>Logs</h4>
-            <p>Komponente auswählen:</p>
+        <div class="header">       
+            <div class="header__sidebar">
+                <h4>Logs</h4>
+                <p>Komponente auswählen:</p>
 
-            <ul class="sidebar">
-            @{
-                var loggers = Model.Loggers.Where(e => ! e.Internal || e.ComponentName == "Lifetime")
-                                           .GroupBy(o => o.ComponentNamespace.Split('.').Skip(1).First())
-                                           .OrderBy(o => o.Key)
-                                           .ToArray();
+                <ul class="sidebar">
+                @{
+                    var loggers = Model.Loggers.Where(e => ! e.Internal || e.ComponentName == "Lifetime")
+                                            .GroupBy(o => o.ComponentNamespace.Split('.').Skip(1).First())
+                                            .OrderBy(o => o.Key)
+                                            .ToArray();
 
-                foreach (var group in loggers)
-                {
-                    <li>
-                        <p><b>@group.Key</b></p>
-                        <ul class="menu">
-                            @{
-                                foreach(var item in group.OrderBy(e => e.ComponentName))
-                                {
-                                    <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
-                                        <a href="/Logs?component=@item.ComponentName">
-                                              <div class="status">
-                                                @if(item.GetStatusLevel() < LogLevel.Error) {
-                                                    <div class="status__icon icon" green>check_circle</div>
-                                                } else {
-                                                    <div class="status__icon icon" red>error</div>
-                                                }
-                                                <div class="status__text">@item.ComponentName</div>
-                                            </div>
-                                        </a>
-                                    </li>
+                    foreach (var group in loggers)
+                    {
+                        <li>
+                            <p><b>@group.Key</b></p>
+                            <ul class="menu">
+                                @{
+                                    foreach(var item in group.OrderBy(e => e.ComponentName))
+                                    {
+                                        <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
+                                            <a href="/Logs?component=@item.ComponentName">
+                                                <div class="status">
+                                                    @if(item.GetStatusLevel() < LogLevel.Error) {
+                                                        <div class="status__icon icon" green>check_circle</div>
+                                                    } else {
+                                                        <div class="status__icon icon" red>error</div>
+                                                    }
+                                                    <div class="status__text">@item.ComponentName</div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    }
                                 }
-                            }
-                        </ul>
-                    </li>
+                            </ul>
+                        </li>
+                    }
                 }
-            }
-            </ul>
-
-            <div class="footer">
+                </ul>
+            </div>
+            <div class="header__footer">
                 <form target="_blank" action="/Logs/CreateBackup"  method="get">
                     <button class="menu-button">
                         <span>Daten exportieren</span>
                     </button>
                 </form>
             </div>
-
-            <p>Exportierte Logs enthalten persönliche Informationen.</p>
         </div>
         
         <div class="content">
