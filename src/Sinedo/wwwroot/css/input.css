@@ -37,3 +37,20 @@ input:focus {
 input:autofill + label {
   color: black;
 }
+
+.textbox input, select {
+  width: -webkit-fill-available;
+  padding-top: 31px;
+  padding-bottom: 8px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.textbox label {
+  display: block;
+  margin-top: -69px;
+  pointer-events: none;
+  padding-top: 6px;
+  padding-bottom: 39px;
+  padding-left: 14px;
+  padding-right: 14px;
+}

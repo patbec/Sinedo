@@ -14,6 +14,106 @@
         --color-menu-selection: #202020;
         --color-menu-hover: #202020;
     }
+
+    .log li[data-level="None"] {
+        color: #121212;
+        background-color: #caf7f2;
+    }
+
+    .log li[data-level="Trace"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+    .log li[data-level="Debug"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+
+    .log li[data-level="Information"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+
+    .log li[data-level="Warning"] {
+        color: #ffffff !important;
+        background-color: #332940 !important;
+    }
+
+    .log li[data-level="Error"] {
+        color: #121212 !important;
+        background-color: #bb86fc !important;
+    }
+
+    .log li[data-level="Critical"] {
+        color: #121212 !important;
+        background-color: #bb86fc !important;
+    }
+}
+
+@media (prefers-color-scheme: -ms-high-contrast) {
+    :root {
+        --color-header-background: black;
+        --color-header-border: white;
+
+        --color-menu-selection: white;
+        --color-menu-hover: #202020;
+    }
+
+    .log li[data-level="None"] {
+        color: #121212 !important;
+        background-color: #caf7f2 !important
+    }
+
+    .log li[data-level="Trace"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+    .log li[data-level="Debug"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+
+    .log li[data-level="Information"] {
+        color: #ffffff !important;
+        background-color: #1f1a249e !important
+    }
+
+    .log li[data-level="Warning"] {
+        color: black !important;
+        background-color: yellow !important;
+    }
+
+    .log li[data-level="Error"] {
+        color: black !important;
+        background-color: red !important;
+    }
+
+    .log li[data-level="Critical"] {
+        color: black !important;
+        background-color: red !important;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .grid {
+        grid-template-columns: 100vw !important;
+        grid-template-rows: min-content auto min-content !important;
+
+        min-height: 100vh !important;
+    }
+
+    .header {
+        display: none !important;
+    }
+    .miniview {
+        display: block !important;
+    }
+    .minifooter {
+        display: flex !important;
+    }
+    .content {
+        grid-row: 2 !important;
+    }
 }
 
 body,
@@ -24,16 +124,15 @@ html {
 }
 
 body {
-    display: grid;
-    grid-template-rows: min-content auto;
-    height: 100%;
+    min-width: 300px;
+    min-height: 400px;
     background-color: var(--color-background);
 }
 
 .grid {
     display: grid;
     grid-template-rows: 100%;
-    grid-template-columns: 300px auto;
+    grid-template-columns: 300px calc(100vw - 300px);
     min-height: 100vh;
     min-width: 100%;
 }
@@ -43,7 +142,6 @@ body {
     border-right-style: solid;
     border-right-width: 1px;
     border-right-color: var(--color-header-border);
-    padding-bottom: 5px;
 }
 
 .header__sidebar {
@@ -65,7 +163,7 @@ body {
   }
 
 .header h4 {
-    padding: 20px;
+    padding: 8px;
     padding-left: 0px;
 
     font-weight: normal;
@@ -73,9 +171,16 @@ body {
     line-height: 1.5;
     margin: 0px;
 }
-
+.content {
+    padding-bottom: 24px;
+}
 .content__title {
     text-align: center;
+}
+
+.dropdown {
+    padding-top: 12px;
+    padding-bottom: 10px;
 }
 
 .log {
@@ -90,6 +195,8 @@ body {
     padding: 0px;
     margin-left: 20px;
     margin-right: 20px;
+
+    overflow-wrap: break-word;
 }
 
 .log li {
@@ -132,7 +239,6 @@ body {
     background-color: darkred;
 }
 
-
 .sidebar {
     border-radius: 10px;
     list-style: none;
@@ -140,7 +246,7 @@ body {
     margin: 0px;
     padding: 0px;
     padding-bottom: 12px;
-    
+
     border-color: var(--color-header-border);
     border-width: 1px;
     border-style: solid;
@@ -195,4 +301,38 @@ body {
   }
   .status__icon[red] {
     color: red;
+  }
+
+
+  .miniview {
+    display: none;
+    border-color: var(--color-header-border);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+
+    overflow-y: hidden;
+    overflow-x: scroll;
+
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+    background-color: var(--color-header-background);
+  }
+  .minifooter {
+    display: none;
+    gap: 10px;
+
+    position: sticky;
+    bottom: 0px;
+
+    border-color: var(--color-header-border);
+    border-top-style: solid;
+    border-top-width: 1px;
+
+    padding-top: 12px;
+    padding-bottom: 24px;
+    padding-left: 14px;
+    padding-right: 14px;
+
+    background-color: var(--color-header-background);
   }

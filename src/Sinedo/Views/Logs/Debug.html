@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Logs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" href="../../wwwroot/css/default.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/logs.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/button.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/input.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/icons.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/chips.css" type="text/css">
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#161b22">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#fbfbfb">
+</head>
+
+<body>
+    <div class="grid">
+
+        <div class="miniview">
+            <div class="chip__host">
+                <div class="chip" data-level="error">
+                    <span class="chip__text">AutoDiscovery</span>
+                </div>
+                <div class="chip" data-level="error">
+                    <span class="chip__text">Lifetime</span>
+                </div>
+                <div class="chip" data-level="error">
+                    <span class="chip__text">Configuration</span>
+                </div>
+                <div class="chip" data-level="error">
+                    <span class="chip__text">DownloadScheduler</span>
+                </div>
+            </div>
+            <div class="chip__host">
+                <div class="chip" data-level="success">
+                    <span class="chip__text">StorageService</span>
+                </div>
+                <div class="chip" data-level="success">
+                    <span class="chip__text">IndexController</span>
+                </div>
+                <div class="chip" data-level="success">
+                    <span class="chip__text">HyperlinkManager</span>
+                </div>
+                <div class="chip" data-level="success">
+                    <span class="chip__text">DownloadRepository</span>
+                </div>
+            </div>
+        </div>  
+
+        <div class="content">
+            <p class="content__title">
+                <span>AutoDiscovery</span>
+                <span> (6 Zeilen)</span>
+            </p>
+            <ul class="log">
+                             <li data-level="Information">
+                                <p>                                          
+                                    <span><b>19:21:10</b></span>
+                                    <span>Information</span>
+                                </p>
+                            </li>
+                             <li data-level="Debug">
+                                <p>                                          
+                                    <span><b>19:21:10</b></span>
+                                    <span>Debug</span>
+                                </p>
+                            </li>
+                             <li data-level="Critical">
+                                <p>
+                                    <div style="height: 100vh;">
+
+                                    </div>                      
+                                    <span><b>19:21:10</b></span>
+                                    <span>Critical</span>
+                                </p>
+                            </li>
+                             <li data-level="Error">
+                                <p>                                          
+                                    <span><b>19:21:10</b></span>
+                                    <span>Error</span>
+                                </p>
+                            </li>
+                             <li data-level="Warning">
+                                <p>                                          
+                                    <span><b>19:21:10</b></span>
+                                    <span>Warning</span>
+                                </p>
+                            </li>
+                             <li data-level="Information">
+                                <p>                                          
+                                    <span><b>19:21:12</b></span>
+                                    <span>Discovery service started.</span>
+                                </p>
+                            </li>
+            </ul>
+    </div>
+        
+    <div class="minifooter">
+        <form target="_blank" action="/Logs/CreateBackup"  method="get">
+            <button class="menu-button">
+                <span class="icon">save</span>
+            </button>
+        </form>
+        <form target="_blank" action="/Logs/CreateBackup"  method="get" style="width: 100%;">
+            <button class="menu-button">
+                <span>Zurück</span>
+            </button>
+        </form>
+    </div>
+</body>
+</html>

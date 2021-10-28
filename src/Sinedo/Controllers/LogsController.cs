@@ -21,7 +21,7 @@ namespace Sinedo.Controllers
     public class LogsController : Controller
     {
         private readonly WebViewLoggerProvider _webViewLoggerProvider;
-
+        
         /// <summary>
         /// Klasse mit Dependency-Injection erstellen.
         /// </summary>
@@ -30,10 +30,15 @@ namespace Sinedo.Controllers
             _webViewLoggerProvider = webViewLoggerProvider;
         }
 
-        public class Test {
-            public WebViewLogger[] Loggers { get; init; }
+        public class LogModel {
+            public IGrouping<string, WebViewLogger>[] Loggers { get; }
 
-            public WebViewLogger SelectedLogger { get; init; }
+            public WebViewLogger SelectedLogger { get; }
+
+            public LogModel(IGrouping<string, WebViewLogger>[] loggers, WebViewLogger selectedLogger) {
+                Loggers = loggers;
+                SelectedLogger = selectedLogger;
+            }
         }
 
         /// <summary>
@@ -42,26 +47,21 @@ namespace Sinedo.Controllers
         [Route("Logs")]
         public IActionResult Index(string component)
         {
-            Test model;
+            WebViewLogger selectedLogger = null;
+            IGrouping<string, WebViewLogger>[] sortedLoggers;
+            
+            
+            sortedLoggers = _webViewLoggerProvider.Loggers.Where(e => ! e.Internal || e.ComponentName == "Lifetime")
+                                                          .GroupBy(o => o.ComponentNamespace.Split('.').Skip(1).First())
+                                                          .OrderBy(o => o.Key)
+                                                          .ToArray();
 
             if(component != null) {
-                var selectedLogger = _webViewLoggerProvider.Loggers.FirstOrDefault(o => o.ComponentName == component);
-
-                if(selectedLogger != null) {
-                    model = new Test() {
-                        Loggers = _webViewLoggerProvider.Loggers,
-                        SelectedLogger = selectedLogger,
-                    };
-
-                    return View(model);
-                }
+                selectedLogger = _webViewLoggerProvider.Loggers.FirstOrDefault(o => o.ComponentName == component);
             }
 
-            model = new Test() {
-                Loggers = _webViewLoggerProvider.Loggers,
-            };
-
-            return View(model);
+            return View(
+                new LogModel(sortedLoggers, selectedLogger));
         }
 
         /// <summary>

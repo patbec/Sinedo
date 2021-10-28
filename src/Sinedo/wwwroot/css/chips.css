@@ -1,0 +1,57 @@
+@media (prefers-color-scheme: dark) {
+  
+    .chip {
+        color: white !important;
+        background-color: #1f1a249e !important;
+        border-color: #332940 !important;
+    }
+
+    .chip[data-level="error"] {
+        color: black !important;
+        background-color: #bb86fc !important;
+        border-color: #2D1B59 !important;
+    }
+}
+
+.chip__host {
+    display: flex;
+    gap: 6px;
+    padding-bottom: 6px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.chip {
+    width: fit-content;
+    height: fit-content;
+
+    color: #000000;
+    background-color: #ffffff;
+    border-radius: 19px;
+
+    padding-top: 5px;
+    padding-bottom: 4px;
+    padding-left: 12px;
+    padding-right: 12px;
+
+    border-style: solid;
+    border-width: 1px;
+    border-color: #dddddd;
+}
+
+.chip {
+    color: #052e06;
+    background-color: #f3f3f3;
+    border-color: #d7d7d7;
+}
+
+
+.chip[data-level="error"] {
+    color: #5e0d0d;
+    background-color: #F0CFD6;
+    border-color: #ff8888;
+}
+
+.chip__icon {
+    color: black;
+}
