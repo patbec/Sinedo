@@ -306,7 +306,7 @@ namespace Sinedo.Background
                     _scheduler.Create(filename, files, autostart, skipIfContains: true);
                 }
 
-                _logger.LogInformation("The '{0}' file has been added.", filename);
+                _logger.LogDebug("The '{0}' file has been added.", filename);
             }
             catch (Exception ex)
             {

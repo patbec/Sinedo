@@ -157,3 +157,8 @@ h6 {
 label {
   color: var(--color-font-title);
 }
+
+.hidden-link {
+  text-decoration: none;
+  color: var(--color-font-title);
+}

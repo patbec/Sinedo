@@ -21,6 +21,10 @@
     padding-right: 14px;
 }
 
+.chip__host a {
+    text-decoration: none;
+}
+
 .chip {
     width: fit-content;
     height: fit-content;
@@ -37,6 +41,8 @@
     border-style: solid;
     border-width: 1px;
     border-color: #dddddd;
+
+    text-decoration: none;
 }
 
 .chip {

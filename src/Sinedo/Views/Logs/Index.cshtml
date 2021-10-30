@@ -39,10 +39,12 @@
                             var component = group.ElementAt(i);
 
                             if(i % 2 == 1) {
-                                <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
-                                    <span class="chip__text">@component.ComponentName</span>
-                                </div>
-                            }         
+                                <a href="/Logs?component=@component.ComponentName">
+                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
+                                        <span class="chip__text">@component.ComponentName</span>
+                                    </div>
+                                </a>
+                            }
                         }
                     }
                 }
@@ -56,9 +58,11 @@
                             var component = group.ElementAt(i);
                             
                             if(i % 2 == 0) {
-                                <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
-                                    <span class="chip__text">@component.ComponentName</span>
-                                </div>
+                                <a href="/Logs?component=@component.ComponentName">
+                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
+                                        <span class="chip__text">@component.ComponentName</span>
+                                    </div>
+                                </a>
                             }         
                         }
                     }
