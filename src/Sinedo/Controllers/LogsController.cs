@@ -47,6 +47,12 @@ namespace Sinedo.Controllers
         [Route("Logs")]
         public IActionResult Index(string component)
         {
+            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
+            if ( ! User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
             WebViewLogger selectedLogger = null;
             IGrouping<string, WebViewLogger>[] sortedLoggers;
             
@@ -70,6 +76,12 @@ namespace Sinedo.Controllers
         [Route("Logs/CreateBackup")]
         public IActionResult CreateBackup()
         {
+            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
+            if ( ! User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
             using MemoryStream ms = new();
 
             using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true)) {
