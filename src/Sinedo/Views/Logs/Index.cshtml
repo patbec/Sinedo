@@ -40,7 +40,7 @@
 
                             if(i % 2 == 1) {
                                 <a href="/Logs?component=@component.ComponentName">
-                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
+                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error") @(component.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
                                         <span class="chip__text">@component.ComponentName</span>
                                     </div>
                                 </a>
@@ -59,7 +59,7 @@
                             
                             if(i % 2 == 0) {
                                 <a href="/Logs?component=@component.ComponentName">
-                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error")>
+                                    <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error") @(component.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
                                         <span class="chip__text">@component.ComponentName</span>
                                     </div>
                                 </a>
@@ -85,7 +85,7 @@
                                 @{
                                     foreach(var item in group.OrderBy(e => e.ComponentName))
                                     {
-                                        <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
+                                        <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "" )>
                                             <a href="/Logs?component=@item.ComponentName">
                                                 <div class="status">
                                                     @if(item.GetStatusLevel() < LogLevel.Error) {

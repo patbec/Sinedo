@@ -11,6 +11,12 @@
         background-color: #bb86fc !important;
         border-color: #2D1B59 !important;
     }
+
+    .chip[selected] {
+        outline-width: 1px;
+        outline-style: solid;
+        outline-color: white !important;
+    }
 }
 
 .chip__host {
@@ -56,6 +62,12 @@
     color: #5e0d0d;
     background-color: #F0CFD6;
     border-color: #ff8888;
+}
+
+.chip[selected] {
+    outline-width: 1px;
+    outline-style: solid;
+    outline-color: black;
 }
 
 .chip__icon {
