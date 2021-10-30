@@ -2,16 +2,13 @@
 @using Microsoft.Extensions.Logging
 @inject IViewLocalizer Localizer
 @model Sinedo.Controllers.LogsController.LogModel
-@{
-    ViewData["Title"] = Localizer["Title"];
-}
 
 <!DOCTYPE html>
 <html lang="de-de">
 
 <head>
     <meta charset="utf-8" />
-    <title>Logs</title>
+    <title>@Localizer["Title"]</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 
@@ -28,7 +25,6 @@
 
 <body>
     <div class="grid">
-
         <div class="miniview">
             <div class="chip__host">
                 @{
@@ -72,8 +68,8 @@
 
         <div class="header">       
             <div class="header__sidebar">
-                <h4>Logs</h4>
-                <p>Komponente auswählen:</p>
+                <h4>@Localizer["Title"]</h4>
+                <p>@Localizer["SelectComponent"]</p>
 
                 <ul class="sidebar">
                 @{
@@ -108,12 +104,12 @@
             <div class="header__footer">
                 <form target="_blank" action="/Logs/CreateBackup" method="get">
                     <button class="menu-button">
-                        <span>Daten exportieren</span>
+                        <span>@Localizer["ExportButton"]</span>
                     </button>
                 </form>
                 <form action="/" method="get">
-                    <button class="menu-button" style="margin-top: 6px">
-                        <span>Zur Hauptseite</span>
+                    <button class="menu-button">
+                        <span>@Localizer["BackButton"]</span>
                     </button>
                 </form>
             </div>  
@@ -142,27 +138,27 @@
                             }
                             else {
                                 <li data-level="information">
-                                    <p>Es sind keine Einträge vorhanden</p>
+                                    <p>@Localizer["EmptyList"]</p>
                                 </li> 
                             }
                         }
                     </ul>
                 }
                 else {
-                    <p class="content__title">[Keine Auswahl]</p> 
+                    <p class="content__title">@Localizer["NoSelection"]</p> 
                 }
             }
         </div>
         
         <div class="minifooter">
             <form target="_blank" action="/Logs/CreateBackup" method="get">
-                <button class="menu-button">
+                <button class="menu-button" title='@Localizer["ExportButton"]'>
                     <span class="icon">save</span>
                 </button>
             </form>
             <form action="/" method="get" style="width: 100%;">
                 <button class="menu-button">
-                    <span>Zur Hauptseite</span>
+                    <span>@Localizer["BackButton"]</span>
                 </button>
             </form>
         </div>
