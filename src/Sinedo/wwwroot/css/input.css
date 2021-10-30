@@ -39,7 +39,7 @@ input:autofill + label {
 }
 
 .textbox input, select {
-  width: -webkit-fill-available;
+  width: calc(100% - 28px);
   padding-top: 31px;
   padding-bottom: 8px;
   padding-left: 14px;
