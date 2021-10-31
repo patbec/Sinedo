@@ -15,6 +15,10 @@
     .chip[selected] {
         border-color: white !important;
     }
+
+    .chip[data-level="error"][selected] {
+        background-color: white !important;
+    }
 }
 
 @media (prefers-color-scheme: -ms-high-contrast) {
