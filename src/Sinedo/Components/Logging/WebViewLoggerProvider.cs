@@ -1,11 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Sinedo.Components.Logging
 {
@@ -28,6 +24,11 @@ namespace Sinedo.Components.Logging
         {
             get;
         } = new();
+
+        public WebViewLoggerProvider() {
+            var legend = new WebViewLegend(CreateLogger("Sinedo.Help.Legend"));
+            legend.Fill();
+        }
 
         public ILogger CreateLogger(string componentNamespace)
         {
