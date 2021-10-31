@@ -108,7 +108,7 @@ namespace Application.Common.ExWebSocket {
                 suffix = "ws:";
             }
 
-            return `${suffix}//${hostname}:${port}/api/server-connetion.ws?version=1`
+            return `${suffix}//${hostname}:${port}/api/server-connection.ws?version=1`
         }
     }
 }

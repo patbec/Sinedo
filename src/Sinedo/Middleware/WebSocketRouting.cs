@@ -31,7 +31,7 @@ namespace Sinedo.Middleware
         public async Task Invoke(HttpContext httpContext)
         {
             // Prüfen ob eine WebSocket-Verbindung aufgebraucht werden soll.
-            if (httpContext.Request.Path == "/api/server-connetion.ws")
+            if (httpContext.Request.Path == "/api/server-connection.ws")
             {
                 // Prüfen ob der Nutzer mit einem gültigen Cookie angemeldet ist.
                 if(httpContext.User.Identity.IsAuthenticated)
