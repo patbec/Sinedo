@@ -13,11 +13,27 @@
     }
 
     .chip[selected] {
-        outline-width: 1px;
-        outline-style: solid;
-        outline-color: white !important;
+        border-color: white !important;
     }
 }
+
+@media (prefers-color-scheme: -ms-high-contrast) {
+    .chip {
+        color: white !important;
+        background-color: black !important;
+        border-color: yellow !important;
+    }
+
+    .chip[data-level="error"] {
+        color: black !important;
+        background-color: red !important;
+        border-color: red !important;
+    }
+
+    .chip[selected] {
+        border-color: white !important;
+    }
+  }
 
 .chip__host {
     display: flex;
@@ -65,9 +81,7 @@
 }
 
 .chip[selected] {
-    outline-width: 1px;
-    outline-style: solid;
-    outline-color: black;
+    border-color: black;
 }
 
 .chip__icon {
