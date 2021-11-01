@@ -19,6 +19,7 @@ using Sinedo.Components.Sharehoster;
 using Sinedo.Background;
 using Sinedo.Middleware;
 using Sinedo.Singleton;
+using System.Net;
 
 namespace Sinedo
 {
@@ -79,7 +80,8 @@ namespace Sinedo
             // app.UseHttpsRedirection();
             app.UseWebSockets(webSocketOptions);
             app.UseCookiePolicy(cookiePolicyOptions);
-            
+
+            app.UseStatusCodePages();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
