@@ -21,13 +21,15 @@ namespace Sinedo.Controllers
     public class LogsController : Controller
     {
         private readonly WebViewLoggerProvider _webViewLoggerProvider;
-        
+        private readonly Configuration _configuration;
+
         /// <summary>
         /// Klasse mit Dependency-Injection erstellen.
         /// </summary>
-        public LogsController(WebViewLoggerProvider webViewLoggerProvider)
+        public LogsController(WebViewLoggerProvider webViewLoggerProvider, Configuration configuration)
         {
             _webViewLoggerProvider = webViewLoggerProvider;
+            _configuration = configuration;
         }
 
         public class LogModel {
@@ -47,10 +49,16 @@ namespace Sinedo.Controllers
         [Route("Logs")]
         public IActionResult Index(string component)
         {
-            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
+            // Umleiten wenn kein Passwort eingerichtet wurde.
+            if( ! _configuration.IsSetupCompleted)
+            {
+                return Redirect("/Setup");
+            }
+
+            // Prüfen ob der Benutzer angemeldet ist.
             if ( ! User.Identity.IsAuthenticated)
             {
-                return Unauthorized();
+                return Redirect("/Login");
             }
 
             WebViewLogger selectedLogger = null;
@@ -76,6 +84,12 @@ namespace Sinedo.Controllers
         [Route("Logs/CreateBackup")]
         public IActionResult CreateBackup()
         {
+            // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
+            if( ! _configuration.IsSetupCompleted)
+            {
+                return Forbid();
+            }
+
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
             if ( ! User.Identity.IsAuthenticated)
             {
