@@ -96,7 +96,7 @@
 
 @media screen and (max-width: 800px) {
     .grid {
-        grid-template-columns: 100vw !important;
+        grid-template-columns: 100% !important;
         grid-template-rows: min-content auto min-content !important;
 
         min-height: 100vh !important;
@@ -132,7 +132,7 @@ body {
 .grid {
     display: grid;
     grid-template-rows: 100%;
-    grid-template-columns: 300px calc(100vw - 300px);
+    grid-template-columns: 300px calc(100vw - 315px);
     min-height: 100vh;
     min-width: 100%;
 }
