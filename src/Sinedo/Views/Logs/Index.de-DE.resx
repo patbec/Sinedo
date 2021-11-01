@@ -141,4 +141,8 @@
     <value>[Keine Auswahl]</value>
     <comment/>
   </data>
+  <data name="Lines" xml:space="preserve">
+    <value>Zeile(n)</value>
+    <comment/>
+  </data>
 </root>

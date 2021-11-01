@@ -120,7 +120,7 @@
                 if(Model.SelectedLogger != null) {
                     <p class="content__title">
                         <span>@Model.SelectedLogger.ComponentName</span>
-                        <span> (@Model.SelectedLogger.GetLogItemsCount() Zeilen)</span>
+                        <span>, @Model.SelectedLogger.GetLogItemsCount() @Localizer["Lines"]</span>
                     </p>
 
                     <ul class="log">

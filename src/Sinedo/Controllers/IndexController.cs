@@ -83,7 +83,7 @@ namespace Sinedo.Controllers
         public IActionResult Setup()
         {
             // Umleiten wenn die Einrichtung bereits abgeschlossen wurde.
-            if( Configuration.IsSetupCompleted)
+            if(Configuration.IsSetupCompleted)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -382,12 +382,5 @@ namespace Sinedo.Controllers
         }
 
         #endregion
-
-
-    //     [Route("Backups")]
-    //     public IActionResult Backups()
-    //     {
-    //         return View();
-    //     }
     }
 }

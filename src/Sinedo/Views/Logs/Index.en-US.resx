@@ -141,4 +141,8 @@
     <value>[No selection]</value>
     <comment/>
   </data>
+  <data name="Lines" xml:space="preserve">
+    <value>Line(s)</value>
+    <comment/>
+  </data>
 </root>
