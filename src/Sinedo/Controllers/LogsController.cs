@@ -58,7 +58,7 @@ namespace Sinedo.Controllers
             // Prüfen ob der Benutzer angemeldet ist.
             if ( ! User.Identity.IsAuthenticated)
             {
-                return Redirect("/Login");
+                return Redirect("/Login?ReturnPage=Logs");
             }
 
             WebViewLogger selectedLogger = null;

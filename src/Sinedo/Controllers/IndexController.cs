@@ -167,7 +167,7 @@ namespace Sinedo.Controllers
         /// <param name="ReturnUrl">Seite an die nach dem Login weitergeleitet wird.</param>
         [Route("Login")]
         [HttpPost]
-        public async Task<IActionResult> Login(string password, string ReturnUrl)
+        public async Task<IActionResult> Login(string password, string ReturnPage)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
             if( ! Configuration.IsSetupCompleted)
@@ -192,6 +192,12 @@ namespace Sinedo.Controllers
                                               cookiePrincipal);
 
                 Logger.LogInformation("Authentication was successful.");
+
+                if(ReturnPage != null)
+                {
+                    return Redirect("/" + ReturnPage);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidCredentialsException ie)
