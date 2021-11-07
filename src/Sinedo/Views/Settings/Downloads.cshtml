@@ -1,0 +1,93 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    Layout = "Layout_Settings";
+    ViewData["Title"] = Localizer["Title"];
+    ViewData["SelectedTab"] = 0;
+}
+
+<div class="content__separator">
+    <p>@Localizer["SetupDescription"]</p>
+    <div class="textbox__wrapper">
+        <div class="textbox">
+            <input
+                id="input_bandwidth"
+                name="internetConnectionInMbits"
+                list="bandwidth_list"
+                type="number"
+                min="1" step="1"
+                max="25000"
+                pattern="\d*"
+                inputmode="numeric"
+                spellcheck="false"
+                autocomplete="off"
+                value="@Model.InternetConnectionInMbits"
+                required />
+
+            <label for="input_bandwidth">@Localizer["InternetConnection"]</label>
+            <datalist id="bandwidth_list">
+                <option label='@Localizer["Option16"]' value="16"></option>
+                <option label='@Localizer["Option50"]' value="50"></option>
+                <option label='@Localizer["Option100"]' value="100"></option>
+                <option label='@Localizer["Option250"]' value="250"></option>
+                <option label='@Localizer["Option1000"]' value="1000"></option>
+                <option label='@Localizer["Option10000"]' value="10000"></option>
+            </datalist>
+        </div>
+
+        <div class="textbox">
+            <input
+                id="input_concurrentDownloads"
+                name="concurrentDownloads"
+                type="number"
+                min="1" step="1"
+                max="20"
+                pattern="\d*"
+                inputmode="numeric"
+                spellcheck="false"
+                autocomplete="off"
+                value='@Model.ConcurrentDownloads''
+                required />
+
+            <label for="input_concurrentDownloads">@Localizer["ConcurrentDownloads"]</label>
+        </div>
+    </div>
+</div>
+
+<div class="content__separator">
+    <p>@Localizer["DownloadDescription"]</p>
+    <div class="textbox">
+        <input
+            name="downloadDirectory"
+            id="downloadDirectory_field"
+            type="text"
+            value="@Model.DownloadDirectory" required/>
+
+        <label for="downloadDirectory_field">@Localizer["SavePath"]</label>
+    </div>
+</div>
+
+<div class="content__separator">
+    <p>@Localizer["ExtractDescription"]</p>
+    <div class="textbox">
+        <input
+            name="extractingDirectory"
+            id="extractingDirectory_field"
+            type="text"
+            value="@Model.ExtractingDirectory" required/>
+            
+        <label for="extractingDirectory_field">@Localizer["ExtractFiles"]</label>
+    </div>
+</div>
+
+<div class="content__separator">
+    <div class="checkbox">
+        <input
+            name="isExtractingEnabled"
+            id="isExtractingEnabled_field"
+            type="checkbox"
+            value="checked" @(Model.IsExtractingEnabled ? "checked" : "")/>
+            
+        <label for="isExtractingEnabled_field">@Localizer["ArchiveCheckbox"]</label>
+    </div>
+</div>

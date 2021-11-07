@@ -16,7 +16,7 @@
     }
 
     img {
-        content:url("../../wwwroot/images/moon.svg");
+        content:url("/images/moon.svg");
         height: 100px;
     }
 }
@@ -69,16 +69,18 @@
     background-color: var(--color-tab-background);
 }
 
-.tab__header_item[selected] {
-    color: var(--color-font-title);
-    border-bottom-color: transparent;
-}
 .tab__header_item:hover {
     color: var(--color-font-title);
     background-color: var(--color-tab-hover);
 }
-.tab__header_item:first-child {
+
+.tab__header_item[selected] {
+    color: var(--color-font-title);
     background-color: var(--color-background-content);
+    border-bottom-color: transparent;
+}
+
+.tab__header_item:first-child {
     border-top-left-radius: 24px;
 }
 .tab__header_spacing {

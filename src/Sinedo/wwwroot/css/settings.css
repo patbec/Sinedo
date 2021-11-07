@@ -29,7 +29,9 @@ main {
     border-radius: 2px;
     margin-right: 10px;
 }
-
+.header div {
+    flex-grow: 1;
+}
 .content__separator {
     padding-bottom: 18px;
 }

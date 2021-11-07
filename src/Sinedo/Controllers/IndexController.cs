@@ -118,7 +118,7 @@ namespace Sinedo.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
                 Logger.LogInformation("Setup was successful.");
-                return RedirectToAction(nameof(Settings));
+                return Redirect("/Settings");
             }
             catch (InvalidPasswordPolicyException ae)
             {
@@ -299,92 +299,6 @@ namespace Sinedo.Controllers
 
             // Kennwort Änderung fehlgeschlagen.
             return View();
-        }
-
-        #endregion
-
-        #region Settings
-
-        /// <summary>
-        /// Seite für Einstellungen.
-        /// </summary>
-        [Route("Settings")]
-        public IActionResult Settings()
-        {
-            // Umleiten wenn kein Passwort eingerichtet wurde.
-            if( ! Configuration.IsSetupCompleted)
-            {
-                return RedirectToAction(nameof(Setup));
-            }
-
-            // Prüfen ob der Benutzer angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction(nameof(Login));
-            }
-
-            return View(
-                Configuration.GetSettings());
-        }
-
-        /// <summary>
-        /// Verarbeitet das eingegebenen Einstellungen.  
-        /// </summary>
-        /// <param name="ReturnUrl">Seite an die nach dem Login weitergeleitet wird.</param>
-        [Route("Settings")]
-        [HttpPost]
-        public IActionResult Settings(string sharehosterUsername, 
-                                      string sharehosterPassword,
-                                      uint internetConnectionInMbits,
-                                      uint concurrentDownloads,
-                                      string downloadDirectory,
-                                      string isExtractingEnabled,
-                                      string extractingDirectory,
-                                      string ReturnUrl)
-        {
-            // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! Configuration.IsSetupCompleted)
-            {
-                return Forbid();
-            }
-
-            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                // Neue Einstellungen prüfen und speichern.
-                Configuration.SetGeneralSettings(sharehosterUsername,
-                                                 sharehosterPassword,
-                                                 internetConnectionInMbits,
-                                                 concurrentDownloads,
-                                                 downloadDirectory,
-                                                 isExtractingEnabled != null,
-                                                 extractingDirectory);
-
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Settings cloud not be saved.");
-                ModelState.AddModelError("error", "Saving the settings failed, the error code is: " + ex.HResult);
-            }
-
-            // Einstellungsseite mit eingegebenen Einstellungen und dem Fehler zurückgeben.
-            SettingsRecord settings = new ()
-            {
-                SharehosterUsername = sharehosterUsername,
-                SharehosterPassword = sharehosterPassword,
-                InternetConnectionInMbits = internetConnectionInMbits,
-                DownloadDirectory = downloadDirectory,
-                IsExtractingEnabled = isExtractingEnabled != null,
-                ExtractingDirectory = extractingDirectory,
-            };
-            return View(settings);
         }
 
         #endregion

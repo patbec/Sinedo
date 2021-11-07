@@ -118,87 +118,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Title" xml:space="preserve">
-    <value>Einstellungen ändern</value>
+    <value>Settings</value>
     <comment/>
   </data>
-  <data name="Save" xml:space="preserve">
-    <value>Einstellungen Speichern</value>
+  <data name="Downloads" xml:space="preserve">
+    <value>Downloads</value>
     <comment/>
   </data>
-  <data name="SerivceCredentials" xml:space="preserve">
-    <value>Zugangsdaten für den Dienst Rapidgator:</value>
+  <data name="Accounts" xml:space="preserve">
+    <value>Accounts</value>
     <comment/>
   </data>
-  <data name="Username" xml:space="preserve">
-    <value>Benutzername</value>
-    <comment/>
-  </data>
-  <data name="Password" xml:space="preserve">
-    <value>Passwort</value>
-    <comment/>
-  </data>
-  <data name="SetupDescription" xml:space="preserve">
-    <value>Geben Sie die Geschwindigkeit Ihrer Internetverbindung und die Anzahl der gleichzeitigen Downloads an:</value>
-    <comment/>
-  </data>
-  <data name="InternetConnection" xml:space="preserve">
-    <value>Internetverbindung</value>
-    <comment/>
-  </data>
-  <data name="Option16" xml:space="preserve">
-    <value>16 MBit/s</value>
-    <comment/>
-  </data>
-  <data name="Option50" xml:space="preserve">
-    <value>50 MBit/s</value>
-    <comment/>
-  </data>
-  <data name="Option100" xml:space="preserve">
-    <value>100 MBit/s</value>
-    <comment/>
-  </data>
-  <data name="Option250" xml:space="preserve">
-    <value>250 MBit/s</value>
-    <comment/>
-  </data>
-  <data name="Option1000" xml:space="preserve">
-    <value>1 GBit/s</value>
-    <comment/>
-  </data>
-  <data name="Option10000" xml:space="preserve">
-    <value>10 GBit/s</value>
-    <comment/>
-  </data>
-  <data name="ConcurrentDownloads" xml:space="preserve">
-    <value>Gleichzeitige Downloads</value>
-    <comment/>
-  </data>
-  <data name="DownloadDescription" xml:space="preserve">
-    <value>Geben Sie einen Ordner an indem die Dateien heruntergeladen werden:</value>
-    <comment/>
-  </data>
-  <data name="ExtractDescription" xml:space="preserve">
-    <value>Geben Sie einen Ordner an, in den die Dateien extrahiert werden:</value>
-    <comment/>
-  </data>
-  <data name="ExtractFiles" xml:space="preserve">
-    <value>Entpackte Dateien</value>
-    <comment/>
-  </data>
-  <data name="ArchiveCheckbox" xml:space="preserve">
-    <value>RAR-Archive nach dem Herunterladen entpacken?</value>
-    <comment/>
-  </data>
-  <data name="SavePath" xml:space="preserve">
-    <value>Speicherort</value>
-    <comment/>
-  </data>
-  <data name="SaveError" xml:space="preserve">
-    <value>Die Einstellungen konnten nicht gespeichert werden.</value>
-    <comment/>
-  </data>
-  <data name="Abort" xml:space="preserve">
-    <value>Abbrechen</value>
+  <data name="Server" xml:space="preserve">
+    <value>Server</value>
     <comment/>
   </data>
 </root>
