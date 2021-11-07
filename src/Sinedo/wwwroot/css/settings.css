@@ -1,0 +1,46 @@
+body {
+    min-width: 300px;
+    min-height: 400px;
+    height: 100vh;
+    margin: 0;
+}
+
+main {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 980px;
+}
+.header {
+    display: flex;
+    padding-top: 20px;
+    padding-bottom: 24px;
+    align-items: baseline;
+}
+.header h4 {
+    margin: 0;
+    padding-top: 0;
+}
+.header h4::before {
+    display: inline-block;
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-theme-primary);
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+.content__separator {
+    padding-bottom: 18px;
+}
+.textbox__wrapper {
+    display: flex;
+    gap: 24px;
+}
+
+.textbox {
+    width: 100%;
+}
+.checkbox {
+    width: 100%;
+}

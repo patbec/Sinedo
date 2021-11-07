@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Einstellungen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" href="../../wwwroot/css/default.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/button.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/input.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/icons.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/chips.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/settings.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/tab.css" type="text/css">
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#161b22">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#fbfbfb">
+</head>
+
+<body>
+    <main>
+        <div class="header">
+            <h4>Einstellungen</h4>
+            <div style="flex-grow: 1;"></div>
+            <img height=100 src="../../wwwroot/images/clouds.svg" />
+        </div>
+
+
+        <div class="tabcontrol">
+            <div class="tab__header">
+                <a class="tab__header_item" selected href="/Logs?component=@item.ComponentName">
+                    <div class="icon">file_download</div>
+                    <div class="tab__header_text">Downloads</div>
+                </a>
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">people</div>
+                    <div class="tab__header_text">Konten</div>
+                </a>
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">admin_panel_settings</div>
+                    <div class="tab__header_text">Server</div>
+                </a>
+                <div class="tab__header_spacing">
+
+                </div>
+            </div>
+
+            <div class="tab__content">
+                <form method="post">
+                    <div class="content__separator">
+                        <p>Geben Sie die Geschwindigkeit Ihrer Internetverbindung und die Anzahl der gleichzeitigen
+                            Downloads an:</p>
+                        <div class="textbox__wrapper">
+                            <div class="textbox">
+                                <input name="internetConnectionInMbits" list="bandwidth_list" type="number" min="1"
+                                    step="1" max="25000" pattern="\d*" inputmode="numeric" spellcheck="false"
+                                    autocomplete="off" value="10000" required />
+
+                                <label for="input_bandwidth">Bandbreite</label>
+                                <datalist id="bandwidth_list">
+                                    <option label='@Localizer["Option16"]' value="16"></option>
+                                    <option label='@Localizer["Option50"]' value="50"></option>
+                                    <option label='@Localizer["Option100"]' value="100"></option>
+                                    <option label='@Localizer["Option250"]' value="250"></option>
+                                    <option label='@Localizer["Option1000"]' value="1000"></option>
+                                    <option label='@Localizer["Option10000"]' value="10000"></option>
+                                </datalist>
+                            </div>
+
+                            <div class="textbox">
+                                <input name="concurrentDownloads" type="number" min="1" step="1" max="20" pattern="\d*"
+                                    inputmode="numeric" spellcheck="false" autocomplete="off" value='2' required />
+
+                                <label for="input_bandwidth">Gleichzeitige Downloads</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content__separator">
+                        <p>Geben Sie einen Ordner an, indem die Dateien heruntergeladen werden:</p>
+                        <div class="textbox">
+                            <input name="downloadDirectory" id="downloadDirectory_field" type="text" value="C:\Test"
+                                required />
+
+                            <label for="downloadDirectory_field">Speicherort</label>
+                        </div>
+                    </div>
+
+                    <div class="content__separator">
+                        <p>Geben Sie einen Ordner an, in den die Dateien extrahiert werden:</p>
+                        <div class="textbox">
+                            <input name="extractingDirectory" id="extractingDirectory_field" type="text" value="C:\Test"
+                                required />
+
+                            <label for="extractingDirectory_field">Entpacke Dateien nach</label>
+                        </div>
+                    </div>
+
+                    <div class="content__separator">
+                        <div class="checkbox">
+                            <input name="isExtractingEnabled" id="isExtractingEnabled_field" type="checkbox"
+                                value="checked" checked />
+
+                            <label for="isExtractingEnabled_field">RAR-Archive nach dem Herunterladen entpacken?</label>
+                        </div>
+                    </div>
+
+                    <button class="dialog-button square-button" type="submit" name="save">
+                        <span>Speichern</span>
+                    </button>
+                </form>
+
+            </div>
+
+            <div class="tabcontrol__statusbar">
+            </div>
+        </div>
+
+        <div style="height: 14px;">
+
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+:root {
+    --color-tab-background: #fbfbfb;
+    --color-tab-border: #dbdbdb;
+
+    --color-tab-selection: #eeeeee;
+    --color-tab-hover: #eeeeee5b;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-tab-background: #121212;
+        --color-tab-border: #2f2f32;
+    
+        --color-tab-selection: #202020;
+        --color-tab-hover: #202020;
+    }
+
+    img {
+        content:url("../../wwwroot/images/moon.svg");
+        height: 100px;
+    }
+}
+
+.tabcontrol {
+    border-style: solid;
+    border-width: 2px;
+    border-color: var(--color-tab-border);
+    border-radius: 24px;
+    overflow: hidden;
+}
+.tabcontrol__statusbar {
+    height: 22px;
+    border-top-style: solid;
+    border-top-width: 2px;
+    border-top-color: var(--color-tab-border);
+
+    background-color: var(--color-background-content);
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+}
+.tabcontrol__statusbar div {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background-color: var(--color-tab-border);
+}
+.tab__header {
+    display: flex;
+    width: 100%;
+}
+
+.tab__header_item {
+    display: flex;
+
+    padding: 18px;
+    padding-left: 24px;
+    padding-right: 24px;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--color-tab-border);
+
+    text-decoration: none;
+    color: var(--color-font-text);
+
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--color-tab-border);
+
+    background-color: var(--color-tab-background);
+}
+
+.tab__header_item[selected] {
+    color: var(--color-font-title);
+    border-bottom-color: transparent;
+}
+.tab__header_item:hover {
+    color: var(--color-font-title);
+    background-color: var(--color-tab-hover);
+}
+.tab__header_item:first-child {
+    background-color: var(--color-background-content);
+    border-top-left-radius: 22px;
+}
+.tab__header_spacing {
+    flex-grow: 1;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--color-tab-border);
+
+    border-top-right-radius: 22px;
+    background-color: var(--color-tab-background);
+}
+
+.tab__header_text {
+    padding-left: 14px;
+    padding-right: 6px;
+}
+
+.tab__content {
+    padding: 40px;
+    padding-top: 30px;
+    padding-bottom: 60px;
+
+    background-color: var(--color-background-content);
+}

@@ -55,15 +55,23 @@
             <p class="snackbar__text">
                 <!-- Übersetzte Fehlermeldungen -->
                 <span hidden data-side="server"></span>
-                <span hidden data-side="server" data-exception='Sinedo.Exceptions.StateMaschineException'>@Localizer["Snackbar:StateMaschineException"]</span>
-                <span hidden data-side="server" data-exception='System.Collections.Generic.KeyNotFoundException'>@Localizer["Snackbar:KeyNotFoundException"]</span>
-                <span hidden data-side="server" data-exception='System.InvalidOperationException'>@Localizer["Snackbar:InvalidOperationException"]</span>
-                <span hidden data-side="server" data-exception='Sinedo.Exceptions.CommandNotAllowedException'>@Localizer["Snackbar:CommandNotAllowedException"]</span>
-                <span hidden data-side="server" data-exception='Sinedo.Exceptions.ClickAndLoadException'>@Localizer["Snackbar:ClickAndLoadException"]</span>
-                <span hidden data-side="server" data-exception='Sinedo.Exceptions.CacheException'>@Localizer["Snackbar:CacheException"]</span>
-                <span hidden data-side="client" data-exception='ClientCommandFailed'>@Localizer["Snackbar:ClientCommandFailed"]</span>
+                <span hidden data-side="server"
+                    data-exception='Sinedo.Exceptions.StateMaschineException'>@Localizer["Snackbar:StateMaschineException"]</span>
+                <span hidden data-side="server"
+                    data-exception='System.Collections.Generic.KeyNotFoundException'>@Localizer["Snackbar:KeyNotFoundException"]</span>
+                <span hidden data-side="server"
+                    data-exception='System.InvalidOperationException'>@Localizer["Snackbar:InvalidOperationException"]</span>
+                <span hidden data-side="server"
+                    data-exception='Sinedo.Exceptions.CommandNotAllowedException'>@Localizer["Snackbar:CommandNotAllowedException"]</span>
+                <span hidden data-side="server"
+                    data-exception='Sinedo.Exceptions.ClickAndLoadException'>@Localizer["Snackbar:ClickAndLoadException"]</span>
+                <span hidden data-side="server"
+                    data-exception='Sinedo.Exceptions.CacheException'>@Localizer["Snackbar:CacheException"]</span>
+                <span hidden data-side="client"
+                    data-exception='ClientCommandFailed'>@Localizer["Snackbar:ClientCommandFailed"]</span>
                 <span hidden data-side="client" data-exception='UploadFailed'>@Localizer["Snackbar:UploadFailed"]</span>
-                <span hidden data-side="client" data-exception='UploadSizeExceeded'>@Localizer["Snackbar:UploadSizeExceeded"]</span>
+                <span hidden data-side="client"
+                    data-exception='UploadSizeExceeded'>@Localizer["Snackbar:UploadSizeExceeded"]</span>
                 <span hidden data-side="client" data-exception='Test'>@Localizer["Snackbar:Test"]</span>
             </p>
             <div class="snackbar_progressbar"></div>
@@ -98,12 +106,18 @@
                                         <span class="infoError">
                                             <!-- Übersetzte Fehlermeldungen -->
                                             <span hidden data-side="server"></span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidFileException'>@Localizer["List:InvalidFileException"]</span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidCredentialsException'>@Localizer["List:InvalidCredentialsException"]</span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.AccountExpiredException'>@Localizer["List:AccountExpiredException"]</span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.InvalidResponseException'>@Localizer["List:InvalidResponseException"]</span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.MissingCredentialsException'>@Localizer["List:MissingCredentialsException"]</span>
-                                            <span hidden data-side="server" data-exception='Sinedo.Exceptions.ExceededTrafficException'>@Localizer["List:ExceededTrafficException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.InvalidFileException'>@Localizer["List:InvalidFileException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.InvalidCredentialsException'>@Localizer["List:InvalidCredentialsException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.AccountExpiredException'>@Localizer["List:AccountExpiredException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.InvalidResponseException'>@Localizer["List:InvalidResponseException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.MissingCredentialsException'>@Localizer["List:MissingCredentialsException"]</span>
+                                            <span hidden data-side="server"
+                                                data-exception='Sinedo.Exceptions.ExceededTrafficException'>@Localizer["List:ExceededTrafficException"]</span>
                                         </span>
                                     </span>
                                     <span data-state="running">
@@ -152,7 +166,8 @@
                                 <div class="card__title">@Localizer["InternetConnection"]</div>
                                 <div class="card__text">
                                     <span>@Localizer["CurrentSpeed"] <strong class="fadeInOnAfterPageLoad"><span
-                                                id="card_download">0 Bytes</span>@Localizer["SpeedPerSecond"]</strong></span>
+                                                id="card_download">0
+                                                Bytes</span>@Localizer["SpeedPerSecond"]</strong></span>
                                 </div>
                             </div>
                             <div class="card__media">
@@ -190,8 +205,8 @@
                 </div>
                 <p>
                     @Html.Raw(String.Format(Localizer["DownloadsDescription"].Value,
-                        "<b class='shortcut'>1</b>",
-                        "<b class='shortcut'>2</b>")
+                    "<b class='shortcut'>1</b>",
+                    "<b class='shortcut'>2</b>")
                     )
                 </p>
             </div>
@@ -201,16 +216,16 @@
                 <h5>@Localizer["Storage"]</h5>
                 <div class="panel__media">
                     <canvas id="disk_canvas" class="panel__chart fadeInOnAfterPageLoad"
-                            aria-label='@Localizer["HardDiskUsage"]'
-                            title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
+                        aria-label='@Localizer["HardDiskUsage"]'
+                        title='@Localizer["HardDiskUsage"]'>@Localizer["NoScript"]</canvas>
                 </div>
                 <div class="fadeInOnAfterPageLoad" style="min-height: 54px;">
-                    <div id="diskOnline"idden>
+                    <div id="diskOnline" idden>
                         <p>
                             @Html.Raw(String.Format(Localizer["StorageDescription"].Value,
-                                "<strong><span id='disk_free'>0 GB</span></strong>",
-                                "<strong><span id='disk_size'>0 GB</span></strong>")
-                            ) 
+                            "<strong><span id='disk_free'>0 GB</span></strong>",
+                            "<strong><span id='disk_size'>0 GB</span></strong>")
+                            )
                         </p>
                     </div>
                     <div id="diskOffline" hidden>
@@ -284,21 +299,21 @@
 
                     <ul id="linkedit" class="linkbox">
                         <li class="linkitem">
-                              <div class="panel__wrapper">
-                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
-                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text" />
+                                <input placeholder='@Localizer["Url"]' type="text" />
                             </div>
                         </li>
                         <li class="linkitem">
-                              <div class="panel__wrapper">
-                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
-                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text" />
+                                <input placeholder='@Localizer["Url"]' type="text" />
                             </div>
                         </li>
                         <li class="linkitem">
-                              <div class="panel__wrapper">
-                                <input placeholder='@Localizer["DisplayName"]' type="text"/>
-                                <input placeholder='@Localizer["Url"]' type="text"/>
+                            <div class="panel__wrapper">
+                                <input placeholder='@Localizer["DisplayName"]' type="text" />
+                                <input placeholder='@Localizer["Url"]' type="text" />
                             </div>
                         </li>
                     </ul>
@@ -360,6 +375,37 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="panel" id="hoster">
+                <h5><span>Hoster</span></h5>
+
+                <div class="fadeInOnAfterPageLoad">
+                    <button id="buttonHosterEdit">
+                        <span>Neuen Hoster hinzufügen</span>
+                    </button>
+
+                    <ul id="hosterbox" class="linkbox">
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary">Rapidgator</div>
+                                <div class="linkitem__secondary">Verbleibende Tage 28</div>
+                            </a>
+                        </li>
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary"></div>
+                                <div class="linkitem__secondary"></div>
+                            </a>
+                        </li>
+                        <li class="linkitem">
+                            <a>
+                                <div class="linkitem__primary"></div>
+                                <div class="linkitem__secondary"></div>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
 
