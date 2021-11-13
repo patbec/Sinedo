@@ -532,6 +532,74 @@ var Application;
         Services.NotificationControl = NotificationControl;
     })(Services = Application.Services || (Application.Services = {}));
 })(Application || (Application = {}));
+/// <reference path="./Services/NotificationControl.ts" />
+/// <reference path="./Common/Control.ts" />
+var Application;
+(function (Application) {
+    class Settings {
+        /**
+         * Beginnt die Anwendung zu laden.
+         */
+        static Main() {
+            Settings.loadLocalizedStrings();
+            let controls = [
+                Application.Common.Control.get("input_bandwidth"),
+                Application.Common.Control.get("input_concurrentDownloads"),
+                Application.Common.Control.get("input_downloadDirectory"),
+                Application.Common.Control.get("input_extractingDirectory"),
+                Application.Common.Control.get("input_isExtractingEnabled")
+            ];
+            controls.forEach(element => {
+                element.addEventListener('change', Settings.onChanged);
+            });
+        }
+        static onChanged(e) {
+            var element = e.target;
+            var newValue;
+            if (element.type === "checkbox") {
+                newValue = element.checked ? "true" : "false";
+            }
+            else {
+                newValue = element.value;
+            }
+            fetch("/api/settings?name=" + element.getAttribute("data-setting-name"), {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newValue)
+            }).then(response => {
+                switch (response.status) {
+                    case 200: {
+                        break;
+                    }
+                    case 403: {
+                        alert(Settings._setupMessage);
+                        break;
+                    }
+                    case 401: {
+                        alert(Settings._loginMessage);
+                        break;
+                    }
+                    default: {
+                        alert(Settings._errorMessage);
+                        break;
+                    }
+                }
+            });
+        }
+        static loadLocalizedStrings() {
+            // Übersetzung für Nachrichtenboxen auslesen.
+            let template = document.getElementById('localized_dialog_strings');
+            let template_strings = template.content.cloneNode(true);
+            this._setupMessage = template_strings.children[0].textContent;
+            this._loginMessage = template_strings.children[1].textContent;
+            this._errorMessage = template_strings.children[2].textContent;
+        }
+    }
+    Application.Settings = Settings;
+})(Application || (Application = {}));
 var Application;
 (function (Application) {
     var Flags;
