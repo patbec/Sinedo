@@ -1,3 +1,25 @@
+@media screen and (max-width: 620px) {
+    .textbox__wrapper {
+        flex-wrap: wrap;
+    }
+    .textbox__wrapper button {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 1030px) {
+    main {
+        margin-left: unset !important;
+        margin-right: unset !important;
+        max-width: unset !important;
+        width: 100%;
+    }
+
+    .header {
+        padding-left: 20px;
+    }
+}
+
 body {
     min-width: 300px;
     min-height: 400px;

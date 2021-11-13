@@ -4,6 +4,8 @@
 
     --color-tab-selection: #eeeeee;
     --color-tab-hover: #eeeeee5b;
+
+    --border-radius: 24px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,11 +23,47 @@
     }
 }
 
+@media screen and (max-width: 1030px) {
+    :root {
+        --border-radius: 0px;
+    }
+
+    .tabcontrol {
+        border-left-style: none !important;
+        border-right-style: none !important;
+    }
+}
+
+@media screen and (max-width: 500px) {
+
+    .tab__header_item {
+        flex-grow: 1 !important;
+
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .tab__header_spacing {
+        display: none !important;
+    }
+
+    img {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: 400px) {
+
+    .icon {
+        display: none !important;
+    }
+}
+
 .tabcontrol {
     border-style: solid;
     border-width: 1px;
     border-color: var(--color-tab-border);
-    border-radius: 24px;
+    border-radius: var(--border-radius);
     overflow: hidden;
 }
 .tabcontrol__statusbar {
@@ -35,8 +73,8 @@
     border-top-color: var(--color-tab-border);
 
     background-color: var(--color-background-content);
-    border-bottom-left-radius: 24px;
-    border-bottom-right-radius: 24px;
+    border-bottom-left-radius: var(--border-radius);;
+    border-bottom-right-radius: var(--border-radius);;
 }
 .tabcontrol__statusbar div {
     width: 8px;
@@ -81,7 +119,7 @@
 }
 
 .tab__header_item:first-child {
-    border-top-left-radius: 24px;
+    border-top-left-radius: var(--border-radius);
 }
 .tab__header_spacing {
     flex-grow: 1;
@@ -89,7 +127,7 @@
     border-bottom-width: 1px;
     border-bottom-color: var(--color-tab-border);
 
-    border-top-right-radius: 24px;
+    border-top-right-radius: var(--border-radius);
     background-color: var(--color-tab-background);
 }
 

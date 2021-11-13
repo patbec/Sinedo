@@ -210,6 +210,7 @@ namespace Sinedo.Singleton
         /// <param name="downloadDirectory">Zielordner für die heruntergeladenen Dateien.</param>
         /// <param name="isExtractingEnabled">Gibt an ob heruntergeladene Dateien entpackt werden sollen.</param>
         /// <param name="extractingDirectory">Zielordner für die entpackten Dateien.</param>
+        [Obsolete]
         public void SetGeneralSettings(string sharehosterUsername, string sharehosterPassword, uint internetConnectionInMbits, uint concurrentDownloads, string downloadDirectory, bool isExtractingEnabled, string extractingDirectory)
         {
             lock(this)
@@ -250,6 +251,81 @@ namespace Sinedo.Singleton
             }
         }
 
+        /// <summary>
+        /// Prüft und speichert die angegebene Einstellung.
+        /// </summary>
+        /// <param name="settingName">Name der Einstellung.</param>
+        /// <param name="settingValue">Wert der Einstellung.</param>
+        public void SetGeneralSetting(string settingName, string settingValue)
+        {
+            if(settingValue == null) {
+                throw new ArgumentNullException(nameof(settingValue));
+            }
+
+            lock(this)
+            { 
+                //
+                // Prüfung auf fehlerhafte Einstellungen
+                //
+
+                switch(settingName)
+                {
+                    case "internetConnectionInMbits": {
+                        uint internetConnectionInMbits = uint.Parse(settingValue);
+
+                        if(internetConnectionInMbits == 0) {
+                            throw new ArgumentOutOfRangeException(nameof(InternetConnectionInMbits), internetConnectionInMbits, "The value must not be 0.");
+                        }
+
+                        InternetConnectionInMbits = internetConnectionInMbits;
+                        break;
+                    }
+                    case "concurrentDownloads": {
+                        uint concurrentDownloads = uint.Parse(settingValue);
+
+                        if(concurrentDownloads == 0 || concurrentDownloads > 20) {
+                            throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), concurrentDownloads, "The value must be within 1 to 20.");
+                        }
+
+                        InternetConnectionInMbits = concurrentDownloads;
+                        break;
+                    }
+                    case "downloadDirectory": {
+                        string downloadDirectory = settingValue;
+
+                        DownloadDirectory = downloadDirectory;
+                        break;
+                    }
+                    case "isExtractingEnabled": {
+                        bool isExtractingEnabled = bool.Parse(settingValue);
+
+                        IsExtractingEnabled = isExtractingEnabled;
+                        break;
+                    }
+                    case "extractingDirectory": {
+                        string extractingDirectory = settingValue;
+
+                        ExtractingDirectory = extractingDirectory;
+                        break;
+                    }
+                    default: {
+                        throw new ArgumentException("The setting named '{0}' is not supported.", settingName);
+                    }
+                }
+
+                Save();
+
+                logger.LogInformation("The general settings have been updated.");
+
+                foreach (var callback in callbacks) {
+                    callback();
+                }
+
+                logger.LogInformation("Callbacks for settings have been completed.");
+            }
+        }
+
+        [Obsolete]
         public SettingsRecord GetSettings()
         {
             lock(this)

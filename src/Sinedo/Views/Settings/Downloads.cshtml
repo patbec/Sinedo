@@ -6,13 +6,19 @@
     ViewData["SelectedTab"] = 0;
 }
 
+<template id="localized_dialog_strings">
+    <p id="setup_message">@Localizer["SetupMessage"]</p>
+    <p id="login_message">@Localizer["LoginMessage"]</p>
+    <p id="error_message">@Localizer["ErrorMessage"]</p>
+</template>
+
 <div class="content__separator">
     <p>@Localizer["SetupDescription"]</p>
     <div class="textbox__wrapper">
         <div class="textbox">
             <input
                 id="input_bandwidth"
-                name="internetConnectionInMbits"
+                data-setting-name="internetConnectionInMbits"
                 list="bandwidth_list"
                 type="number"
                 min="1" step="1"
@@ -38,7 +44,7 @@
         <div class="textbox">
             <input
                 id="input_concurrentDownloads"
-                name="concurrentDownloads"
+                data-setting-name="concurrentDownloads"
                 type="number"
                 min="1" step="1"
                 max="20"
@@ -58,8 +64,8 @@
     <p>@Localizer["DownloadDescription"]</p>
     <div class="textbox">
         <input
-            name="downloadDirectory"
-            id="downloadDirectory_field"
+            id="input_downloadDirectory"
+            data-setting-name="downloadDirectory"
             type="text"
             value="@Model.DownloadDirectory" required/>
 
@@ -71,8 +77,8 @@
     <p>@Localizer["ExtractDescription"]</p>
     <div class="textbox">
         <input
-            name="extractingDirectory"
-            id="extractingDirectory_field"
+            id="input_extractingDirectory"
+            data-setting-name="extractingDirectory"
             type="text"
             value="@Model.ExtractingDirectory" required/>
             
@@ -83,8 +89,8 @@
 <div class="content__separator">
     <div class="checkbox">
         <input
-            name="isExtractingEnabled"
-            id="isExtractingEnabled_field"
+            id="input_isExtractingEnabled"
+            data-setting-name="isExtractingEnabled"
             type="checkbox"
             value="checked" @(Model.IsExtractingEnabled ? "checked" : "")/>
             

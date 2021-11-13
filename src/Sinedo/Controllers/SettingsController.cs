@@ -48,8 +48,6 @@ namespace Sinedo.Controllers
             _scheduler = scheduler;
         }
 
-        #region Settings
-
         [Route("Settings/Downloads")]
         public IActionResult Downloads()
         {
@@ -69,67 +67,8 @@ namespace Sinedo.Controllers
                 Configuration.GetSettings());
         }
 
-        /// <summary>
-        /// Verarbeitet das eingegebenen Einstellungen.  
-        /// </summary>
-        /// <param name="ReturnUrl">Seite an die nach dem Login weitergeleitet wird.</param>
-        [Route("Settings/Downloads")]
-        [HttpPost]
-        public IActionResult Settings(string sharehosterUsername, 
-                                      string sharehosterPassword,
-                                      uint internetConnectionInMbits,
-                                      uint concurrentDownloads,
-                                      string downloadDirectory,
-                                      string isExtractingEnabled,
-                                      string extractingDirectory,
-                                      string ReturnUrl)
-        {
-            // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! Configuration.IsSetupCompleted)
-            {
-                return Forbid();
-            }
 
-            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-
-            try
-            {
-                // Neue Einstellungen prüfen und speichern.
-                Configuration.SetGeneralSettings(sharehosterUsername,
-                                                 sharehosterPassword,
-                                                 internetConnectionInMbits,
-                                                 concurrentDownloads,
-                                                 downloadDirectory,
-                                                 isExtractingEnabled != null,
-                                                 extractingDirectory);
-
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Settings cloud not be saved.");
-                ModelState.AddModelError("error", "Saving the settings failed, the error code is: " + ex.HResult);
-            }
-
-            // Einstellungsseite mit eingegebenen Einstellungen und dem Fehler zurückgeben.
-            SettingsRecord settings = new ()
-            {
-                SharehosterUsername = sharehosterUsername,
-                SharehosterPassword = sharehosterPassword,
-                InternetConnectionInMbits = internetConnectionInMbits,
-                DownloadDirectory = downloadDirectory,
-                IsExtractingEnabled = isExtractingEnabled != null,
-                ExtractingDirectory = extractingDirectory,
-            };
-            return View(settings);
-        }
-
-        [Route("Settings/Server")]
+        [Route("settings/server")]
         public IActionResult Server()
         {
             // Umleiten wenn kein Passwort eingerichtet wurde.
@@ -145,6 +84,39 @@ namespace Sinedo.Controllers
             }
 
             return View();
+        }
+
+        #region Api
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Route("api/settings")]
+        [HttpPost]
+        public IActionResult Settings(string name, [FromBody] string value)
+        {
+            // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
+            if( ! Configuration.IsSetupCompleted)
+            {
+                return Forbid();
+            }
+
+            // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
+            if ( ! User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                Configuration.SetGeneralSetting(name, value);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         #endregion
