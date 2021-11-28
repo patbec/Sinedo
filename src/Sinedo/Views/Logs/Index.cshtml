@@ -35,7 +35,7 @@
                             var component = group.ElementAt(i);
 
                             if(i % 2 == 1) {
-                                <a href="/Logs?component=@component.ComponentName">
+                                <a href="/logs?component=@component.ComponentName">
                                     <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error") @(component.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
                                         <span class="chip__text">@component.ComponentName</span>
                                     </div>
@@ -54,7 +54,7 @@
                             var component = group.ElementAt(i);
                             
                             if(i % 2 == 0) {
-                                <a href="/Logs?component=@component.ComponentName">
+                                <a href="/logs?component=@component.ComponentName">
                                     <div class="chip" data-level=@(component.GetStatusLevel() < LogLevel.Error ? "success" : "error") @(component.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "")>
                                         <span class="chip__text">@component.ComponentName</span>
                                     </div>
@@ -82,7 +82,7 @@
                                     foreach(var item in group.OrderBy(e => e.ComponentName))
                                     {
                                         <li class="menu__item" @(item.ComponentName == Model.SelectedLogger?.ComponentName ? "selected" : "" )>
-                                            <a href="/Logs?component=@item.ComponentName">
+                                            <a href="/logs?component=@item.ComponentName">
                                                 <div class="status">
                                                     @if(item.GetStatusLevel() < LogLevel.Error) {
                                                         <div class="status__icon icon" green>check_circle</div>
@@ -102,7 +102,7 @@
                 </ul>
             </div>
             <div class="header__footer">
-                <form target="_blank" action="/Logs/CreateBackup" method="get">
+                <form target="_blank" action="/logs/backup" method="get">
                     <button class="menu-button">
                         <span>@Localizer["ExportButton"]</span>
                     </button>
@@ -151,7 +151,7 @@
         </div>
         
         <div class="minifooter">
-            <form target="_blank" action="/Logs/CreateBackup" method="get">
+            <form target="_blank" action="/logs/backup" method="get">
                 <button class="menu-button" title='@Localizer["ExportButton"]'>
                     <span class="icon">save</span>
                 </button>

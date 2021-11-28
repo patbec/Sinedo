@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Einstellungen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" href="../../wwwroot/css/default.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/button.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/input.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/icons.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/chips.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/settings.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/tab.css" type="text/css">
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#161b22">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#fbfbfb">
+</head>
+
+<body>
+    <main>
+        <div class="header">
+            <h4>Einstellungen</h4>
+            <div style="flex-grow: 1;"></div>
+            <img height=100 src="../../wwwroot/images/clouds.svg" />
+        </div>
+
+
+        <div class="tabcontrol">
+            <div class="tab__header">
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">file_download</div>
+                    <div class="tab__header_text">Downloads</div>
+                </a>
+                <a class="tab__header_item" selected href="/Logs?component=@item.ComponentName">
+                    <div class="icon">people</div>
+                    <div class="tab__header_text">Konten</div>
+                </a>
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">admin_panel_settings</div>
+                    <div class="tab__header_text">Server</div>
+                </a>
+                <div class="tab__header_spacing">
+
+                </div>
+            </div>
+
+            <div class="tab__content">
+                <form method="post">
+                    <div class="content__separator">
+                        <p>Geben Sie die Zugangsdaten für Ihre Hoster ein:</p>
+
+
+                        <table style="width: 100%;">
+                            <tr>
+                                <th style="text-align: left;">Anbieter</th>
+                                <th style="text-align: left;">Status</th>
+                                <th style="text-align: left;">Aktionen</th>
+                            </tr>
+                            <tr>
+                                <td>Hoster</td>
+                                <td>Status</td>
+                                <td>Button</td>
+                            </tr>
+                            <tr>
+                                <td>Hoster</td>
+                                <td>Status</td>
+                                <td>Button</td>
+                            </tr>
+                          </table>
+
+                        <ul style="list-style: none; padding-left: 0px;">
+                            <li style="display: grid; grid-template-columns: auto auto min-content; width: 100%;">
+                                <div>
+                                    <p><b><a style="color: var(--color-font); text-decoration: none;" href="test">Rapidgator</a></b></p>
+                                </div>
+                                <div>
+                                    <p>30 Tage verbleibend</p>
+                                </div>
+                                <div style="align-self: center;">
+                                    <button>
+                                        <span>Löschen</span>
+                                    </button>
+                                </div>
+                            </li>
+
+                            <li style="display: grid; grid-template-columns: auto auto min-content; width: 100%;">
+                                <div>
+                                    <p><b>Rapidgator</b></p>
+                                </div>
+                                <div>
+                                    <p>Nicht konfiguriert</p>
+                                </div>
+                                <div style="align-self: center;">
+                                    <button>
+                                        <span>Einrichten</span>
+                                    </button>
+                                </div>
+                            </li>
+
+                            <li>
+                                
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="tabcontrol__statusbar">
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

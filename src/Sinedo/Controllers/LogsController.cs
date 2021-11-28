@@ -46,19 +46,19 @@ namespace Sinedo.Controllers
         /// <summary>
         /// Gibt die Log-Seite zurück.
         /// </summary>
-        [Route("Logs")]
+        [Route("logs")]
         public IActionResult Index(string component)
         {
             // Umleiten wenn kein Passwort eingerichtet wurde.
             if( ! _configuration.IsSetupCompleted)
             {
-                return Redirect("/Setup");
+                return Redirect("/setup");
             }
 
             // Prüfen ob der Benutzer angemeldet ist.
             if ( ! User.Identity.IsAuthenticated)
             {
-                return Redirect("/Login?ReturnPage=Logs");
+                return Redirect("/login?page=logs");
             }
 
             WebViewLogger selectedLogger = null;
@@ -78,11 +78,13 @@ namespace Sinedo.Controllers
                 new LogModel(sortedLoggers, selectedLogger));
         }
 
+        #region RestApi
+
         /// <summary>
         /// Erstellt eine vollständige Sicherung der Logeinträge.
         /// </summary>
-        [Route("Logs/CreateBackup")]
-        public IActionResult CreateBackup()
+        [Route("logs/backup")]
+        public IActionResult Backup()
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
             if( ! _configuration.IsSetupCompleted)
@@ -121,5 +123,7 @@ namespace Sinedo.Controllers
 
             return File(ms.ToArray(), "application/zip", "Sinedo Logs - UTC " + DateTime.UtcNow + ".zip");
         }
+
+        #endregion
     }
 }

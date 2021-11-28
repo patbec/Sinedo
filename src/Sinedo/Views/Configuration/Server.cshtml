@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Mvc.Localization
+@using Sinedo.Components.Common
 @inject IViewLocalizer Localizer
 @{
     Layout = "Layout_Settings";
@@ -34,5 +35,12 @@
 
             <label for="input_port">Port</label>
         </div>
+    </div>
+
+    <p>Starten Sie den Server neu um die Einstellungen zu übernehmen.</p>
+    <p>Falls Sie die Weboberfläche nicht mehr erreichen können, können die Server Einstellungen mit folgenden Befehlen zurückgesetzt werden:</p>
+    
+    <div style="background-color: #f6f8fa; border-radius: 6px; padding: 16px; font-family: monospace; @Model.IsSystemdService ?? test : test">
+        <code>sudo rm @Sinedo.Components.AppDirectories.ConfigDirectory/hosting.json && sudo service sinedo restart</code>
     </div>
 </div>

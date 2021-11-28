@@ -24,6 +24,8 @@ namespace Sinedo.Controllers
             this.configuration = configuration;
         }
 
+        #region RestApi
+
         [Route("api/debug")]
         [Produces("application/json")]
         public ActionResult<DownloadRecord[]> PrintPaths()
@@ -61,5 +63,7 @@ namespace Sinedo.Controllers
             
             return Unauthorized();
         }
+
+        #endregion
     }
 }

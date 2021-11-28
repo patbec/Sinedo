@@ -60,7 +60,7 @@ namespace Sinedo.Background
             _monitor.StorageUpdate += StorageUpdate;
             _monitor.StorageOffline += StorageOffline;
 
-            configuration.RegisterForUpdates(() => {
+            configuration.PropertyChanged += (s, p) => {
                 lock(this) {
                     _logger.LogInformation("Settings changed, new path is set.");
                     _monitor.Stop();
@@ -74,7 +74,7 @@ namespace Sinedo.Background
                     _monitor.StorageOffline += StorageOffline;
                     _monitor.Start();
                 }
-            });
+            };
         }
 
         #region Events

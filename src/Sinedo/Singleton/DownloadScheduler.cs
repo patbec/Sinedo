@@ -102,8 +102,8 @@ namespace Sinedo.Singleton
             this.broadcaster = broadcaster;
             this.logger = logger;
 
-            BandwidthInfo = new () {
-                
+            BandwidthInfo = new ()
+            {      
                 BytesReadTotal = 0,
                 BytesRead = 0,
                 Data = monitoringCache.ToArray(),
@@ -113,7 +113,7 @@ namespace Sinedo.Singleton
             CreateThreads();
 
             // Einstellungen wurden aktualisiert. Prüfen ob neue Threads erstellt werden sollen.
-            configuration.RegisterForUpdates(() => CreateThreads());
+            configuration.PropertyChanged += (s, p) => CreateThreads();
 
             // Berechnet jede Sekunde die aktuelle Download-Geschwindigkeit.
             monitoringTimer = new Timer(OnUpdate, null, 1000, 1000);

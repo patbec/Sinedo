@@ -20,17 +20,15 @@ using Sinedo.Background;
 using Sinedo.Middleware;
 using Sinedo.Singleton;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace Sinedo
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup()
         {
-            Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -43,6 +41,7 @@ namespace Sinedo
                     .AddSingleton<DiskSpaceHelper>()
                     .AddSingleton<Configuration>()
                     .AddSingleton<HyperlinkManager>()
+                    .AddSingleton<Configuration>(Configuration.Current)
                     .AddSingleton<WebViewLoggerProvider>(e => WebViewLoggerProvider.Default);
                     
             services.AddHostedService<StorageService>()
@@ -65,6 +64,9 @@ namespace Sinedo
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else {
+                app.UseExceptionHandler("/Error");
             }
 
             WebSocketOptions webSocketOptions = new()
@@ -103,7 +105,7 @@ namespace Sinedo
                 .AddCookie(o => 
                 {
                     o.Cookie.Name = "Sinedo";
-                    o.LoginPath = "/Login";
+                    o.LoginPath = "/login";
                 });
 
             services.ConfigureApplicationCookie(options =>
@@ -122,7 +124,7 @@ namespace Sinedo
                     new CultureInfo("de-DE"),
                     new CultureInfo("en-US")
                 };  
-                options.DefaultRequestCulture = new RequestCulture("en-US");   
+                options.DefaultRequestCulture = new RequestCulture("en-US");
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
             });

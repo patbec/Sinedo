@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Sinedo.Components.Common
+@inject IViewLocalizer Localizer
+@{
+    Layout = "Layout_Settings";
+    ViewData["Title"] = Localizer["Title"];
+    ViewData["SelectedTab"] = 1;
+}
+
+<div class="content__separator">
+    <p>Geben Sie die Adresse und den Port an, über dem die Weboberfläche erreicht werden kann.</p>
+    <div class="textbox__wrapper">
+        <div class="textbox">
+            <input
+                name="server"
+                id="server_field"
+                type="text"
+                value="0.0.0.0"
+                required/>
+
+            <label for="server_field">Adresse</label>
+        </div>
+
+        <div class="textbox">
+            <input
+                id="input_port"
+                name="port"
+                type="number"
+                pattern="\d*"
+                inputmode="numeric"
+                spellcheck="false"
+                autocomplete="off"
+                value='2222'
+                required />
+
+            <label for="input_port">Port</label>
+        </div>
+    </div>
+
+    <p>Starten Sie den Server neu um die Einstellungen zu übernehmen.</p>
+    <p>Falls Sie die Weboberfläche nicht mehr erreichen können, können die Server Einstellungen mit folgenden Befehlen zurückgesetzt werden:</p>
+    
+    <div @Model. style="background-color: #f6f8fa; border-radius: 6px; padding: 16px; font-family: monospace">
+        <code>sudo rm @Sinedo.Components.AppDirectories.ConfigDirectory/hosting.json && sudo service sinedo restart</code>
+    </div>
+</div>

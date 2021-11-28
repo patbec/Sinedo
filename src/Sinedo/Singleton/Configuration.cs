@@ -1,354 +1,418 @@
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
-using System.Threading;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Sinedo.Components;
-using Sinedo.Exceptions;
-using Sinedo.Models;
 
 namespace Sinedo.Singleton
 {
-    public class Configuration
+    public class Configuration : INotifyPropertyChanged
     {
-        private readonly ILogger<Configuration> logger;
-        private readonly Serializer configurationFile;
-        private readonly List<Action> callbacks = new ();
+        private readonly ConfigurationData _data;
+        private readonly FileStream _fileStream;
+        //private readonly ILogger<Configuration> _logger;
 
-        #region Properties
+        private static Configuration _current;
+        public static Configuration Current {
+            get {
+                if (_current == null) {
+                        _current = new Configuration(
+                        Path.Combine(AppDirectories.ConfigDirectory, "config.json"));
+                }
+
+                return _current;
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool IsSetupCompleted
+        {
+            get => _data.PasswordHash != null;
+        }
 
         /// <summary>
-        /// Gibt an ob eine Einrichtung abgeschlossen wurde.
+        /// Einige geänderte Einstellungen erfordern einen Serverneustart.
         /// </summary>
-        public bool IsSetupCompleted { get; private set; }
+        /// <value></value>
+        public bool NeedServerRestart
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
-        /// 
+        /// Das mit SHA512 gehashte Anmeldepasswort.
         /// </summary>
-        public byte[] PasswordHash { get; set; }
+        public byte[] PasswordHash
+        {
+            get => _data.PasswordHash;
+            set {
+                lock(this)
+                {
+                    _data.PasswordHash = value;
+                    Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
-        /// Benutzername für den Dienst.
+        /// IP-Adresse auf der das Webinterface erreichbar ist.
         /// </summary>
-        public string SharehosterUsername { get; private set; }
+        public string IPAddress
+        {
+            get => _data.IPAddress;
+            set {
+                lock(this)
+                {
+                    _data.IPAddress = value;
+                    Save();
+                    NeedServerRestart = true;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
-        /// Kennwort für den Dienst.
+        /// Port auf dem das Webinterface erreichbar ist.
         /// </summary>
-        public string SharehosterPassword { get; private set; }
+        public uint Port
+        {
+            get => _data.Port;
+            set {
+                lock(this)
+                {
+                    _data.Port = value;
+                    Save();
+                    NeedServerRestart = true;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gibt an ob automatisch auf https umgeleitet werden soll.
+        /// </summary>
+        public bool RedirectToHttps
+        {
+            get => _data.RedirectToHttps;
+            set {
+                _data.RedirectToHttps = value;
+                Save();
+                NeedServerRestart = true;
+                NotifyPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Geschwindigkeit der Internetverbindung in Mbits.
         /// </summary>
-        public uint InternetConnectionInMbits { get; private set; }
+        public uint InternetConnectionInMbits
+        {
+            get => _data.InternetConnectionInMbits;
+            set {
+                lock(this)
+                {
+                    _data.InternetConnectionInMbits = value;
+                    Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Anzahl der gleichzeitigen Downloads.
         /// </summary>
-        public uint ConcurrentDownloads { get; private set; }
+        public uint ConcurrentDownloads
+        {
+            get => _data.ConcurrentDownloads;
+            set {
+                lock(this)
+                {
+                    _data.ConcurrentDownloads = value;
+                    Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Zielordner für die heruntergeladenen Dateien.
         /// </summary>
-        public string DownloadDirectory { get; private set; }
+        public string DownloadDirectory
+        {
+            get => _data.DownloadDirectory;
+            set {
+                lock(this)
+                {
+                    _data.DownloadDirectory = value;
+                    Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Gibt an ob heruntergeladene Dateien entpackt werden sollen.
         /// </summary>
-        public bool IsExtractingEnabled { get; private set; }
+        public bool IsExtractingEnabled
+        {
+            get => _data.IsExtractingEnabled;
+            set {
+                lock(this)
+                {
+                    _data.IsExtractingEnabled = value;
+                    Save();
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         /// <summary>
         /// Zielordner für die entpackten Dateien.
         /// </summary>
-        public string ExtractingDirectory { get; private set; }
-
-        #endregion
-
-        #region Constructor
-
-        public Configuration(ILogger<Configuration> logger)
+        public string ExtractingDirectory
         {
-            this.logger = logger;
-
-            string configFile = Path.Combine(AppDirectories.ConfigDirectory, "config.json");
-
-            configurationFile = new Serializer(configFile);
-
-            try
-            {
-                SettingsFile configurationData = configurationFile.Load<SettingsFile>();
-
-                // Setup ist abgeschlossen, wenn ein Passwort gesetzt wurde.
-                IsSetupCompleted = configurationData.PasswordHash != null &&
-                                   configurationData.PasswordHash.Length != 0;
-
-
-                //
-                // Prüfung auf fehlerhafte Einstellungen
-                //
-
-                if(configurationData.InternetConnectionInMbits == 0) {
-                    throw new ArgumentOutOfRangeException(nameof(InternetConnectionInMbits), configurationData.InternetConnectionInMbits, "The value must not be 0.");
-                }
-                if(configurationData.ConcurrentDownloads == 0 || configurationData.ConcurrentDownloads > 20) {
-                    throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), configurationData.ConcurrentDownloads, "The value must be within 1 to 20.");
-                }
-
-                //
-                // Aktuelle Einstellungen übernehmen
-                //
-
-                PasswordHash                = configurationData.PasswordHash;
-                SharehosterUsername         = configurationData.SharehosterUsername;
-                SharehosterPassword         = configurationData.SharehosterPassword;
-                InternetConnectionInMbits   = configurationData.InternetConnectionInMbits;
-                ConcurrentDownloads         = configurationData.ConcurrentDownloads;
-                DownloadDirectory           = configurationData.DownloadDirectory;
-                IsExtractingEnabled         = configurationData.IsExtractingEnabled;
-                ExtractingDirectory         = configurationData.ExtractingDirectory;
-
-                logger.LogInformation("Settings file loaded successfully.");
-            }
-            catch(Exception ex)
-            {
-                if(ex is FileNotFoundException) {
-                    logger.LogInformation("A new settings file will be created.");
-                }
-                else {
-                    logger.LogCritical(ex, "The settings could not be loaded due to an error, the setup mode is used.");
-                }
-
-                //
-                // Bei einem Fehler Standardwerte verwenden.
-                //
-
-                PasswordHash = null;
-                SharehosterUsername = "";
-                SharehosterPassword = "";
-                InternetConnectionInMbits = 50;
-                ConcurrentDownloads = 2;
-                DownloadDirectory = Path.Combine(AppDirectories.HomeDirectory, "Downloads");
-                ExtractingDirectory = Path.Combine(AppDirectories.HomeDirectory, "Sinedo");
-                IsExtractingEnabled = false;
-            }
-        }
-        
-        #endregion
-
-        /// <summary>
-        /// Meldet geänderte Einstellungen an die angegebene Aktion.
-        /// </summary>
-        public void RegisterForUpdates(Action callback) {
-            lock(this)
-            {
-                callbacks.Add(callback);
-            }
-        }
-
-        /// <summary>
-        /// Speichert die aktuellen Einstellungen.
-        /// </summary>
-        private void Save() {
-            SettingsFile configurationData = new ()
-            {
-                PasswordHash                = PasswordHash,
-                SharehosterUsername         = SharehosterUsername,
-                SharehosterPassword         = SharehosterPassword,
-                InternetConnectionInMbits   = InternetConnectionInMbits,
-                ConcurrentDownloads         = ConcurrentDownloads,
-                DownloadDirectory           = DownloadDirectory,
-                IsExtractingEnabled         = IsExtractingEnabled,
-                ExtractingDirectory         = ExtractingDirectory,
-            };
-
-            configurationFile.Save(configurationData);
-        }
-
-        /// <summary>
-        /// Setzt und speichert ein neues Passwort zum Anmelden.
-        /// </summary>
-        /// <param name="password">Passwort im Klartext.</param>
-        public void SetLoginPassword(string password)
-        {
-            lock(this)
-            {
-                if(string.IsNullOrWhiteSpace(password) || password.Length < 4) {
-                    throw new InvalidPasswordPolicyException();
-                }
-
-                PasswordHash = ComputeHash(password);
-                Save();
-
-                IsSetupCompleted = true;
-
-                logger.LogInformation("The login password has been updated.");
-            }
-        }
-
-        /// <summary>
-        /// Prüft ob das angegebene Passwort übereinstimmt.
-        /// </summary>
-        /// <param name="password">Passwort im Klartext.</param>
-        public bool CheckLoginPassword(string password)
-        {
-            lock(this)
-            {
-                if(string.IsNullOrWhiteSpace(password)) {
-                    return false;
-                }
-
-                return ComputeHash(password).SequenceEqual(PasswordHash);
-            }
-        }
-
-        /// <summary>
-        /// Prüft und speichert die allgemeinen Einstellungen.
-        /// </summary>
-        /// <param name="sharehosterUsername">Benutzername für den Dienst.</param>
-        /// <param name="sharehosterPassword">Kennwort für den Dienst.</param>
-        /// <param name="internetConnectionInMbits">Geschwindigkeit der Internetverbindung in Mbits.</param>
-        /// <param name="concurrentDownloads">Anzahl der gleichzeitigen Downloads.</param>
-        /// <param name="downloadDirectory">Zielordner für die heruntergeladenen Dateien.</param>
-        /// <param name="isExtractingEnabled">Gibt an ob heruntergeladene Dateien entpackt werden sollen.</param>
-        /// <param name="extractingDirectory">Zielordner für die entpackten Dateien.</param>
-        [Obsolete]
-        public void SetGeneralSettings(string sharehosterUsername, string sharehosterPassword, uint internetConnectionInMbits, uint concurrentDownloads, string downloadDirectory, bool isExtractingEnabled, string extractingDirectory)
-        {
-            lock(this)
-            {
-                //
-                // Prüfung auf fehlerhafte Einstellungen
-                //
-
-                if(internetConnectionInMbits == 0) {
-                    throw new ArgumentOutOfRangeException(nameof(InternetConnectionInMbits), internetConnectionInMbits, "The value must not be 0.");
-                }
-                if(concurrentDownloads == 0 || concurrentDownloads > 20) {
-                    throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), concurrentDownloads, "The value must be within 1 to 20.");
-                }
-
-                //
-                // Der hinterlegte Password-Hash zum Anmelden wird unverändert übernommen.
-                //
-
-                // Neue Einstellungen übernehmen.
-                SharehosterUsername         = sharehosterUsername;
-                SharehosterPassword         = sharehosterPassword;
-                InternetConnectionInMbits   = internetConnectionInMbits;
-                ConcurrentDownloads         = concurrentDownloads;
-                DownloadDirectory           = downloadDirectory;
-                IsExtractingEnabled         = isExtractingEnabled;
-                ExtractingDirectory         = extractingDirectory;
-                
-                Save();
-
-                logger.LogInformation("The general settings have been updated.");
-
-                foreach (var callback in callbacks) {
-                    callback();
-                }
-
-                logger.LogInformation("Callbacks for settings have been completed.");
-            }
-        }
-
-        /// <summary>
-        /// Prüft und speichert die angegebene Einstellung.
-        /// </summary>
-        /// <param name="settingName">Name der Einstellung.</param>
-        /// <param name="settingValue">Wert der Einstellung.</param>
-        public void SetGeneralSetting(string settingName, string settingValue)
-        {
-            if(settingValue == null) {
-                throw new ArgumentNullException(nameof(settingValue));
-            }
-
-            lock(this)
-            { 
-                //
-                // Prüfung auf fehlerhafte Einstellungen
-                //
-
-                switch(settingName)
+            get => _data.ExtractingDirectory;
+            set {
+                lock(this)
                 {
-                    case "internetConnectionInMbits": {
-                        uint internetConnectionInMbits = uint.Parse(settingValue);
-
-                        if(internetConnectionInMbits == 0) {
-                            throw new ArgumentOutOfRangeException(nameof(InternetConnectionInMbits), internetConnectionInMbits, "The value must not be 0.");
-                        }
-
-                        InternetConnectionInMbits = internetConnectionInMbits;
-                        break;
-                    }
-                    case "concurrentDownloads": {
-                        uint concurrentDownloads = uint.Parse(settingValue);
-
-                        if(concurrentDownloads == 0 || concurrentDownloads > 20) {
-                            throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), concurrentDownloads, "The value must be within 1 to 20.");
-                        }
-
-                        InternetConnectionInMbits = concurrentDownloads;
-                        break;
-                    }
-                    case "downloadDirectory": {
-                        string downloadDirectory = settingValue;
-
-                        DownloadDirectory = downloadDirectory;
-                        break;
-                    }
-                    case "isExtractingEnabled": {
-                        bool isExtractingEnabled = bool.Parse(settingValue);
-
-                        IsExtractingEnabled = isExtractingEnabled;
-                        break;
-                    }
-                    case "extractingDirectory": {
-                        string extractingDirectory = settingValue;
-
-                        ExtractingDirectory = extractingDirectory;
-                        break;
-                    }
-                    default: {
-                        throw new ArgumentException("The setting named '{0}' is not supported.", settingName);
-                    }
+                    _data.ExtractingDirectory = value;
+                    Save();
+                    NotifyPropertyChanged();
                 }
+            }
+        }
 
+        /// <summary>
+        /// Load or create a configuration file.
+        /// </summary>
+        /// 
+        /// <exception cref="IOException"/>
+        /// <exception cref="SecurityException"/>
+        /// <exception cref="DirectoryNotFoundException"/>
+        public Configuration(string filePath)
+        {
+            _fileStream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+
+            if (_fileStream.Length == 0) {
+                _data = ConfigurationData.GetDefault();
                 Save();
 
-                logger.LogInformation("The general settings have been updated.");
+                //logger.LogInformation("A new settings file will be created.");
+            }
+            else {
+                _data = Load();
 
-                foreach (var callback in callbacks) {
-                    callback();
-                }
-
-                logger.LogInformation("Callbacks for settings have been completed.");
+                //logger.LogInformation("Settings file loaded successfully.");
             }
         }
 
-        [Obsolete]
-        public SettingsRecord GetSettings()
+        /// <summary>
+        /// Load data from filesystem.
+        /// </summary>
+        /// 
+        /// <exception cref="JsonException"/>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentOutOfRangeException"/>
+        /// 
+        /// <returns></returns>
+        private ConfigurationData Load()
         {
-            lock(this)
-            {
-                // Erstellt eine neue Struktur ohne geschützte Daten.
-                return new SettingsRecord()
-                {
-                    SharehosterUsername         = this.SharehosterUsername,
-                    SharehosterPassword         = this.SharehosterPassword,
-                    InternetConnectionInMbits   = this.InternetConnectionInMbits,
-                    ConcurrentDownloads         = this.ConcurrentDownloads,
-                    DownloadDirectory           = this.DownloadDirectory,
-                    ExtractingDirectory         = this.ExtractingDirectory,
-                    IsExtractingEnabled         = this.IsExtractingEnabled,
-                };
-            }
+            byte[] buffer = new byte[_fileStream.Length];
+            _fileStream.Read(buffer, 0, buffer.Length);
+
+            return JsonSerializer.Deserialize<ConfigurationData>(buffer);
         }
-        
-        private static byte[] ComputeHash(string passwordToHash) {
+
+        /// <summary>
+        /// Write data to filesystem.
+        /// </summary>
+        /// 
+        /// <exception cref="IOException"/>
+        private void Save()
+        {
+            string json = JsonSerializer.Serialize(_data);
+            byte[] buffer = Encoding.UTF8.GetBytes(json);
+
+            _fileStream.SetLength(0);
+            _fileStream.Write(buffer, 0, buffer.Length);
+            _fileStream.Flush();
+
+            //logger.LogInformation("The settings have been updated.");
+        }
+
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")  
+        {  
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            //logger.LogInformation($"Callbacks for settings have been completed. (Source: {propertyName}");
+        }
+
+        public static byte[] ComputeHash(string passwordToHash) {
             byte[] passwordBytes = Encoding.UTF8.GetBytes(passwordToHash);
 
             HashAlgorithm sha = SHA512.Create();
             return sha.ComputeHash(passwordBytes);
+        } 
+    }
+
+    /// <summary>
+    /// Einstellungsdatei mit geschützten Anmeldedaten.
+    /// </summary>
+    public class ConfigurationData
+    {
+        private byte[]  _passwordHash;
+        private string  _ipAddress;
+        private uint    _port;
+        private bool    _redirectToHttps;
+        private uint    _internetConnectionInMbits;
+        private uint    _concurrentDownloads;
+        private string  _downloadDirectory;
+        private bool    _isExtractingEnabled;
+        private string  _extractingDirectory;
+
+        public static ConfigurationData GetDefault() {
+            return new ConfigurationData() {
+                IPAddress = "0.0.0.0",
+                Port = 2222,
+                InternetConnectionInMbits = 50,
+                ConcurrentDownloads = 2,
+                DownloadDirectory = Path.Combine(AppDirectories.HomeDirectory, "Downloads"),
+                ExtractingDirectory = Path.Combine(AppDirectories.HomeDirectory, "Sinedo"),
+                IsExtractingEnabled = false,
+            };
+        }
+
+        /// <summary>
+        /// Das mit SHA512 gehashte Anmeldepasswort.
+        /// </summary>
+        public byte[] PasswordHash
+        {
+            get => _passwordHash;
+            set {
+                if(value == null) {
+                    throw new ArgumentNullException(nameof(PasswordHash), "The specified login password is null.");
+                }
+
+                if(value.Length != 64) {
+                    throw new ArgumentOutOfRangeException(nameof(PasswordHash), value.Length, "The specified login password is invalid. The 512 SHA hashed login password must be 64 bytes long.");      
+                }
+
+                _passwordHash = value;
+            }
+        }
+
+        /// <summary>
+        /// IP-Adresse auf der das Webinterface erreichbar ist.
+        /// </summary>
+        public string IPAddress
+        {
+            get => _ipAddress;
+            set {
+                if(value == null) {
+                    throw new ArgumentNullException(nameof(IPAddress), "The specified password is null.");
+                }
+
+                if( ! System.Net.IPAddress.TryParse(value, out var ip)) {
+                    throw new ArgumentOutOfRangeException(nameof(IPAddress), value, "The IP address is not valid.");
+                }
+
+                _ipAddress = ip.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Port auf dem das Webinterface erreichbar ist.
+        /// </summary>
+        public uint Port
+        {
+            get => _port;
+            set {
+                if(value == 0) {
+                    throw new ArgumentOutOfRangeException(nameof(Port), value, "The value must not be 0.");
+                }
+
+                _port = value;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an ob automatisch auf https umgeleitet werden soll.
+        /// </summary>
+        public bool RedirectToHttps
+        {
+            get => _redirectToHttps;
+            set {
+                _redirectToHttps = value;
+            }
+        }
+
+        /// <summary>
+        /// Geschwindigkeit der Internetverbindung in Mbits.
+        /// </summary>
+        public uint InternetConnectionInMbits
+        {
+            get => _internetConnectionInMbits;
+            set {
+                if(value == 0) {
+                    throw new ArgumentOutOfRangeException(nameof(InternetConnectionInMbits), value, "The value must not be 0.");
+                }
+
+                _internetConnectionInMbits = value;
+            }
+        }
+
+        /// <summary>
+        /// Anzahl der gleichzeitigen Downloads.
+        /// </summary>
+        public uint ConcurrentDownloads
+        {
+            get => _concurrentDownloads;
+            set {
+                if(value == 0 || value > 20) {
+                    throw new ArgumentOutOfRangeException(nameof(ConcurrentDownloads), value, "The value must be within 1 to 20.");
+                }
+
+                _concurrentDownloads = value;
+            }
+        }
+
+        /// <summary>
+        /// Zielordner für die heruntergeladenen Dateien.
+        /// </summary>
+        public string DownloadDirectory
+        {
+            get => _downloadDirectory;
+            set {
+                _downloadDirectory = value ?? "";
+            }
+        }
+
+        /// <summary>
+        /// Gibt an ob heruntergeladene Dateien entpackt werden sollen.
+        /// </summary>
+        public bool IsExtractingEnabled
+        {
+            get => _isExtractingEnabled;
+            set {
+                _isExtractingEnabled = value;
+            }
+        }
+
+        /// <summary>
+        /// Zielordner für die entpackten Dateien.
+        /// </summary>
+        public string ExtractingDirectory
+        {
+            get => _extractingDirectory;
+            set {
+                _extractingDirectory = value ?? "";
+            }
         }
     }
 }
