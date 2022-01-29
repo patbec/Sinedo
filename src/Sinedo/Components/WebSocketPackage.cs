@@ -70,6 +70,44 @@ namespace Sinedo.Components
         }
 
         /// <summary>
+        /// Erstellt aus den angegebenen Parametern ein erweitertes WebSocket Paket.
+        /// </summary>
+        /// <param name="command">Kennung des Paketes.</param>
+        /// <param name="parameter">Parameter des Paketes. (optional)</param>
+        /// <param name="content">Inhalt des Paketes, das angegebene Objekt wird serialisiert.</param>
+        public WebSocketPackage(CommandFromServer command, int parameter, object content)
+        {
+            if (content == null)
+                throw new ArgumentNullException(nameof(content));
+
+            MemoryStream memoryStream = new();
+
+            memoryStream.WriteByte((byte)command);
+            memoryStream.WriteByte((byte)parameter);
+
+            var streamWriter = new Utf8JsonWriter(memoryStream);
+
+            JsonSerializer.Serialize(streamWriter, content, content.GetType(), jsonSerializerOptions);
+
+            // Buffer abschließen.
+            streamWriter.Flush();
+
+            // Buffer abschneiden.
+            memoryStream.Capacity = (int)memoryStream.Position;
+
+            // Keine Kopie erstellen.
+            buffer = memoryStream.GetBuffer();
+        }
+
+        /// <summary>
+        /// Gibt den zugrundeliegenden Buffer zurück.
+        /// </summary>
+        /// <returns>Byte-Array mit den Daten.</returns>
+        public byte[] GetBuffer() {
+            return buffer;
+        }
+
+        /// <summary>
         /// De-serialisiert den Inhalt und gibt diesen als <typeparamref name="T"/> zurück.
         /// </summary>
         /// <typeparam name="T">Objekt das aus dem Inhalt erstellt werden soll.</typeparam>
@@ -86,35 +124,6 @@ namespace Sinedo.Components
         /// Standardwert eines Parameters im einem erweiterten WebSocket Paket.
         /// </summary>
         public const int PARAMETER_UNSET = 0;
-
-        /// <summary>
-        /// Erstellt aus den angegebenen Parametern ein <see cref="byte[]"/>-Array,
-        /// dass an Clients versendet werden kann.
-        /// </summary>
-        /// <param name="command">Kennung des Paketes.</param>
-        /// <param name="parameter">Parameter des Paketes. (optional)</param>
-        /// <param name="content">Inhalt des Paketes, das angegebene Objekt wird serialisiert.</param>
-        /// <returns></returns>
-        public static byte[] CreatePackage(CommandFromServer command, int parameter, object obj)
-        {
-            MemoryStream memoryStream = new();
-
-            memoryStream.WriteByte((byte)command);
-            memoryStream.WriteByte((byte)parameter);
-
-            var streamWriter = new Utf8JsonWriter(memoryStream);
-
-            JsonSerializer.Serialize(streamWriter, obj, obj.GetType(), jsonSerializerOptions);
-
-            // Buffer abschließen.
-            streamWriter.Flush();
-
-            // Buffer abschneiden.
-            memoryStream.Capacity = (int)memoryStream.Position;
-
-            // Keine Kopie erstellen.
-            return memoryStream.GetBuffer();
-        }
 
         #endregion
     }

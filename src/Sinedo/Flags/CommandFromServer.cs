@@ -17,17 +17,17 @@ namespace Sinedo.Flags
         /// <summary>
         /// Ein neues Objekt wurde hinzugefügt.
         /// </summary>
-        Added = 2,
+        DownloadAdded = 2,
 
         /// <summary>
         /// Ein Objekt wurde entfernt.
         /// </summary>
-        Removed = 3,
+        DownloadRemoved = 3,
 
         /// <summary>
         /// Der Status eines Objektes hat sich geändert.
         /// </summary>
-        Changed = 4,
+        DownloadChanged = 4,
 
         /// <summary>
         /// Eine neue Verbindung wurde hergestellt, diese Nachricht enthält alle Daten.
@@ -37,12 +37,17 @@ namespace Sinedo.Flags
         /// <summary>
         /// Benachrichtigung anzeigen.
         /// </summary>
+        [Obsolete("Check if needed")]
         Notification = 6,
 
-        DiskInfo = 7,
+        Disk = 7,
 
-        BandwidthInfo = 8,
+        Bandwidth = 8,
 
-        LinksChanged = 9,
+        Links = 9,
+
+        Ping = 10,
+
+        Clients = 11,
     }
 }

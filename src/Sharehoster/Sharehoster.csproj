@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Authors>Patrick Becker</Authors>
+    <Version>0.1.0</Version>
+    <AssemblyName>libsharehoster</AssemblyName>
+    <Description>Contains all sharehosters for Sinedo.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
+  </ItemGroup>
+
+</Project>

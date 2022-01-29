@@ -1,14 +1,16 @@
 {
     "version": "0.2.0",
-    "configurations": [     
+    "configurations": [
         {
             "name": ".NET Core Launch (Open Browser)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dotnet: build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Sinedo/bin/Debug/net5.0/sinedo.dll",
-            "args": [],
+            "program": "${workspaceFolder}/src/Sinedo/bin/Debug/net6.0/sinedo.dll",
+            "args": [
+                "--worker"
+            ],
             "cwd": "${workspaceFolder}/src/Sinedo",
             "stopAtEntry": false,
             "serverReadyAction": {
@@ -28,8 +30,10 @@
             "request": "launch",
             "preLaunchTask": "dotnet: build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Sinedo/bin/Debug/net5.0/sinedo.dll",
-            "args": [],
+            "program": "${workspaceFolder}/src/Sinedo/bin/Debug/net6.0/sinedo.dll",
+            "args": [
+                "--worker"
+            ],
             "cwd": "${workspaceFolder}/src/Sinedo",
             "stopAtEntry": false,
             "env": {
@@ -43,6 +47,6 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
-        },
+        }
     ]
 }

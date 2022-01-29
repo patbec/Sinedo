@@ -177,15 +177,131 @@ var Application;
         })(ExWebSocket = Common.ExWebSocket || (Common.ExWebSocket = {}));
     })(Common = Application.Common || (Application.Common = {}));
 })(Application || (Application = {}));
-/// <reference path="WebSocketCloseEvent.ts" />
-/// <reference path="WebSocketCodes.ts" />
-/// <reference path="WebSocketMessage.ts" />
+var Application;
+(function (Application) {
+    var Flags;
+    (function (Flags) {
+        let WebSocketChannel;
+        (function (WebSocketChannel) {
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * <see cref="CommandFromServer.Error">Aufgetretene Fehler</see>
+             * <see cref="CommandFromServer.Notification">Benachrichtigungen</see> // TODO: Remove?
+             */
+            WebSocketChannel[WebSocketChannel["Notification"] = 1] = "Notification";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * <see cref="CommandFromServer.DownloadAdded">Download hinzugefügt</see>
+             * <see cref="CommandFromServer.DownloadRemoved">Download entfernt</see>
+             * <see cref="CommandFromServer.DownloadChanged">Download status aktualisieren</see>
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Downloads"] = 2] = "Downloads";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * <see cref="CommandFromServer.Bandwidth">Bandbreitenstatus und Verlauf</see>
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Bandwidth"] = 3] = "Bandwidth";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * <see cref="CommandFromServer.Disk">Festplattenstatus und Verlauf</see>
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Disk"] = 4] = "Disk";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * <see cref="CommandFromServer.Links">Gespeicherte Links</see>
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Links"] = 5] = "Links";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * TODO: Add missing items.
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Settings"] = 6] = "Settings";
+            /**
+             * In diesem Channel werden folgende Pakete empfangen:
+             *
+             * TODO: Add missing items.
+             * <see cref="CommandFromServer.Setup">Setup paket</see>
+             */
+            WebSocketChannel[WebSocketChannel["Logs"] = 7] = "Logs";
+        })(WebSocketChannel = Flags.WebSocketChannel || (Flags.WebSocketChannel = {}));
+    })(Flags = Application.Flags || (Application.Flags = {}));
+})(Application || (Application = {}));
+/// <reference path="../../Flags/WebSocketChannel.ts" />
 var Application;
 (function (Application) {
     var Common;
     (function (Common) {
         var ExWebSocket;
         (function (ExWebSocket) {
+            class WebSocketQueryBuilder {
+                constructor() {
+                    this._query = new Map();
+                }
+                /**
+                 * Die vom Client unterstützte Api-Version.
+                 */
+                set version(value) {
+                    this._query.set("version", value);
+                }
+                /**
+                 * Der Anwendungsname des Clients.
+                 */
+                set friendlyName(value) {
+                    this._query.set("friendlyName", value);
+                }
+                /**
+                 * Channels von denen Nachrichten empfangen werden sollen.
+                 */
+                set channels(value) {
+                    this._query.set("channels", value.join(','));
+                }
+                buildQuery() {
+                    if (!this._query.has("version")) {
+                        throw new Error("Version attribute must be specified.");
+                    }
+                    if (!this._query.has("friendlyName")) {
+                        throw new Error("FriendlyName attribute must be specified.");
+                    }
+                    if (!this._query.has("channels")) {
+                        throw new Error("Channels attribute must be specified.");
+                    }
+                    let queryString = "";
+                    this._query.forEach((value, key) => {
+                        if (queryString != "") {
+                            queryString += "&";
+                        }
+                        queryString += `${key}=${encodeURIComponent(value)}`;
+                    });
+                    return queryString;
+                }
+            }
+            ExWebSocket.WebSocketQueryBuilder = WebSocketQueryBuilder;
+        })(ExWebSocket = Common.ExWebSocket || (Common.ExWebSocket = {}));
+    })(Common = Application.Common || (Application.Common = {}));
+})(Application || (Application = {}));
+/// <reference path="WebSocketCloseEvent.ts" />
+/// <reference path="WebSocketCodes.ts" />
+/// <reference path="WebSocketMessage.ts" />
+/// <reference path="WebSocketQueryBuilder.ts" />
+/// <reference path="../../Flags/WebSocketChannel.ts" />
+var Application;
+(function (Application) {
+    var Common;
+    (function (Common) {
+        var ExWebSocket;
+        (function (ExWebSocket) {
+            ExWebSocket.SUPPORTED_API_VERSION = '1';
             class WebSocketEndpoint {
                 constructor(url) {
                     this._connectionSuccessful = false;
@@ -234,7 +350,7 @@ var Application;
                     }
                     catch (e) {
                         console.error(e);
-                        this._connectionSocket.close(ExWebSocket.WebSocketCodes.POLICY_VIOLATION_BY_CLIENT, e); // FixMe: Return always 1009
+                        this._connectionSocket.close(ExWebSocket.WebSocketCodes.POLICY_VIOLATION_BY_CLIENT, e); // ToDo: Fix: Return always 1009
                     }
                 }
                 /**
@@ -258,7 +374,7 @@ var Application;
                 /**
                  * Erstellt eine Anwendungsspezifische URL.
                  */
-                static getaddress(hostname, port, protocol) {
+                static getaddress(hostname, port, protocol, parameter) {
                     let suffix;
                     if (protocol == "https:") {
                         suffix = "wss:";
@@ -266,7 +382,7 @@ var Application;
                     else {
                         suffix = "ws:";
                     }
-                    return `${suffix}//${hostname}:${port}/api/server-connection.ws?version=1`;
+                    return `${suffix}//${hostname}:${port}/api/server-connection.ws?${parameter.buildQuery()}`;
                 }
             }
             ExWebSocket.WebSocketEndpoint = WebSocketEndpoint;
@@ -302,6 +418,7 @@ var Application;
 /// <reference path="Common/ExWebSocket/WebSocketMessage.ts" />
 /// <reference path="Common/ExWebSocket/WebSocketCloseEvent.ts" />
 /// <reference path="Common/ExWebSocket/WebSocketTranslation.ts" />
+/// <reference path="Common/ExWebSocket/WebSocketQueryBuilder.ts" />
 /// <reference path="Interfaces/IServiceEndpoint.ts" />
 /// <reference path="Flags/Commands.ts" />
 var Application;
@@ -317,8 +434,18 @@ var Application;
          */
         constructor(endpoints, timeout = 5000) {
             this._lastStateWasClosed = true;
+            let queryBuilder = new Application.Common.ExWebSocket.WebSocketQueryBuilder();
+            queryBuilder.version = Application.Common.ExWebSocket.SUPPORTED_API_VERSION;
+            queryBuilder.friendlyName = "Sinedo WebApp";
+            queryBuilder.channels = [
+                Application.Flags.WebSocketChannel.Notification,
+                Application.Flags.WebSocketChannel.Downloads,
+                Application.Flags.WebSocketChannel.Bandwidth,
+                Application.Flags.WebSocketChannel.Links,
+                Application.Flags.WebSocketChannel.Disk,
+            ];
             this._element = Application.Common.Control.get("body");
-            this._serviceAddress = Application.Common.ExWebSocket.WebSocketEndpoint.getaddress(window.location.hostname, window.location.port, window.location.protocol);
+            this._serviceAddress = Application.Common.ExWebSocket.WebSocketEndpoint.getaddress(window.location.hostname, window.location.port, window.location.protocol, queryBuilder);
             this._serviceEndpoints = endpoints;
             this._serviceTimeout = timeout;
             for (let service of this._serviceEndpoints) {
@@ -693,7 +820,10 @@ var Application;
             constructor(element) {
                 this._canvas = element;
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", ((ev) => {
-                    this.draw(this._lastData);
+                    /* _lastData ist undefined wenn keine Verbindung besteht. */
+                    if (this._lastData != undefined) {
+                        this.draw(this._lastData);
+                    }
                 }).bind(this));
             }
             /**
@@ -1800,16 +1930,21 @@ var Application;
 Your Simple Network Downloader!
 https://github.com/patbec/Sinedo
 `);
-            let services = [
-                new Application.Services.DiskEndpoint(),
-                new Application.Services.ListboxEndpoint(),
-                new Application.Services.NotificationEndpoint(),
-                new Application.Services.CardEndpoint(),
-                new Application.Services.SystemEndpoint(),
-                new Application.Services.DragAndDropEndpoint(),
-                new Application.Services.HyperlinkEndpoint(),
-            ];
-            this._controller = new Application.Controller(services, 2000);
+            try {
+                let services = [
+                    new Application.Services.DiskEndpoint(),
+                    new Application.Services.ListboxEndpoint(),
+                    new Application.Services.NotificationEndpoint(),
+                    new Application.Services.CardEndpoint(),
+                    new Application.Services.SystemEndpoint(),
+                    new Application.Services.DragAndDropEndpoint(),
+                    new Application.Services.HyperlinkEndpoint(),
+                ];
+                this._controller = new Application.Controller(services, 2000);
+            }
+            catch (e) {
+                alert("Sorry, an error occurred while loading the WebApp: " + e);
+            }
         }
     }
     Application.Startup = Startup;

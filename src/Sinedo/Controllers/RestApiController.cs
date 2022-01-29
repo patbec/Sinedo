@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Sinedo.Components;
@@ -31,7 +32,7 @@ namespace Sinedo.Controllers
     /// </summary>
     [ApiController]
     public class RestApiController : ControllerBase
-    {     
+    {
         private readonly DownloadRepository serviceRepository;
         private readonly DownloadScheduler serviceScheduler;
         private readonly Configuration serviceConfiguration;
@@ -50,13 +51,13 @@ namespace Sinedo.Controllers
         public ActionResult<DownloadRecord[]> SystemInfo()
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! serviceConfiguration.IsSetupCompleted)
+            if (!serviceConfiguration.IsSetupCompleted)
             {
                 return Forbid();
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
@@ -66,36 +67,37 @@ namespace Sinedo.Controllers
 
         [Route("api/scheduler")]
         [Produces("application/json")]
-        public ActionResult<DownloadRecord[]> SchedulerInfo()
+        public async Task<ActionResult<DownloadRecord[]>> SchedulerInfo()
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! serviceConfiguration.IsSetupCompleted)
+            if (!serviceConfiguration.IsSetupCompleted)
             {
                 return Forbid();
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
-    
+
 
             int downloadsCount = 0;
             int downloadsRunning = 0;
-            
-            serviceRepository.EnterReadLock(() =>
+
+            using (await serviceRepository.Context.ReaderLockAsync())
             {
                 downloadsCount = serviceRepository.AsEnumerable().Count();
                 downloadsRunning = serviceRepository.AsEnumerable().Count(t =>
                 {
-                    return t.State == Flags.GroupState.Running ||
-                            t.State == Flags.GroupState.Queued ||
-                            t.State == Flags.GroupState.Stopping;
+                    return t.State == DownloadState.Running ||
+                           t.State == DownloadState.Queued ||
+                           t.State == DownloadState.Stopping;
                 });
-            });
-            
-            SchedulerInfoRecord info = new() {
+            };
+
+            SchedulerInfoRecord info = new()
+            {
                 DownloadsCount = downloadsCount,
                 DownloadsRunning = downloadsRunning
             };
@@ -112,66 +114,70 @@ namespace Sinedo.Controllers
         /// <param name="filter">Optional: Filtert die Liste.</param>
         [Route("api/downloads")]
         [Produces("application/json")]
-        public ActionResult<DownloadRecord[]> GetDownloads([FromQuery] GroupState? filter)
+        public async Task<ActionResult<DownloadRecord[]>> GetDownloads([FromQuery] DownloadState? filter)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! serviceConfiguration.IsSetupCompleted)
+            if (!serviceConfiguration.IsSetupCompleted)
             {
                 return Forbid();
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
 
             DownloadRecord[] result = null;
 
-            serviceRepository.EnterReadLock(() =>
+            using (await serviceRepository.Context.ReaderLockAsync())
             {
-                if(filter != null) {
+                if (filter != null)
+                {
                     result = serviceRepository.AsEnumerable()
-                                                .Where(t => t.State == filter.Value)
-                                                .ToArray();
+                                              .Where(t => t.State == filter.Value)
+                                              .ToArray();
                 }
-                else {
+                else
+                {
                     result = serviceRepository.AsEnumerable()
-                                                .ToArray();
+                                              .ToArray();
                 }
-            });
+            };
 
             return Ok(result);
         }
 
         [Route("api/downloads/{name}")]
         [Produces("application/json")]
-        public ActionResult<DownloadRecord> GetDownload(string name)
+        public async Task<ActionResult<DownloadRecord>> GetDownload(string name)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! serviceConfiguration.IsSetupCompleted)
+            if (!serviceConfiguration.IsSetupCompleted)
             {
                 return Forbid();
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
 
-            if(name == null) {
+            if (name == null)
+            {
                 return BadRequest();
             }
 
             DownloadRecord download = null;
 
-            serviceRepository.EnterReadLock(() =>
+            using (await serviceRepository.Context.ReaderLockAsync())
             {
                 download = serviceRepository.FindOrDefault(name);
-            });
+            };
 
-            if(download == null) {
+            if (download == null)
+            {
                 return NotFound();
             }
 
@@ -180,30 +186,27 @@ namespace Sinedo.Controllers
 
         [Route("api/downloads/{name}")]
         [HttpPost]
-        public ActionResult<DownloadRecord> PostDownload([FromRoute] string name, [FromQuery] string[] files, [FromQuery] string password, [FromQuery] bool autostart = true)
+        public async Task<ActionResult<DownloadRecord>> PostDownload([FromRoute] string name, [FromQuery] string[] files, [FromQuery] string password, [FromQuery] bool autostart = true)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! serviceConfiguration.IsSetupCompleted)
+            if (!serviceConfiguration.IsSetupCompleted)
             {
                 return Forbid();
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
 
             try
             {
-                string createdDownload = null;
-                serviceRepository.EnterWriteLock(() =>
-                {
-                    createdDownload = serviceScheduler.Create(name, files, autostart, password);
-                });
+                string createdDownload = await serviceScheduler.CreateNewDownload(name, files, password, autostart);
+
                 return CreatedAtAction(nameof(PostDownload), new { name = createdDownload });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "The download could not be created.");
 

@@ -1,137 +1,209 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
+using Sharehoster.Interfaces;
+using SharpCompress.Archives.Rar;
+using SharpCompress.Readers;
 using Sinedo.Components.Common;
-using Sinedo.Components.Sharehoster;
-using Sinedo.Exceptions;
-using Sinedo.Flags;
-using Sinedo.Models;
 using Sinedo.Singleton;
 
 namespace Sinedo.Components
 {
-    public class Downloader {
-        private readonly CancellationTokenSource cancellationTokenSource = new ();
-        private readonly CancellationToken cancellationToken;
-        private readonly string downloadName;
-        private readonly string downloadPassword;
+    public class Downloader : IDisposable
+    {
+        private readonly Dictionary<string, FileStream> fileHandles = new();
+        private readonly Sharehosters sharehosters;
+        private readonly string name;
+        private readonly string targetPath;
         private readonly string[] filesToDownload;
+        public readonly CancellationTokenSource cancellationTokenSource;
 
-        private DownloadEnviroment env;
 
-        #region Events
-
-        public StatusEventHandler Status;
-
-        public delegate void StatusEventHandler(GroupMeta progress);
-
-        #endregion
-
-        public Monitoring Monitoring => env?.Monitoring;
+        private Monitoring monitoring;
+        public string Name => name;
 
         /// <summary>
-        /// Erstellt einen neuen Download-Manager.
+        /// Prüfen ob alle Dateien bereits heruntergeladen wurden.
         /// </summary>
-        /// <param name="credential">Anmeldedaten für den Dienst.</param>
-        /// <param name="folderPath">Speicherort für die heruntergeladenen Dateien.</param>
-        /// <param name="downloadRecord">Ordnername, Password und die Dateien zum Herunterladen.</param>
-        public Downloader(DownloadRecord download)
+        public bool IsDownloadCompleted
         {
-            cancellationToken = cancellationTokenSource.Token;
-
-            downloadName = download.Name;
-            filesToDownload = download.Files;
-            downloadPassword = download.Password;
+            get => bytesDownloaded == bytesTotal;
+        }
+        public Monitoring Monitoring
+        {
+            get => monitoring;
         }
 
-        public long Update()
+        private long bytesDownloaded, bytesTotal = 0;
+
+        public Downloader(Sharehosters sharehosters, string name, string targetPath, string[] filesToDownload)
         {
-            return env?.Monitoring?.Update() ?? 0;
+            this.sharehosters = sharehosters;
+            this.name = name;
+            this.targetPath = targetPath;
+            this.filesToDownload = filesToDownload;
         }
 
-        public void Cancel() {
+        public List<SharehosterFile> sharehosterFiles;
+
+        public void Cancel()
+        {
             cancellationTokenSource.Cancel();
         }
-
-        /// <summary>
-        /// Lädt die Dateien herunter.
-        /// </summary>
-        public void DownloadTo(Configuration configuration)
+        public void GetFileInfosFromApi()
         {
-            // Configure Sharehoster
-            ISharehoster sharehoster = new Rapidgator (
-                new NetworkCredential(configuration.SharehosterUsername, configuration.SharehosterPassword));
+            sharehosterFiles = new();
 
-            string sanitizedPath = SantanizePath(configuration.DownloadDirectory, downloadName);
+            bytesTotal = 0;
 
-            env = new DownloadEnviroment(
-                sharehoster,
-                sanitizedPath,
-                filesToDownload,
-                cancellationToken);
-
-            try {
-                Status(GroupMeta.CheckStatus);
-                env.GetFileInfosFromApi();
-                env.MakeFiles();
-
-                if( ! env.IsDownloadCompleted)
-                {
-                    Status(GroupMeta.Download);
-                    // Bei Internetproblemen: 30 Versuche â 30 Sekunden
-                    RetryIfConnectionLost(30, 30, () => env.Download());
-                }
-                
-                if( ! configuration.IsExtractingEnabled) {
-                    return;
-                }
-
-                Status(GroupMeta.Extract);
-                env.Extract(configuration.ExtractingDirectory, downloadPassword);
-            }
-            finally
+            // Prüfen ob alle Dateien Online sind.
+            foreach (string link in filesToDownload)
             {
-                env.Dispose();
-            }
-        }
-
-
-        private void RetryIfConnectionLost(int count, int delay, Action callback) {
-            while(count != 0) {
-                try {
-                    callback();
-                    return;
-                }
-                catch(IOException)
+                if (Uri.TryCreate(link, UriKind.Absolute, out Uri linkUri))
                 {
-                    count--;
+                    var fileInfo = sharehosters.GetFileInfo(linkUri, cancellationTokenSource.Token);
 
-                    Status(GroupMeta.Retry);
-                    if(count == 0) {
-                        throw;
-                    }
-
-                    // ToDo: Log
+                    bytesTotal += fileInfo.Size;
+                    sharehosterFiles.Add(fileInfo);
                 }
-
-                Task.Delay(delay * 1000, cancellationToken).GetAwaiter().GetResult();
-                cancellationToken.ThrowIfCancellationRequested();
-                Status(GroupMeta.Download);
             }
         }
 
-        /// <summary>
-        /// Entfernt ungültige Zeichen aus dem Dateinamen.
-        /// </summary>
-        public static string SantanizePath(string path, string fileName)
+        public void MakeFiles()
         {
-            fileName = Sanitizer.Sanitize(fileName);
+            Directory.CreateDirectory(targetPath);
 
-            return Path.Combine(path, fileName);
+            bytesDownloaded = 0;
+
+            // Zieldateien erstellen und öffnen.
+            foreach (SharehosterFile link in sharehosterFiles)
+            {
+                string sanitizedPath = Path.Combine(targetPath, Sanitizer.Sanitize(link.Name));
+
+                var fileStream = new FileStream(sanitizedPath,
+                                                FileMode.OpenOrCreate,
+                                                FileAccess.ReadWrite,
+                                                FileShare.None);
+
+                // Aktuellen Fortschritt berechnen, bereits heruntergeladene Bytes zählen.
+                bytesDownloaded += fileStream.Length;
+
+                fileHandles.Add(link.Uid, fileStream);
+            }
+        }
+
+        public void Download()
+        {
+            // Fortschrittsanbieter für das Monitoring erstellen.
+            monitoring = new Monitoring(bytesTotal, bytesDownloaded);
+
+            foreach (var link in sharehosterFiles)
+            {
+                // Geöffneten Handle abrufen.
+                var fileStream = fileHandles[link.Uid];
+                var progress = fileStream.Length;
+
+                // Prüfen ob die Datei übersprungen werden soll.
+                if (progress == link.Size)
+                {
+                    continue;
+                }
+                fileStream.Position = progress;
+
+                using Stream webStream = sharehosters.GetFileStream(
+                    link,
+                    progress,
+                    cancellationTokenSource.Token);
+
+                // Jumbo-Buffer erstellen.
+                Span<byte> buffer = new byte[2048];
+
+                // Anzahl der gelesenen Bytes in einer Sequenz.
+                int bytesRead;
+
+                // Kopieren bis keine Bytes mehr gelesen wurden.
+                while ((bytesRead = webStream.Read(buffer)) > 0)
+                {
+                    // Buffer in die Datei schreiben.
+                    fileStream.Write(buffer[..bytesRead]);
+
+                    cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                    // Gelesene Bytes an den Fortschrittsanbieter übermitteln.
+                    monitoring.Report(bytesRead);
+                }
+            }
+
+            monitoring = null;
+        }
+
+        public void Extract(string extractPath, string password)
+        {
+            List<RarArchive> archives = new();
+            ReaderOptions options = new() { Password = password ?? "", LookForHeader = true };
+
+            foreach (var item in fileHandles.Values)
+            {
+                var test = RarArchive.Open(fileHandles.Values, options);
+
+                if (test.IsFirstVolume())
+                {
+                    archives.Add(test);
+                }
+            }
+
+            // Fortschrittsanbieter für das Monitoring erstellen.
+            monitoring = new Monitoring(archives.Sum(a => a.TotalSize), 0);
+
+            foreach (var archive in archives)
+            {
+                // Ordner erstellen und Dateien entpacken.
+                foreach (var entry in archive.Entries)
+                {
+                    string fileName = Sanitizer.Sanitize(Path.GetFileName(entry.Key));
+                    string fullPath = Path.Combine(extractPath, fileName);
+
+                    // Dateien entpacken.
+                    if (!entry.IsDirectory)
+                    {
+                        using Stream targetStream = new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None);
+                        using Stream sourceStream = entry.OpenEntryStream();
+
+                        // Jumbo-Buffer erstellen.
+                        byte[] buffer = new byte[2048];
+
+                        // Anzahl der gelesenen Bytes in einer Sequenz.
+                        int bytesRead;
+
+                        while ((bytesRead = sourceStream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            // Buffer in die Datei schreiben.
+                            targetStream.Write(buffer, 0, bytesRead);
+
+                            cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                            // Gelesene Bytes an den Fortschrittsanbieter übermitteln.
+                            monitoring.Report(bytesRead);
+                        }
+
+                        targetStream.Flush();
+                    }
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var item in fileHandles.Values)
+            {
+                item.Flush();
+                item.Dispose();
+            }
+            monitoring = null;
+
+            GC.SuppressFinalize(this);
         }
     }
-
 }

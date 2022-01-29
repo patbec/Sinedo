@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,45 +14,40 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Sinedo.Background;
 using Sinedo.Components;
 using Sinedo.Components.Logging;
-using Sinedo.Components.Sharehoster;
-using Sinedo.Background;
 using Sinedo.Middleware;
 using Sinedo.Singleton;
-using System.Net;
-using Microsoft.Extensions.Logging;
 
 namespace Sinedo
 {
     public class Startup
     {
-        public Startup()
-        {
-        }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<WebSocketRouter>()
                     .AddSingleton<WebSocketConnections>()
                     .AddSingleton<WebSocketBroadcaster>()
+                    .AddSingleton<WebSocketPing>()
                     .AddSingleton<DownloadRepository>()
                     .AddSingleton<DownloadScheduler>()
                     .AddSingleton<DiskSpaceHelper>()
-                    .AddSingleton<Configuration>()
                     .AddSingleton<HyperlinkManager>()
-                    .AddSingleton<Configuration>(Configuration.Current)
-                    .AddSingleton<WebViewLoggerProvider>(e => WebViewLoggerProvider.Default);
-                    
+                    .AddSingleton<ServerControl>()
+                    .AddSingleton<Singleton.IConfiguration>(Configuration.Current)
+                    .AddSingleton<WebViewLoggerProvider>(WebViewLoggerProvider.Default);
+
             services.AddHostedService<StorageService>()
                     .AddHostedService<AutoDiscovery>();
-      
+
             AddLocalizationSupport(services);
 
             services.AddHealthChecks()
-                    .AddCheck<HealthCheck>("application");
-                    
+                    .AddCheck<ServerHealthCheck>("application");
+
             services.AddControllersWithViews()
                     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
 
@@ -65,7 +61,8 @@ namespace Sinedo
             {
                 app.UseDeveloperExceptionPage();
             }
-            else {
+            else
+            {
                 app.UseExceptionHandler("/Error");
             }
 
@@ -99,10 +96,11 @@ namespace Sinedo
             app.UseMiddleware<WebSocketRouting>();
         }
 
-        private static void AddCookieAuthenticationSupport(IServiceCollection services) {
+        private static void AddCookieAuthenticationSupport(IServiceCollection services)
+        {
             services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(o => 
+                .AddCookie(o =>
                 {
                     o.Cookie.Name = "Sinedo";
                     o.LoginPath = "/login";
@@ -117,13 +115,15 @@ namespace Sinedo
             });
         }
 
-        private static void AddLocalizationSupport(IServiceCollection services) {
-            services.Configure<RequestLocalizationOptions>(options => {
+        private static void AddLocalizationSupport(IServiceCollection services)
+        {
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
                 List<CultureInfo> supportedCultures = new()
                 {
                     new CultureInfo("de-DE"),
                     new CultureInfo("en-US")
-                };  
+                };
                 options.DefaultRequestCulture = new RequestCulture("en-US");
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;

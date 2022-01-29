@@ -34,8 +34,15 @@ namespace Sinedo.Flags
         /// </summary>
         StopAll = 8,
 
-        Upload = 9,
+        FileUpload = 9,
 
         Links = 10,
+
+        /// <summary>
+        /// Startet den Dienst neu, um z.B. geänderte IP-Adress oder Port Einstellungen zu laden.
+        /// </summary>
+        Restart = 11,
+
+        Pong = 12,
     }
 }

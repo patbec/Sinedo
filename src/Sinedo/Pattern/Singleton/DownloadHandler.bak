@@ -1,0 +1,259 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Sinedo.Components;
+using Sinedo.Components.Common;
+using Sinedo.Exceptions;
+using Sinedo.Flags;
+using Sinedo.Models;
+
+namespace Sinedo.Singleton
+{
+    /// <summary>
+    /// Kann das Herunterladen von Downloads durchführen.
+    /// </summary>
+    public class DownloadHandler
+    {
+        /// <summary>
+        /// Berechnet den Download-Fortschritt etc.
+        /// </summary>
+        private readonly Timer monitoringTimer;
+
+        /// <summary>
+        /// Cache mit dem Verlauf der Auslastung.
+        /// </summary>
+        private readonly List<ushort> monitoringCache = new()
+        {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        };
+
+        /// <summary>
+        /// Liste mit Downloads die aktuell heruntergeladen werden.
+        /// </summary>
+        private readonly Dictionary<string, Downloader> currentDownloads = new();
+
+
+        #region Dependency Services
+
+        private readonly DownloadRepository repository;
+        private readonly Sharehosters sharehosters;
+        private readonly Configuration configuration;
+
+        #endregion
+
+
+        #region Properties
+
+        /// <summary>
+        /// Stellt anderen Diensten den Verlauf der Auslastung bereit.
+        /// </summary>
+        public BandwidthRecord BandwidthInfo { get; private set; }
+
+        #endregion
+
+        public DownloadHandler(DownloadRepository repository, Sharehosters sharehosters, Configuration configuration)
+        {
+            this.repository = repository;
+            this.sharehosters = sharehosters;
+            this.configuration = configuration;
+
+            BandwidthInfo = new ()
+            {
+                BytesReadTotal = 0,
+                BytesRead = 0,
+                Data = monitoringCache.ToArray(),
+            };
+
+            // Berechnet jede Sekunde die aktuelle Download-Geschwindigkeit.
+            monitoringTimer = new Timer(OnUpdate, null, 1000, 1000);
+        }
+
+        public void StartAndWait(string downloadName, DownloadScheduler scheduler)
+        {
+            IDownloadState exitState = null;
+            Downloader downloader = null;
+
+            try
+            {
+                string sanitizedPath = SantanizePath(configuration.DownloadDirectory, downloadName);
+
+                scheduler.SetState(new DownloadStateRunningCheckStatus(downloadName), (download) =>
+                {
+                    downloader = new (sharehosters, sanitizedPath, download.Files);
+                    currentDownloads.Add(downloadName, downloader);
+                });
+
+                try {
+                    downloader.GetFileInfosFromApi();
+                    downloader.MakeFiles();
+
+                    if( ! downloader.IsDownloadCompleted)
+                    {
+                        scheduler.SetState(new DownloadStateRunningDownload(downloadName));
+
+                        // Bei Internetproblemen: 30 Versuche â 30 Sekunden
+                        RetryIfConnectionLost(30, 30, () => downloader.Download());
+                    }
+
+                    // Aktuelle Einstellung aus der Konfig auslesen.
+                    if(configuration.IsExtractingEnabled)
+                    {
+                        string password = null;
+
+                        scheduler.SetState(new DownloadStateRunningExtract(downloadName), (download) => password = download.Password);
+
+                        // Heruntergeladene Dateien entpacken.
+                        downloader.Extract(configuration.ExtractingDirectory, password);
+                    }
+                }
+                finally
+                {
+                    downloader.Dispose();
+                }
+
+                exitState = new DownloadStateCompleted(downloadName);
+            }
+            catch (OperationCanceledException)
+            {
+                exitState = new DownloadStateCanceled(downloadName);
+            }
+            catch (Exception ex)
+            {
+                if (ex is AggregateException) {
+                    ex = ex.InnerException;
+                }
+                exitState = new DownloadStateFailed(downloadName, ex);
+            }
+
+            // Den neuen Zustand setzen.
+            scheduler.SetState(exitState, _ => currentDownloads.Remove(downloadName));
+
+            void RetryIfConnectionLost(int count, int delay, Action callback) {
+                while(count != 0) {
+                    try {
+                        callback();
+                        return;
+                    }
+                    catch(IOException)
+                    {
+                        count--;
+
+                        OnStatusUpdate(download.Name, null, GroupMeta.Retry);
+                        if(count == 0) {
+                            throw;
+                        }
+
+                        // ToDo: Log
+                    }
+
+                    Task.Delay(delay * 1000, downloader.cancellationTokenSource.Token).Wait();
+                    downloader.cancellationTokenSource.Token.ThrowIfCancellationRequested();
+                    OnStatusUpdate(dow.Name, null, GroupMeta.Download);
+                }
+            }
+        }
+
+        public void Cancel(string downloadName)
+        {
+            if(downloadName == null) {
+                throw new ArgumentNullException(nameof(downloadName));
+            }
+
+            // Abbruchsanforderung senden.
+            currentDownloads[downloadName].Cancel();
+        }
+
+
+        /// <summary>
+        /// Aktualisiert die Download-Geschwindigkeit.
+        /// </summary>
+        private void OnUpdate(object timerState)
+        {
+            try {
+                long bytesReadCurrent = 0;
+
+                // Download-Geschwindigkeit etc. berechnen. 
+                repository.EnterWriteLock(() => {
+                    foreach (var item in currentDownloads)
+                    {
+                        var downloader  = item.Value;
+                        var bytesRead   = downloader.Monitoring.Update();
+                        var monitoring  = downloader.Monitoring;
+
+                        // Download Informationen aktualisieren.
+                        var download = repository.Find(item.Key) with
+                        {
+                            State               = DownloadState.Running,
+                            LastException       = null,
+                            BytesPerSecond      = monitoring?.BytesPerSecond,
+                            SecondsToComplete   = monitoring?.SecondsToComplete,
+                            GroupPercent        = monitoring?.Percent
+                        };
+                        repository.Update(download);
+
+                        // Die Geschwindigkeit nur für Downloads berechnen.
+                        if(download.Meta == GroupMeta.Download) {
+                            bytesReadCurrent += bytesRead;
+                        }
+                    }
+                });
+
+                // Neue Statusinformationen veröffentlichen.
+                PublishStats(bytesReadCurrent);
+            }
+            catch (Exception exception) {
+                logger.LogCritical(exception, "Calculation of the progress has failed.");
+            }
+        }
+
+        /// <summary>
+        /// Veröffentlicht die Auslastung.
+        /// </summary>
+        private void PublishStats(long bytesRead)
+        {
+            // Prüfen ob das Array leer ist, dann kein Paket senden.
+            bool sendPackage = monitoringCache.Any(s => s != 0);
+
+            long bytesReadTotal = BandwidthInfo.BytesReadTotal + bytesRead;
+            long totalBandwidth = configuration.InternetConnectionInMbits * 125000;  
+
+            double utilization = (bytesRead * 100) / totalBandwidth;
+            ushort utilizationPercent = (ushort)utilization;
+
+            monitoringCache.RemoveAt(0);
+            monitoringCache.Add(utilizationPercent);
+
+            BandwidthInfo = new BandwidthRecord()
+            {
+                BytesReadTotal = bytesReadTotal,
+                BytesRead = bytesRead,
+                Data = monitoringCache.ToArray()
+            };
+
+            if (sendPackage) {
+                broadcaster.Add(CommandFromServer.Bandwidth, WebSocketPackage.PARAMETER_UNSET, BandwidthInfo);
+            }
+        }
+
+        /// <summary>
+        /// Entfernt ungültige Zeichen aus dem Dateinamen.
+        /// </summary>
+        public static string SantanizePath(string path, string fileName)
+        {
+            fileName = Sanitizer.Sanitize(fileName);
+
+            return Path.Combine(path, fileName);
+        }
+    }
+}

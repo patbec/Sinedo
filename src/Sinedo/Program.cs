@@ -1,37 +1,59 @@
+using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Sinedo.Background;
 using Sinedo.Components;
 using Sinedo.Components.Logging;
+using Sinedo.Models;
 using Sinedo.Singleton;
 
 namespace Sinedo
 {
     public class Program
     {
-        public static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            bool isParameterHandled = await new CommandLine(args).ExecuteAsync();
+
+            if (isParameterHandled)
+            {
+                return;
+            }
+
             _ = Configuration.Current; // Throw if config is invalid.
 
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder().Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseSystemd()
-                .ConfigureLogging(logBuilder =>
+        public static IHostBuilder CreateHostBuilder() => Host
+            .CreateDefaultBuilder()
+            .ConfigureLogging(configure =>
+            {
+                configure.AddProvider(WebViewLoggerProvider.Default);
+            })
+            .ConfigureWebHostDefaults(configure =>
+            {
+                configure.CaptureStartupErrors(true);
+                configure.UseKestrel(options =>
                 {
-                    logBuilder.AddProvider(WebViewLoggerProvider.Default);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.ConfigureKestrel(listenOptions =>
-                    {
-                        listenOptions.Listen(IPAddress.Parse(Configuration.Current.IPAddress), (int)Configuration.Current.Port);
-                    });
-                    webBuilder.UseStartup<Startup>();
+                    // options.Listen(GetIPEndpoint());
+                    options.UseSystemd();
                 });
+                configure.UseStartup<Startup>();
+            });
+
+        private static IPEndPoint GetIPEndpoint()
+        {
+            var httpAddress = Configuration.Current.IPAddress;
+            var httpPort = Configuration.Current.Port;
+
+            return new IPEndPoint(IPAddress.Parse(httpAddress), httpPort);
+        }
     }
 }

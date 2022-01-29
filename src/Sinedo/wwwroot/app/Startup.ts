@@ -22,6 +22,7 @@ namespace Application {
          * Beginnt die Anwendung zu laden.
          */
         public static Main() {
+
             console.log(`Welcome to
    _____ _                __      
   / ___/(_)___  ___  ____/ /___   
@@ -33,19 +34,23 @@ Your Simple Network Downloader!
 https://github.com/patbec/Sinedo
 `);
 
+            try {
+                let services: Array<Interfaces.IServiceEndpoint> =
+                    [
+                        new Application.Services.DiskEndpoint(),
+                        new Application.Services.ListboxEndpoint(),
+                        new Application.Services.NotificationEndpoint(),
+                        new Application.Services.CardEndpoint(),
+                        new Application.Services.SystemEndpoint(),
+                        new Application.Services.DragAndDropEndpoint(),
+                        new Application.Services.HyperlinkEndpoint(),
+                    ]
 
-            let services: Array<Interfaces.IServiceEndpoint> =
-            [
-                new Application.Services.DiskEndpoint(),
-                new Application.Services.ListboxEndpoint(),
-                new Application.Services.NotificationEndpoint(),
-                new Application.Services.CardEndpoint(),
-                new Application.Services.SystemEndpoint(),
-                new Application.Services.DragAndDropEndpoint(),
-                new Application.Services.HyperlinkEndpoint(),
-            ]
-
-            this._controller = new Controller(services, 2000);
+                this._controller = new Controller(services, 2000);
+            }
+            catch (e) {
+                alert("Sorry, an error occurred while loading the WebApp: " + e)
+            }
         }
     }
 }

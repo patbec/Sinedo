@@ -4,6 +4,8 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Sinedo.Exceptions;
+using Sinedo.Flags;
 
 namespace Sinedo.Components
 {
@@ -11,12 +13,16 @@ namespace Sinedo.Components
     {
         private readonly Guid webSocketUid;
         private readonly WebSocket webSocket;
+        private readonly WebSocketChannelFilter webSocketChannelFilter;
+        private readonly string friendlyName;
+        private readonly long startTime;
 
         private readonly SemaphoreSlim semaphore;
+        private readonly CancellationTokenSource cancellationTokenSource;
 
         #region Constant
 
-        private const int StreamWriteTimeout = 3000;
+        //private const int StreamWriteTimeout = 3000;
         //private const int StreamReadTimeout = 3000;
 
         public const int StreamMessageSize = 2 * 1024;
@@ -29,13 +35,15 @@ namespace Sinedo.Components
         public delegate void CommandReceivedEventHandler(WebSocketEndpoint webSocketEndpoint, WebSocketPackage webSocketPackage);
         public delegate void CommandExceptionEventHandler(WebSocketEndpoint webSocketEndpoint, Exception exception);
 
-        public delegate void ConnectionEventHandler(WebSocketEndpoint webSocketEndpoint);
+        public delegate void ConnectionOpenedEventHandler(WebSocketEndpoint webSocketEndpoint);
+        public delegate void ConnectionClosedEventHandler(WebSocketEndpoint webSocketEndpoint, Exception exception);
 
         public event CommandReceivedEventHandler CommandReceived;
         public event CommandExceptionEventHandler CommandException;
 
-        public event ConnectionEventHandler ConnectionOpened;
-        public event ConnectionEventHandler ConnectionClosed;
+        public event ConnectionOpenedEventHandler ConnectionOpened;
+        public event ConnectionClosedEventHandler ConnectionClosed;
+
 
         #endregion
 
@@ -47,6 +55,30 @@ namespace Sinedo.Components
         public Guid Uid
         {
             get => webSocketUid;
+        }
+
+        /// <summary>
+        /// Gibt den eingestellten Nachrichten-Filter zurück.
+        /// </summary>
+        public WebSocketChannelFilter Filter
+        {
+            get => webSocketChannelFilter;
+        }
+
+        /// <summary>
+        /// Gibt den Anzeigenamen der Anwendung zurück.
+        /// </summary>
+        public string FriendlyName
+        {
+            get => friendlyName;
+        }
+
+        /// <summary>
+        /// Gibt die Uhrzeit (UTC) zurück, wann die Verbindung erstellt wurde.
+        /// </summary>
+        public long StartTime
+        {
+            get => startTime;
         }
 
         /// <summary>
@@ -64,96 +96,94 @@ namespace Sinedo.Components
         /// <summary>
         /// Erstellt einen neuen verwalteten WebSocket-Endpunkt.
         /// </summary>
-        public WebSocketEndpoint(WebSocket webSocket)
+        public WebSocketEndpoint(WebSocket webSocket, WebSocketChannel[] webSocketChannels, string friendlyName)
         {
             // Zugrundeliegende Verbindung.
             this.webSocket = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
+
+            // Nachrichten-Filter der Verbindung.
+            this.webSocketChannelFilter = new WebSocketChannelFilter(webSocketChannels ?? throw new ArgumentNullException(nameof(webSocketChannels)));
+
+            // Anzeigenamen der Verbindung.
+            this.friendlyName = friendlyName ?? throw new ArgumentNullException(nameof(friendlyName));
+
+            // Uhrzeit (UTC) wann die Verbindung erstellt wurde.
+            this.startTime = DateTime.UtcNow.Ticks;
 
             // Identifikationsnummer für das Log.
             this.webSocketUid = Guid.NewGuid();
 
             // Threadsicherheit für Schreibvorgänge.
             this.semaphore = new SemaphoreSlim(1);
+
+            // Token um die Verbindung zu schließen.
+            this.cancellationTokenSource = new CancellationTokenSource();
         }
 
         #endregion
 
+        #region Public
 
         /// <summary>
         /// Sendet eine Nachricht an den Client.
         /// </summary>
         /// <param name="message">Die zu sendende Nachricht.</param>
         /// <param name="cancellationToken">Token um den Vorgang abzubrechen.</param>
-        /// <exception cref="TimeoutException">Tritt auf, wenn ein anderer Thread das Senden der Nachricht blockiert.</exception>
         /// <returns>True, wenn die Nachricht erfolgreich gesendet wurde.</returns>
-        public async Task<bool> Send(byte[] data, int timeout = StreamWriteTimeout, bool closeAfterCancel = false, CancellationToken cancellationToken = default)
+        public async Task<WebSocketSendResult> Send(WebSocketPackage package, CancellationToken cancellationToken = default)
         {
-            bool result = await semaphore.WaitAsync(timeout, cancellationToken);
-
-            if ( ! result)
+            if (!webSocketChannelFilter.IsCommandSupported(package.Command))
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return false;
+                return WebSocketSendResult.NoChannel;
+            }
 
-                throw new TimeoutException();
+            await semaphore.WaitAsync(cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return WebSocketSendResult.Canceled;
+            }
+
+            if (webSocket.State != WebSocketState.Open)
+            {
+                return WebSocketSendResult.Failed;
             }
 
             try
             {
-                await webSocket.SendAsync(data, WebSocketMessageType.Binary, true, cancellationToken);
+                await webSocket.SendAsync(package.GetBuffer(), WebSocketMessageType.Binary, true, cancellationToken);
 
-                if (closeAfterCancel && cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    await Close(WebSocketCloseStatus.EndpointUnavailable, "Connection closed by Server");
+                    return WebSocketSendResult.Canceled;
                 }
-                cancellationToken.ThrowIfCancellationRequested();
             }
             catch
             {
-                return false;
+                cancellationTokenSource.Cancel();
+                return WebSocketSendResult.Failed;
             }
             finally
             {
                 semaphore.Release();
             }
 
-            return true;
+            return WebSocketSendResult.Success;
         }
 
-        /// <summary>
-        /// Schließt die Verbindung zum Client.
-        /// <paramref name="socketStatus">Grund des Trennvorganges.</paramref>
-        /// <paramref name="socketDescription">Erweiterte Beschreibung für den Grund des Trennvorganges.</paramref>
-        /// </summary>
-        public async Task Close(WebSocketCloseStatus socketStatus = WebSocketCloseStatus.NormalClosure, string socketDescription = null)
+        public void Close()
         {
-            try
-            {
-                if (webSocket.State == WebSocketState.Open)
-                {
-                    await webSocket.CloseAsync(socketStatus,
-                                               socketDescription, CancellationToken.None);
-                }
-            }
-            catch
-            {
-                // ToDo: Log => Connection Abnormally closed
-            }
-            finally
-            {
-                webSocket.Dispose();
-            }
+            cancellationTokenSource.Cancel();
         }
-
-        #region Public
 
         /// <summary>
         /// Beginnt eingehende Nachrichten zu lesen.
         /// </summary>
-        public void Start()
+        public async Task Start()
         {
-            Task.Factory.StartNew(
-                ContextLoop, TaskCreationOptions.LongRunning | TaskCreationOptions.HideScheduler);
+            await ContextLoop();
+            // Task.Factory.StartNew(
+            //     ContextLoop, TaskCreationOptions.LongRunning | TaskCreationOptions.HideScheduler);
         }
 
         #endregion
@@ -165,6 +195,8 @@ namespace Sinedo.Components
         /// </summary>
         private async Task ContextLoop()
         {
+            Exception lastException = null;
+
             try
             {
                 // Event auslösen, dass die Verbindung geöffnet wurde.
@@ -174,7 +206,7 @@ namespace Sinedo.Components
                 while (webSocket.State == WebSocketState.Open)
                 {
                     // Nachricht aus dem Stream lesen.
-                    byte[] buffer = await ReadMessageBlockAsync();
+                    byte[] buffer = await ReadMessageAsync();
 
                     // Prüfen ob die Verbindung geschlossen wurde.
                     if (buffer == null)
@@ -184,21 +216,40 @@ namespace Sinedo.Components
                     RaiseCommandReceived(buffer);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            }
+            catch (PolicyViolationException policyViolation)
+            {
+                lastException = policyViolation;
+                await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, policyViolation.Message, CancellationToken.None);
+            }
             catch (Exception exception)
             {
-                Close(WebSocketCloseStatus.PolicyViolation, exception.Message)
-                    .GetAwaiter()
-                    .GetResult();
+                lastException = exception;
+                await webSocket.CloseAsync(WebSocketCloseStatus.InternalServerError, exception.Message, CancellationToken.None);
             }
             finally
             {
+                webSocket.Dispose();
+
                 // Event auslösen, dass die Verbindung geschlossen wurde.
-                ConnectionClosed?.Invoke(this);
+                ConnectionClosed?.Invoke(this, lastException);
             }
         }
 
         private void RaiseCommandReceived(byte[] buffer)
         {
+            WebSocketPackage webSocketPackage = new(buffer);
+
+            bool isCommandAllowed = webSocketChannelFilter.IsCommandSupported(webSocketPackage.Command);
+
+            if (!isCommandAllowed)
+            {
+                throw new PolicyViolationException(this, webSocketPackage);
+            }
+
             try
             {
                 // Event auslösen, dass eine Nachricht empfangen wurde.
@@ -215,7 +266,7 @@ namespace Sinedo.Components
         /// Liest Daten aus dem zugrundeliegenden Stream bis zu einem EOF (EndOfMessage) Signal.
         /// </summary>
         /// <returns>Empfangene Daten, Null wenn der Stream geschlossen wurde.</returns>
-        private async Task<byte[]> ReadMessageBlockAsync()
+        private async Task<byte[]> ReadMessageAsync()
         {
             // Cache für die empfangenen Daten erstellen.
             using MemoryStream messageCache = new();
@@ -225,18 +276,19 @@ namespace Sinedo.Components
 
             do
             {
+
                 // Chunk aus dem Stream lesen.
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 // Chunk in den Cache schreiben.
-                messageCache.Write(buffer, 0, result.Count);
+                await messageCache.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, result.Count));
 
                 // Empfangene Nachrichten dürfen nicht größer wie 10 MB sein.
                 if (messageCache.Position > StreamMessageSizeLimit)
                     return null;
             }
             // Prüfen ob das Ende der Nachricht erreicht wurde.
-            while ( ! result.EndOfMessage);
+            while (!result.EndOfMessage);
 
             // Prüfen ob die Verbindung geschlossen wurde.
             if (result.CloseStatus.HasValue)

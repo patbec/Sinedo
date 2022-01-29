@@ -37,10 +37,13 @@
         </div>
     </div>
 
-    <p>Starten Sie den Server neu um die Einstellungen zu übernehmen.</p>
-    <p>Falls Sie die Weboberfläche nicht mehr erreichen können, können die Server Einstellungen mit folgenden Befehlen zurückgesetzt werden:</p>
-    
-    <div style="background-color: #f6f8fa; border-radius: 6px; padding: 16px; font-family: monospace; @Model.IsSystemdService ?? test : test">
-        <code>sudo rm @Sinedo.Components.AppDirectories.ConfigDirectory/hosting.json && sudo service sinedo restart</code>
+
+    <p>Starten Sie den Server neu um diese Einstellungen zu übernehmen.</p>
+
+    <div>
+        <button>
+            <span class="icons">restart_alt</span>
+            <span>Dienst Neustarten</span>
+        </button>
     </div>
 </div>

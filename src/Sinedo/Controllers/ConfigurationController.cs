@@ -180,7 +180,7 @@ namespace Sinedo.Controllers
                         break;
                     }
                     case "port": {
-                        _configuration.Port = uint.Parse(value);
+                        _configuration.Port = int.Parse(value);
                         break;
                     }          
                     case "internetconnectioninmbits": {

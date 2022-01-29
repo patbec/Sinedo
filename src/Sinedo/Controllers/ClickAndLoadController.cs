@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Nito.AsyncEx;
 using Sinedo.Components;
 using Sinedo.Components.Common;
 using Sinedo.Exceptions;
@@ -48,30 +50,34 @@ namespace Sinedo.Controllers
 
         [Route("/flash/add")]
         [HttpPost]
-        public ActionResult Add([FromForm] string passwords,
-                                [FromForm] string source,
-                                [FromForm] string package,
-                                [FromForm] string[] urls) {
+        public async Task<ActionResult> Add([FromForm] string passwords,
+                                            [FromForm] string source,
+                                            [FromForm] string package,
+                                            [FromForm] string[] urls)
+        {
             try
             {
-                if (string.IsNullOrWhiteSpace(package)) {
+                if (string.IsNullOrWhiteSpace(package))
+                {
                     // Alternativen Namen festlegen wenn kein Titel angegeben wurde.
-                    if (string.IsNullOrWhiteSpace(source)) {
+                    if (string.IsNullOrWhiteSpace(source))
+                    {
                         package = "Click&Load";
                     }
-                    else {
-                        package = source; 
+                    else
+                    {
+                        package = source;
                     }
                 }
 
                 // Dateien hinzufügen.
-                scheduler.Create(
+                await scheduler.CreateNewDownload(
                     package,
                     urls,
-                    autostart: false,
-                    passwords);
+                    passwords,
+                    autostart: false);
 
-                logger.LogInformation("{0} Links were added successfully.", urls.Length);
+                logger.LogInformation("{linksNumber} Links were added successfully.", urls.Length);
                 return Ok();
             }
             catch (Exception ex)
@@ -85,20 +91,24 @@ namespace Sinedo.Controllers
 
         [Route("/flash/addcrypted2")]
         [HttpPost]
-        public ActionResult AddCrypted2([FromForm] string passwords,
-                                        [FromForm] string source,
-                                        [FromForm] string package,
-                                        [FromForm] string jk,
-                                        [FromForm] string crypted) {
+        public async Task<ActionResult> AddCrypted2([FromForm] string passwords,
+                                                    [FromForm] string source,
+                                                    [FromForm] string package,
+                                                    [FromForm] string jk,
+                                                    [FromForm] string crypted)
+        {
             try
             {
-                if (string.IsNullOrWhiteSpace(package)) {
+                if (string.IsNullOrWhiteSpace(package))
+                {
                     // Alternativen Namen festlegen wenn kein Titel angegeben wurde.
-                    if (string.IsNullOrWhiteSpace(source)) {
+                    if (string.IsNullOrWhiteSpace(source))
+                    {
                         package = "Click&Load";
                     }
-                    else {
-                        package = source; 
+                    else
+                    {
+                        package = source;
                     }
                 }
 
@@ -109,14 +119,15 @@ namespace Sinedo.Controllers
                     source,
                     jk,
                     crypted);
- 
+
                 // Dateien hinzufügen.
-                scheduler.Create(
+                await scheduler.CreateNewDownload(
                     container.Name,
                     container.Urls,
+                    null,
                     autostart: false);
 
-                logger.LogInformation("{0} Links were added successfully.", container.Urls.Length);
+                logger.LogInformation("{linksNumber} Links were added successfully.", container.Urls.Length);
                 return Ok();
             }
             catch (Exception ex)
@@ -145,13 +156,9 @@ namespace Sinedo.Controllers
         {
             logger.LogError(exception, "Links could not be added.");
 
-            NotificationRecord clientNotification = new()
-            {
-                ErrorType = exception.GetType().ToString(),
-                MessageLog = exception.StackTrace
-            };
+            NotificationRecord clientNotification = NotificationRecord.FromException(exception);
 
-            broadcaster.Add(Flags.CommandFromServer.Notification, WebSocketPackage.PARAMETER_UNSET, clientNotification);
+            broadcaster.Add(Flags.CommandFromServer.Notification, clientNotification);
         }
     }
 }

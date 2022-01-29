@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using Microsoft.AspNetCore.SignalR;
+using Sinedo.Middleware;
 
 namespace Sinedo.Models
 {
@@ -16,19 +17,26 @@ namespace Sinedo.Models
         public int Pid { get; set; }
         public string Version { get; set; }
 
-        public static SystemRecord GetSystemInfo() {
-            if (systemInfo == null) {
+        public static SystemRecord GetSystemInfo()
+        {
+            if (systemInfo == null)
+            {
                 systemInfo = new SystemRecord()
                 {
-                    Hostname        = Environment.MachineName,
-                    Platform        = Environment.OSVersion.Platform.ToString(),
-                    Architecture    = RuntimeInformation.OSArchitecture.ToString(),
-                    Pid             = Environment.ProcessId,
-                    Version         = Assembly.GetExecutingAssembly().GetName().Version.ToString(3)
+                    Hostname = Environment.MachineName,
+                    Platform = Environment.OSVersion.Platform.ToString(),
+                    Architecture = RuntimeInformation.OSArchitecture.ToString(),
+                    Pid = Environment.ProcessId,
+                    Version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3)
                 };
             }
 
             return systemInfo;
+        }
+
+        public override string ToString()
+        {
+            return $"{Version} ({Platform}-{Architecture})";
         }
     }
 }

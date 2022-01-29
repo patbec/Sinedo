@@ -6,17 +6,13 @@
 	],
 	"extensions": {
 		"recommendations": [
-			"k--kato.docomment",
 			"aaron-bond.better-comments",
 			"dominicvonk.vscode-resx-editor"
 		],
 	},
 	"settings": {
-		"telemetry.enableTelemetry": false,
 		"window.autoDetectColorScheme": true,
 		"window.title": "${dirty}${activeEditorShort}${separator}${rootName}",
-		"liveServer.settings.host": "0.0.0.0",
-		"liveServer.settings.port": 5501,
 		"files.exclude": {
 			"**/.classpath": true,
 			"**/.project": true,

@@ -13,6 +13,11 @@ namespace Sinedo.Models
         public string[] Files { get; set; }
 
         /// <summary>
+        /// Kennwort zum entpacken.
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
         /// Gibt an, ob das Herunterladen automatisch gestartet werden soll.
         /// </summary>
         public bool Autostart { get; set; }

@@ -1,8 +1,12 @@
 ﻿/// <reference path="WebSocketCloseEvent.ts" />
 /// <reference path="WebSocketCodes.ts" />
 /// <reference path="WebSocketMessage.ts" />
+/// <reference path="WebSocketQueryBuilder.ts" />
+/// <reference path="../../Flags/WebSocketChannel.ts" />
 
 namespace Application.Common.ExWebSocket {
+
+    export const SUPPORTED_API_VERSION = '1';
 
     export class WebSocketEndpoint {
 
@@ -17,7 +21,7 @@ namespace Application.Common.ExWebSocket {
             return this._connectionSocket.readyState == WebSocket.OPEN;
         }
 
-        constructor(url: string) {
+        constructor(url: string,) {
             this._connectionSuccessful = false;
             this._connectionSocket = new WebSocket(url);
             this._connectionSocket.binaryType = 'arraybuffer';
@@ -70,7 +74,7 @@ namespace Application.Common.ExWebSocket {
             }
             catch (e) {
                 console.error(e);
-                this._connectionSocket.close(WebSocketCodes.POLICY_VIOLATION_BY_CLIENT, e); // FixMe: Return always 1009
+                this._connectionSocket.close(WebSocketCodes.POLICY_VIOLATION_BY_CLIENT, e); // ToDo: Fix: Return always 1009
             }
         }
 
@@ -98,7 +102,7 @@ namespace Application.Common.ExWebSocket {
         /**
          * Erstellt eine Anwendungsspezifische URL.
          */
-        public static getaddress(hostname: string, port: string, protocol: string) {
+        public static getaddress(hostname: string, port: string, protocol: string, parameter: WebSocketQueryBuilder) {
             let suffix: string
 
             if (protocol == "https:") {
@@ -108,7 +112,7 @@ namespace Application.Common.ExWebSocket {
                 suffix = "ws:";
             }
 
-            return `${suffix}//${hostname}:${port}/api/server-connection.ws?version=1`
+            return `${suffix}//${hostname}:${port}/api/server-connection.ws?${parameter.buildQuery()}`;
         }
     }
 }

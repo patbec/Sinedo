@@ -1,12 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Sinedo.Components;
-using Sinedo.Components.Logging;
-using Sinedo.Exceptions;
-using Sinedo.Models;
-using Sinedo.Singleton;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +6,16 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Sharehoster.Exceptions;
+using Sinedo.Components;
+using Sinedo.Components.Logging;
+using Sinedo.Exceptions;
+using Sinedo.Models;
+using Sinedo.Singleton;
 
 namespace Sinedo.Controllers
 {
@@ -51,9 +52,9 @@ namespace Sinedo.Controllers
         /// </summary>
         [Route("login")]
         public IActionResult Index()
-        {       
+        {
             // Umleiten wenn kein Passwort eingerichtet wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
@@ -77,7 +78,7 @@ namespace Sinedo.Controllers
         public async Task<IActionResult> Index(string password, string page)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
@@ -86,8 +87,9 @@ namespace Sinedo.Controllers
 
             try
             {
-                if (Configuration.ComputeHash(password).SequenceEqual(Configuration.PasswordHash)) {
-                    throw new InvalidCredentialsException();
+                if (!Configuration.ComputeHash(password ?? "").SequenceEqual(Configuration.PasswordHash))
+                {
+                    throw new InvalidPasswordException();
                 }
 
                 var claimsIdentity = new ClaimsIdentity("Login");
@@ -100,14 +102,14 @@ namespace Sinedo.Controllers
 
                 Logger.LogInformation("Authentication was successful.");
 
-                if(page != null)
+                if (page != null)
                 {
                     return Redirect("/" + page);
                 }
 
                 return Redirect("/");
             }
-            catch (InvalidCredentialsException ie)
+            catch (InvalidPasswordException ie)
             {
                 Logger.LogWarning(ie, "Authentication failed.");
                 ModelState.AddModelError("credentials", "The entered password is incorrect.");
@@ -129,7 +131,7 @@ namespace Sinedo.Controllers
         public async Task<IActionResult> Logout()
         {
             // Umleiten wenn kein Passwort eingerichtet wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
@@ -145,13 +147,13 @@ namespace Sinedo.Controllers
         public IActionResult Change()
         {
             // Umleiten wenn kein Passwort eingerichtet wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
 
             // Prüfen ob der Benutzer angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Redirect("/login?page=change");
             }
@@ -168,13 +170,13 @@ namespace Sinedo.Controllers
         public IActionResult Change(string newPassword)
         {
             // Status-Code 403 zurückgeben, wenn die Einrichtung nicht abgeschlossen wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
 
             // Status-Code 401 zurückgeben, wenn Benutzer nicht angemeldet ist.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Redirect("/login?page=change");
             }
@@ -183,6 +185,11 @@ namespace Sinedo.Controllers
 
             try
             {
+                if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 4)
+                {
+                    throw new InvalidPasswordPolicyException();
+                }
+
                 Configuration.PasswordHash = Configuration.ComputeHash(newPassword);
 
                 Logger.LogInformation("Password change was successful.");
@@ -191,7 +198,7 @@ namespace Sinedo.Controllers
             catch (InvalidPasswordPolicyException ae)
             {
                 Logger.LogWarning(ae, "Password change for user failed.");
-                ModelState.AddModelError("policy", "The entered password is not allowed.");     
+                ModelState.AddModelError("policy", "The entered password is not allowed.");
             }
             catch (Exception ex)
             {

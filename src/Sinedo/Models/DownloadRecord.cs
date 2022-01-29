@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Sinedo.Components;
 using Sinedo.Flags;
@@ -14,15 +17,9 @@ namespace Sinedo.Models
         public string Name { get; init; }
 
         /// <summary>
-        /// Informationen über den Status.
+        /// Links des Downloads.
         /// </summary>
-        public GroupState State { get; init; }
-
-        /// <summary>
-        /// Besitzt GroupState den Zustand 'Running' werden
-        /// hier genauere Informationen gespeichert.
-        /// </summary>
-        public GroupMeta? Meta { get; init; }
+        public string[] Files { get; init; }
 
         /// <summary>
         /// Optinales Kennwort zum entschlüsseln des Inhaltes.
@@ -30,9 +27,9 @@ namespace Sinedo.Models
         public string Password { get; init; }
 
         /// <summary>
-        /// Links des Downloads.
+        /// Informationen über den Status.
         /// </summary>
-        public string[] Files { get; init; }
+        public DownloadState State { get; init; }
 
         /// <summary>
         /// Letzte Fehlermeldung.
@@ -42,6 +39,7 @@ namespace Sinedo.Models
         /// <summary>
         /// Sekunden bis der Download fertigstellt wird.
         /// </summary>
+        [JsonIgnore]
         public long? SecondsToComplete { get; init; }
 
         /// <summary>
@@ -53,5 +51,35 @@ namespace Sinedo.Models
         /// Gelesene Bytes pro Sekunde.
         /// </summary>
         public long? BytesPerSecond { get; init; }
+
+
+        public void Save(string folderPath)
+        {
+            string filePath = Path.Combine(folderPath, Name + ".json");
+
+            string fileContent = JsonSerializer.Serialize(new { Files, Password });
+
+            File.WriteAllText(filePath, fileContent);
+        }
+
+
+        public static DownloadRecord Load(string filePath)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+            string fileContent = File.ReadAllText(filePath);
+
+            JsonElement document = JsonSerializer.Deserialize<JsonElement>(fileContent);
+
+            var downloadFiles = document.GetProperty(nameof(Files)).EnumerateArray().Select(item => item.GetString()).ToArray();
+            var downloadPassword = document.GetProperty(nameof(Password)).GetString();
+
+            return new DownloadRecord()
+            {
+                Name = fileName,
+                Files = downloadFiles,
+                Password = downloadPassword
+            };
+        }
     }
 }

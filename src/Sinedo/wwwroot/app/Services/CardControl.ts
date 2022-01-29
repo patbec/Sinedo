@@ -14,9 +14,12 @@ namespace Application.Services {
          */
         public constructor(element: HTMLCanvasElement) {
             this._canvas = element;
-        
+
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", ((ev: object) => {
-                this.draw(this._lastData);
+                /* _lastData ist undefined wenn keine Verbindung besteht. */
+                if (this._lastData != undefined) {
+                    this.draw(this._lastData);
+                }
             }).bind(this));
         }
 
@@ -28,10 +31,10 @@ namespace Application.Services {
 
             this.resizeCanvasToDisplaySize(this._canvas);
 
-            
+
             let canvas = this._canvas;
 
-            if(canvas.width != 0) {
+            if (canvas.width != 0) {
                 var themeColor = getComputedStyle(document.documentElement).getPropertyValue('--color-theme-primary');
 
                 let context = canvas.getContext('2d');
@@ -51,38 +54,38 @@ namespace Application.Services {
 
                 /* Auslastung zeichnen */
                 for (var i = 0; i <= lineCount; i++) {
-                    var percent =  value[i] * canvas.height / 100;
+                    var percent = value[i] * canvas.height / 100;
                     context.lineTo(lineWidth * i, lineHeight - percent);
                 }
 
                 /* Ende des Pfades zeichnen */
                 context.lineTo(canvas.width,
-                               canvas.height);
+                    canvas.height);
 
                 /* Zeichnen abschließen */
                 context.fill();
                 context.stroke();
-                context.closePath();            
+                context.closePath();
             }
         }
 
         private resizeCanvasToDisplaySize(canvas: HTMLCanvasElement) {
             // Lookup the size the browser is displaying the canvas in CSS pixels.
-            const displayWidth  = canvas.clientWidth;
+            const displayWidth = canvas.clientWidth;
             const displayHeight = canvas.clientHeight;
-   
+
             // Check if the canvas is not the same size.
-            const needResize = canvas.width  !== displayWidth ||
-                               canvas.height !== displayHeight;
-   
+            const needResize = canvas.width !== displayWidth ||
+                canvas.height !== displayHeight;
+
             if (needResize) {
                 let dpr = window.devicePixelRatio || 1;
 
-              // Make the canvas the same size
-              canvas.width  = displayWidth * dpr;
-              canvas.height = displayHeight * dpr;
+                // Make the canvas the same size
+                canvas.width = displayWidth * dpr;
+                canvas.height = displayHeight * dpr;
             }
-   
+
             return needResize;
         }
     }
@@ -112,7 +115,7 @@ namespace Application.Services {
          * @value Die Anzahl von gelesenen Bytes in dieser Sitzung.
          */
         public set totalBytes(bytes: number) {
-            this._labelSummary.innerText = 
+            this._labelSummary.innerText =
                 Application.Common.ByteSizes.formatBytes(bytes, 2);
         }
 

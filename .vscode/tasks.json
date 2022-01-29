@@ -1,142 +1,152 @@
 {
     "version": "2.0.0",
     "tasks": [
+        //
+        // dotnet: watch and build
+        //
         {
+            "label": "dotnet: watch",
+            "detail": "with .NET Hot Reload",
             "command": "dotnet",
             "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/t:CreateDeb",
-                "/p:PublishSingleFile=true",
-                "/p:PublishTrimmed=true",
-                "/p:DebugType=None",
-                "/p:DebugSymbols=false",
-                "/p:RuntimeIdentifier=linux-arm64",
-                "/p:Configuration=Release"
-            ],
             "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: publish deb (linux-arm64)",
-            "problemMatcher": "$msCompile"
+            "isBackground": true,
+            "args": [
+                "watch",
+                "run",
+                "--",
+                "-w",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/Sinedo/",
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
         },
         {
+            "label": "dotnet: build",
             "command": "dotnet",
             "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/t:CreateDeb",
-                "/p:PublishSingleFile=true",
-                "/p:PublishTrimmed=true",
-                "/p:DebugType=None",
-                "/p:DebugSymbols=false",
-                "/p:RuntimeIdentifier=linux-x64",
-                "/p:Configuration=Release"
-            ],
+            "problemMatcher": "$msCompile",
             "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: publish deb (linux-x64)",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/t:CreateRpm",
-                "/p:PublishSingleFile=true",
-                "/p:PublishTrimmed=true",
-                "/p:DebugType=None",
-                "/p:DebugSymbols=false",
-                "/p:RuntimeIdentifier=linux-arm64",
-                "/p:Configuration=Release"
-            ],
-            "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: publish rpm (linux-arm64)",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/t:CreateRpm",
-                "/p:PublishSingleFile=true",
-                "/p:PublishTrimmed=true",
-                "/p:DebugType=None",
-                "/p:DebugSymbols=false",
-                "/p:RuntimeIdentifier=linux-x64",
-                "/p:Configuration=Release"
-            ],
-            "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: publish rpm (linux-x64)",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "publish",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
-                "/p:PublishSingleFile=true",
-                "/p:PublishTrimmed=true",
-                "/p:DebugType=None",
-                "/p:DebugSymbols=false",
-                "/p:RuntimeIdentifier=osx-x64",
-                "/p:Configuration=Release"
-            ],
-            "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: publish (osx-x64)",
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "command": "dotnet",
-            "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
             ],
-            "group": "build",
-            "dependsOn": "tsc: build",
-            "label": "dotnet: build",
-            "problemMatcher": "$msCompile"
+            "options": {
+                "cwd": "${workspaceFolder}/src/Sinedo/"
+            },
+            "dependsOn": "tsc: build"
         },
+        //
+        // typescript: watch and build
+        //
         {
-            "type": "typescript",
-            "tsconfig": "src/Sinedo/wwwroot/app/tsconfig.json",
-            "problemMatcher": [
-                "$tsc"
-            ],
-            "group": "none",
-            "label": "tsc: build"
-        },
-        {
+            "label": "tsc: watch",
             "type": "typescript",
             "tsconfig": "src/Sinedo/wwwroot/app/tsconfig.json",
             "option": "watch",
+            "group": "build",
             "problemMatcher": [
                 "$tsc-watch"
+            ]
+        },
+        {
+            "label": "tsc: build",
+            "type": "typescript",
+            "tsconfig": "src/Sinedo/wwwroot/app/tsconfig.json",
+            "group": "build",
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+        //
+        // dotnet: publish as deb or rpm package for x64 / arm64.
+        //
+        {
+            "label": "dotnet: publish deb (linux-x64)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/t:CreateDeb",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:RuntimeIdentifier=linux-x64",
+                "/p:Configuration=Release"
             ],
             "group": "build",
-            "label": "tsc: watch"
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: publish rpm (linux-x64)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/t:CreateRpm",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:RuntimeIdentifier=linux-x64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: publish deb (linux-arm64)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/t:CreateDeb",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:RuntimeIdentifier=linux-arm64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: publish deb (linux-arm64)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/t:CreateDeb",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:RuntimeIdentifier=linux-arm64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dotnet: publish rpm (linux-arm64)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/Sinedo/Sinedo.csproj",
+                "/t:CreateRpm",
+                "/p:PublishSingleFile=true",
+                "/p:PublishTrimmed=true",
+                "/p:DebugType=None",
+                "/p:RuntimeIdentifier=linux-arm64",
+                "/p:Configuration=Release"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
         }
     ]
 }

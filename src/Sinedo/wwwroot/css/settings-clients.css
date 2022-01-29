@@ -1,0 +1,46 @@
+:root {
+    --separator: rgba(0, 0, 0, 0.150);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --separator: rgba(255, 255, 255, 0.150);
+    }
+}
+
+hr {
+    margin-top: 18px;
+    margin-bottom: 18px;
+    border-width: 0px;
+    border-top-width: 2px;
+    border-color: var(--separator);
+    border-style: solid;
+}
+
+hr:nth-of-type(1)
+{
+    margin-top: 24px;
+}
+
+.clientitem {
+    display: grid;
+    grid-template-columns: 40.5% auto min-content;
+    width: 100%;
+}
+
+.clientitem p {
+    margin: 0px;
+}
+
+table {
+    white-space: nowrap;
+    text-align: right;
+}
+
+table th {
+    padding-left: 8px;
+}
+
+a {
+    text-decoration: none;
+}

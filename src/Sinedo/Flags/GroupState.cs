@@ -5,7 +5,7 @@ namespace Sinedo.Flags
 	/// <summary>
 	/// Auflistung von erlaubten Zuständen einer Gruppe.
 	/// </summary>
-	public enum GroupState : ushort
+	public enum DownloadState : ushort
 	{
 		/// <summary>
 		/// Der Vorgang wurde hinzugefügt aber nicht gestartet.

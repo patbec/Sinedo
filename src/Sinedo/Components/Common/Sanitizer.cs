@@ -30,7 +30,7 @@ namespace Sinedo.Components.Common
 
 
             // Illegale Zeichen für einen Ordner oder eine Datei..
-            var invalidsChars = Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray();
+            var invalidsChars = Path.GetInvalidFileNameChars();
 
             // Illegale Zeichen aus dem Dateinamen entfernen.
             var newName = string.Join(placeholder,

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de-de">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Einstellungen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=3.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <link rel="stylesheet" href="../../wwwroot/css/default.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/button.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/input.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/icons.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/chips.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/settings.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/tab.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/badges.css" type="text/css">
+    <link rel="stylesheet" href="../../wwwroot/css/settings-clients.css" type="text/css">
+
+    <meta name="theme-color" media="(prefers-color-scheme:dark)" content="#161b22">
+    <meta name="theme-color" media="(prefers-color-scheme:light)" content="#fbfbfb">
+
+    <style>
+        :root {
+            --color-image-a: rgb(255,190,124);
+            --color-image-b: rgb(255,165,0);
+            --color-image-c: rgb(255,191,73);
+        }
+
+    </style>
+</head>
+
+<body style="background-image: url('../../wwwroot/images/theme/iStock-Lines-Multi-Color-2.svg');">
+    <main>
+        <div class="header">
+            <h4 style="mix-blend-mode: color-dodge;">Einstellungen</h4>
+            <div style="flex-grow: 1;"></div>
+            <img height=100 src="../../wwwroot/images/clouds.svg" />
+        </div>
+
+
+        <div class="tabcontrol">
+            <div class="tab__header">
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">file_download</div>
+                    <div class="tab__header_text">Downloads</div>
+                </a>
+                <a class="tab__header_item" selected href="/Logs?component=@item.ComponentName">
+                    <div class="icon">online_prediction</div>
+                    <div class="tab__header_text">Clients</div>
+                </a>
+                <a class="tab__header_item" href="/Logs?component=@item.ComponentName">
+                    <div class="icon">admin_panel_settings</div>
+                    <div class="tab__header_text">Server</div>
+                </a>
+                <div class="tab__header_spacing" style="mix-blend-mode: color-burn;">
+
+                </div>
+            </div>
+
+            <div class="tab__content">
+                <form method="post">
+                    <div class="content__separator">
+                        <p>Diese Übersicht zeigt Geräte an, die mit dem Sinedo Server verbundenen sind.</p>
+                        <p>Um die Verbinding offen zu halten wird alle 30 Sekunden ein Keep-Alive Paket gesendet. Mit diesem Paket werden die Ping Werte berechnet, die Werte beziehen sich auf einen Zeitraum von 10 Minuten (20 Pakete).</p>
+
+                        <hr>
+
+                        <div class="clientitem">
+                            <div>
+                                <p>
+                                    <span><b>192.168.1.100</b></span><br>
+                                    <span>Patricks-iMac</span><br>
+                                    <span><em>Downloads, Disk, Bandwitdh</em></span>
+                                </p>
+                            </div>
+                            <div>
+                                <div class="badge" data-status="success">                        
+                                    <p>
+                                        <span>Verbindung: Sehr Gut</span>
+                                    </p> 
+                                </div>
+                            </div>
+                            <div>
+                                <table>
+                                    <tr>
+                                      <td>min. Ping:</td>
+                                      <th>1 ms</th>
+                                    </tr>
+                                    <tr>
+                                        <td>max. Ping:</td>
+                                        <th>1 ms</th>
+                                    </tr>
+                                    <tr>
+                                        <td>avg. Ping:</td>
+                                        <th>1 ms</th>
+                                    </tr>
+                                  </table>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div style="padding-top: 90px;">
+                            <a href="/Logs?componentName=Sharehoster">Ereignisanzeige öffnen (Verbindungsprotokoll)</a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+            <div class="tabcontrol__statusbar" style="mix-blend-mode: color-burn;">
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
