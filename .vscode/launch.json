@@ -12,6 +12,7 @@
                 "--worker"
             ],
             "cwd": "${workspaceFolder}/src/Sinedo",
+            "console": "internalConsole",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",
@@ -35,6 +36,7 @@
                 "--worker"
             ],
             "cwd": "${workspaceFolder}/src/Sinedo",
+            "console": "internalConsole",
             "stopAtEntry": false,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
