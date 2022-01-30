@@ -21,7 +21,7 @@ namespace Sinedo
     public class CommandLine
     {
         public const string TAB = "  ";
-        public const string BOLD_TEXT = "\u001b[38;1m";
+        public const string BOLD_TEXT = "\u001b[1m";
         public const string COLOR_ORANGE = "\u001b[38;5;208m";
         public const string CONSOLE_RESET = "\u001b[0m";
 
