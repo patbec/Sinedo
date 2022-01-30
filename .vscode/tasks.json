@@ -23,7 +23,7 @@
             },
             "problemMatcher": {
                 "pattern": {
-                    "regexp": ".",
+                    "regexp": "^watch : ",
                     "file": 1,
                     "location": 2,
                     "severity": 3,
@@ -32,8 +32,8 @@
                 },
                 "background": {
                     "activeOnStart": true,
-                    "beginsPattern": "^watch :",
-                    "endsPattern": "."
+                    "beginsPattern": "^watch : File changed: ",
+                    "endsPattern": "^(watch : No hot reload changes to apply.|watch : Hot reload of changes succeeded.|watch : Started)"
                 }
             }
         },
