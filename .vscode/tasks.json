@@ -13,12 +13,10 @@
             "isBackground": true,
             "args": [
                 "watch",
-                "run",
-                "--",
-                "-w",
+                "run"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/src/Sinedo/",
+                "cwd": "${workspaceFolder}/src/Sinedo/"
             },
             "runOptions": {
                 "runOn": "folderOpen"
