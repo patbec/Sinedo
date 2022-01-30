@@ -12,12 +12,6 @@ namespace Sinedo.Models
         public string DisplayName { get; init; }
         public string[] Urls { get; init; }
 
-        public ReadOnlyMemory<byte> AsMemory()
-        {
-            string content = JsonSerializer.Serialize(this);
-            return Encoding.ASCII.GetBytes(content).AsMemory();
-        }
-
         public static DiscoveryRecord Parse(byte[] data)
         {
             try

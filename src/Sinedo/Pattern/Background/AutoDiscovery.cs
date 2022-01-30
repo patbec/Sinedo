@@ -27,8 +27,8 @@ namespace Sinedo.Background
         private readonly IHostEnvironment environment;
         private readonly ILogger<AutoDiscovery> logger;
         private static readonly byte[] magicPacketBytes = new byte[] { 0x2, 0x2, 0x2, 0x2 };
-        private static readonly int autoDiscoveryPort = 2222;
-
+        private static readonly int autoDiscoveryControlPort = 42700;
+        private static readonly int autoDiscoveryMessagePort = 42800;
 
         public AutoDiscovery(IConfiguration configuration, IHostEnvironment environment, ILogger<AutoDiscovery> logger)
         {
@@ -43,16 +43,25 @@ namespace Sinedo.Background
             {
                 logger.LogInformation("Discovery service started.");
 
-                await ListenAndSendMessagesAsync(stoppingToken);
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await ListenAndSendMessagesAsync(stoppingToken);
+                    }
+                    catch (SocketException se)
+                    {
+                        logger.LogWarning(se, "An error occurred while trying to send or receive broadcast packets. It will try again in 30 seconds, the service will not be available during this time.");
+
+                        // 30 Sekunden warten.
+                        await Task.Delay(30000, stoppingToken);
+                    }
+                }
             }
             catch (OperationCanceledException)
             {
-                // Stopped
+                // Canceled
             }
-            // catch (Exception ex)
-            // {
-            //     logger.LogCritical(ex, "An error occurred while sending a server message.");
-            // }
             finally
             {
                 logger.LogInformation("Discovery service stopped.");
@@ -61,66 +70,28 @@ namespace Sinedo.Background
 
         private async Task ListenAndSendMessagesAsync(CancellationToken stoppingToken)
         {
-            using UdpClient udpRecClient = new(autoDiscoveryPort);
-            using UdpClient udpSendClient = new();
+            var receiver = new BroadcasterReceiver(autoDiscoveryControlPort);
+            var sender = new BroadcasterSender(autoDiscoveryMessagePort);
 
-            // // Antwort Paket mit Anzeigenamen und aktuellen Urls erstellen.
-            // DiscoveryRecord discoveryInfo = GetServerDiscoveryInfo();
-
-            // // Auf Anfragen im Netzwerk warten.
-            // UdpReceiveResult receiveResult = await udpRecClient.ReceiveAsync(stoppingToken);
-
-            // // Antwort ins Netzwerk Broadcasten.
-            // await udpSendClient.SendAsync(discoveryInfo.AsMemory(), new IPEndPoint(IPAddress.Broadcast, autoDiscoveryPort), stoppingToken);
-
-            // return;
-            // // // Ein erstes Hallo-Paket senden.
-            // // await SendPackageAsync(udpSendClient, stoppingToken);
+            // Startpaket senden.
+            await sender.SendAsync(GetDiscoveryPackage(), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                try
+                // Auf Anfragen im Netzwerk warten.
+                UdpReceiveResult receiveResult = await receiver.ReceiveAsync(stoppingToken);
+
+                // Prüfen ob dieser Dienst angesprochen wurde.
+                if (!receiveResult.Buffer.SequenceEqual(magicPacketBytes))
                 {
-                    // Auf Anfragen im Netzwerk warten.
-                    UdpReceiveResult receiveResult = await udpRecClient.ReceiveAsync(stoppingToken);
-
-
-                    // Prüfen ob dieser Dienst angesprochen wurde.
-                    if (!receiveResult.Buffer.SequenceEqual(magicPacketBytes))
-                    {
-                        continue;
-                    }
-
-                    logger.LogDebug("A client with ip {ipAddress} wants to receive the server data.", receiveResult.RemoteEndPoint.Address);
-
-                    // Antwort ins Netzwerk Broadcasten.
-                    await udpSendClient.SendAsync(GetServerDiscoveryInfo().AsMemory(), new IPEndPoint(IPAddress.Broadcast, autoDiscoveryPort), stoppingToken);
-
-                    // // Sendet eine Antwort mit dem Servernamen und den aktuellen Urls.
-                    // await SendPackageAsync(udpSendClient, stoppingToken);
-
-                    // 1 Sekunde warten um Spam zu verhindern.
-                    //await Task.Delay(100, stoppingToken);
+                    continue;
                 }
-                catch (SocketException se)
-                {
-                    logger.LogWarning(se, "An error occurred while trying to receive broadcast packets. It will be tried again in 5 minutes.");
 
-                    // 5 Minuten warten.
-                    await Task.Delay(300000, stoppingToken);
-                }
+                logger.LogDebug("A client with ip {ipAddress} wants to receive the server data.", receiveResult.RemoteEndPoint.Address);
+
+                // Sendet eine Antwort.
+                await sender.SendAsync(GetDiscoveryPackage(), stoppingToken);
             }
-        }
-
-        private async Task SendPackageAsync(UdpClient udpClient, CancellationToken stoppingToken)
-        {
-            // Antwort Paket mit Anzeigenamen und aktuellen Urls erstellen.
-            DiscoveryRecord discoveryInfo = GetServerDiscoveryInfo();
-
-            // Antwort ins Netzwerk Broadcasten.
-            await udpClient.SendAsync(discoveryInfo.AsMemory(), stoppingToken);
-
-            logger.LogDebug("A package has been sent.");
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
@@ -130,24 +101,7 @@ namespace Sinedo.Background
             await base.StopAsync(stoppingToken);
         }
 
-        private string GetDisplayName()
-        {
-            string displayName = configuration.ApplicationName;
-
-            if (string.IsNullOrWhiteSpace(displayName))
-            {
-                displayName = Environment.MachineName;
-            }
-
-            if (environment.IsDevelopment())
-            {
-                displayName += " (Development)";
-            }
-
-            return displayName;
-        }
-
-        private DiscoveryRecord GetServerDiscoveryInfo()
+        private byte[] GetDiscoveryPackage()
         {
             // Die erste Url wird beim automatischen Verbinden bevorzugt.  
             var urls = new List<string>();
@@ -166,15 +120,30 @@ namespace Sinedo.Background
                 // IPv4 und IPv6 Adressen hinzufügen.
                 foreach (var ipAddress in Dns.GetHostAddresses(Environment.MachineName))
                 {
-                    urls.Add("http://" + ipAddress);
+                    urls.Add(Uri.UriSchemeHttp + Uri.SchemeDelimiter + ipAddress);
                 }
             }
 
-            return new()
+            string displayName = configuration.ApplicationName;
+
+            if (string.IsNullOrWhiteSpace(displayName))
             {
-                DisplayName = GetDisplayName(),
+                displayName = Environment.MachineName;
+            }
+
+            if (environment.IsDevelopment())
+            {
+                displayName += " (Development)";
+            }
+
+            DiscoveryRecord discoveryRecord = new()
+            {
+                DisplayName = displayName,
                 Urls = urls.ToArray()
             };
+
+            string content = JsonSerializer.Serialize(discoveryRecord);
+            return Encoding.ASCII.GetBytes(content);
         }
 
         /// <summary>
@@ -182,37 +151,20 @@ namespace Sinedo.Background
         /// </summary>
         public static async IAsyncEnumerable<DiscoveryRecord> FindServerAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            using UdpClient udpClient = GetClient();
+            var sender = new BroadcasterSender(autoDiscoveryControlPort);
+            var receiver = new BroadcasterReceiver(autoDiscoveryMessagePort);
 
-            var bufferToSend = new ReadOnlyMemory<byte>(magicPacketBytes, 0, magicPacketBytes.Length);
-
-            // Anfrage über den Broadcast senden, alle Server Antworten anschließend mit einem Paket das Anzeigenamen und Urls enthält.
-            await udpClient.SendAsync(bufferToSend, GetEndpoint(), cancellationToken);
+            // Hallo-Paket senden.
+            await sender.SendAsync(magicPacketBytes, cancellationToken);
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 // Antworten von anderen Servern asynchron lesen.
-                var receiveResult = await udpClient.ReceiveAsync(cancellationToken);
+                UdpReceiveResult receiveResult = await receiver.ReceiveAsync(cancellationToken);
 
+                // Gibt Null zurück, wenn das Paket nicht deserialisiert werden kann.
                 yield return DiscoveryRecord.Parse(receiveResult.Buffer);
             }
-        }
-
-        private static IPEndPoint GetEndpoint()
-        {
-            return new IPEndPoint(IPAddress.Broadcast, autoDiscoveryPort);
-        }
-
-        private static UdpClient GetClient()
-        {
-            UdpClient udpClient = new()
-            {
-                EnableBroadcast = true
-            };
-
-            udpClient.Client.SendTimeout = 3000;
-
-            return udpClient;
         }
     }
 }
