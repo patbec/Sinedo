@@ -249,12 +249,6 @@ var Application;
                     this._query = new Map();
                 }
                 /**
-                 * Die vom Client unterstützte Api-Version.
-                 */
-                set version(value) {
-                    this._query.set("version", value);
-                }
-                /**
                  * Der Anwendungsname des Clients.
                  */
                 set friendlyName(value) {
@@ -267,9 +261,6 @@ var Application;
                     this._query.set("channels", value.join(','));
                 }
                 buildQuery() {
-                    if (!this._query.has("version")) {
-                        throw new Error("Version attribute must be specified.");
-                    }
                     if (!this._query.has("friendlyName")) {
                         throw new Error("FriendlyName attribute must be specified.");
                     }
@@ -435,7 +426,6 @@ var Application;
         constructor(endpoints, timeout = 5000) {
             this._lastStateWasClosed = true;
             let queryBuilder = new Application.Common.ExWebSocket.WebSocketQueryBuilder();
-            queryBuilder.version = Application.Common.ExWebSocket.SUPPORTED_API_VERSION;
             queryBuilder.friendlyName = "Sinedo WebApp";
             queryBuilder.channels = [
                 Application.Flags.WebSocketChannel.Notification,
@@ -450,12 +440,12 @@ var Application;
             this._serviceTimeout = timeout;
             for (let service of this._serviceEndpoints) {
                 // Auch nach Fehlern beim Aktivieren vom Diensten versuchen zu verbinden.
-                // Falls Fehler von einem unwichtigen Dienst kommen kann die Anwendung trotzdem verwendet werden. 
+                // Falls Fehler von einem unwichtigen Dienst kommen, kann die Anwendung trotzdem verwendet werden. 
                 try {
                     service.onactivate(this);
                 }
                 catch (e) {
-                    window.alert("Error on service.onactivate: " + e);
+                    window.alert("Service '" + service + "' is deactivated in the interface because an error occurred during loading: " + e);
                 }
             }
             this.connect();
