@@ -19,16 +19,12 @@ namespace Sinedo
     {
         static async Task Main(string[] args)
         {
-            // Workround for https://github.com/dotnet/aspnetcore/issues/31365
-#if DEBUG
-#else
             bool isParameterHandled = await new CommandLine(args).ExecuteAsync();
 
             if (isParameterHandled)
             {
                 return;
             }
-#endif
 
             // Throw if config is invalid.
             Configuration.LoadFile();

@@ -61,6 +61,14 @@ namespace Sinedo
 
         public async Task<bool> ExecuteAsync()
         {
+            // Workround for https://github.com/dotnet/aspnetcore/issues/31365
+#if DEBUG
+            if (args.Length == 0)
+            {
+                return false;
+            }
+#else
+#endif
             string argument = args.FirstOrDefault();
 
             if (argument != null)
