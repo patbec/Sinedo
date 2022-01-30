@@ -30,9 +30,10 @@ namespace Sinedo
             }
 #endif
 
-            _ = Configuration.Current; // Throw if config is invalid.
+            // Throw if config is invalid.
+            Configuration.LoadFile();
 
-            CreateHostBuilder().Build().Run();
+            await CreateHostBuilder().Build().RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder() => Host

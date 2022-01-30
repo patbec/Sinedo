@@ -75,7 +75,7 @@ namespace Sinedo
                     case "--check":
                     case "-c":
                         {
-                            _ = Configuration.Current;
+                            Configuration.LoadFile();
                             break;
                         }
                     case "--search":

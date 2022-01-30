@@ -19,15 +19,14 @@ namespace Sinedo.Singleton
         private static IConfiguration _current;
         public static IConfiguration Current
         {
-            get
-            {
-                if (_current == null)
-                {
-                    _current = new Configuration(
-                    Path.Combine(AppDirectories.ConfigDirectory, "config.json"));
-                }
+            get => _current ?? throw new ArgumentNullException(nameof(Current));
+        }
 
-                return _current;
+        public static void LoadFile()
+        {
+            if (_current == null)
+            {
+                _current = new Configuration(Path.Combine(AppDirectories.ConfigDirectory, "config.json"));
             }
         }
 
