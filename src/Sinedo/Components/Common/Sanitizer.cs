@@ -21,20 +21,20 @@ namespace Sinedo.Components.Common
         /// <summary>
         /// Entfernt illegale Zeichen aus der angegebenen Zeichenfolge.
         /// </summary>
-        /// <param name="unsafeName">Zeichenfolge die geprüft werden soll.</param>
+        /// <param name="fileName">Zeichenfolge die geprüft werden soll.</param>
         /// <returns>Gibt eine sichere Zeichenfolgen zurück, die als Bezeichnung für eine Datei oder einem Ordner verwendet werden kann.</returns>
-        public static string Sanitize(string name, char placeholder = ' ')
+        public static string Sanitize(string fileName, char placeholder = '_')
         {
-            if(string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException(nameof(fileName));
 
 
-            // Illegale Zeichen für einen Ordner oder eine Datei..
+            // Illegale Zeichen für einen Ordner oder eine Datei.
             var invalidsChars = Path.GetInvalidFileNameChars();
 
             // Illegale Zeichen aus dem Dateinamen entfernen.
             var newName = string.Join(placeholder,
-                name.Split(invalidsChars, StringSplitOptions.RemoveEmptyEntries));
+                fileName.Split(invalidsChars, StringSplitOptions.RemoveEmptyEntries));
 
             // Prüfen ob die Zeichenfolgen einen reservierten Namen enthält.
             if (IsReserved(newName))
