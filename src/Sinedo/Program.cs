@@ -17,19 +17,19 @@ namespace Sinedo
 {
     public class Program
     {
+
         static async Task Main(string[] args)
         {
-            bool isParameterHandled = await new CommandLine(args).ExecuteAsync();
+            await new CommandLine(args, StartHost).ExecuteAsync();
+        }
 
-            if (isParameterHandled)
-            {
-                return;
-            }
 
+        static async Task StartHost()
+        {
             // Throw if config is invalid.
             Configuration.LoadFile();
 
-            await CreateHostBuilder().Build().RunAsync();
+            await CreateHostBuilder().RunConsoleAsync();
         }
 
         public static IHostBuilder CreateHostBuilder() => Host

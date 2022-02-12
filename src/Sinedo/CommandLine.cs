@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sinedo.Background;
 using Sinedo.Components;
+using Sinedo.Components.Common;
 using Sinedo.Components.Logging;
 using Sinedo.Exceptions;
 using Sinedo.Models;
@@ -18,6 +21,9 @@ using Sinedo.Singleton;
 
 namespace Sinedo
 {
+    /// <summary>
+    /// Do CLI Things.
+    /// </summary>
     public class CommandLine
     {
         public const string TAB = "  ";
@@ -52,38 +58,49 @@ namespace Sinedo
             @"  -?, -h, --help     Show help and usage information"
         };
 
-        private readonly string[] args;
-
-        public CommandLine(string[] args)
+        private enum CommandLineResult : int
         {
-            this.args = args;
+            Successfully = 0,
+            CommandLineException = 10,
+            InvalidConfigurationException = 20,
+            Exception = 30,
         }
 
-        public async Task<bool> ExecuteAsync()
+        private readonly string[] args;
+        private readonly Func<Task> worker;
+
+        public CommandLine(string[] args, Func<Task> worker)
         {
-            // Workround for https://github.com/dotnet/aspnetcore/issues/31365
-#if DEBUG
-            if (args.Length == 0)
-            {
-                return false;
-            }
-#else
-#endif
-            string argument = args.FirstOrDefault();
+            this.args = args;
+            this.worker = worker;
+        }
 
-            if (argument != null)
-            {
-                argument = argument.Trim();
-            }
-
+        public async Task ExecuteAsync()
+        {
             try
             {
+                // Es ist nur ein Parameter erlaubt.
+                if (args.Length != 1)
+                {
+                    throw new CommandLineException("Invalid number of parameters specified.");
+                }
+
+                // Den ersten Parameter auslesen.
+                string argument = args.First().Trim();
+
+                //
+                // Workround for https://github.com/dotnet/aspnetcore/issues/31365
+                //
+                if (argument == "run") argument = "--worker";
+
+
                 switch (argument)
                 {
                     case "--check":
                     case "-c":
                         {
                             Configuration.LoadFile();
+                            Console.WriteLine($"Configuration test successfully.");
                             break;
                         }
                     case "--search":
@@ -95,7 +112,8 @@ namespace Sinedo
                     case "--worker":
                     case "-w":
                         {
-                            return false;
+                            await worker();
+                            break;
                         }
                     case "--version":
                     case "-v":
@@ -103,55 +121,49 @@ namespace Sinedo
                             Console.WriteLine("sinedo " + SystemRecord.GetSystemInfo());
                             break;
                         }
+                    case "--help":
+                    case "-h":
+                    case "-?":
+                        {
+                            PrintHelp();
+                            break;
+                        }
                     default:
                         {
-                            foreach (string line in HELP_TEXT)
-                            {
-                                Console.WriteLine(line);
-                            }
-                            break;
+                            throw new CommandLineException($"The specified parameter '{argument}' is not supported.");
                         }
                 }
             }
-            catch (Exception ex)
+            catch (CommandLineException exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(GetErrorMessage(ex));
-                Console.ResetColor();
+                PrintHelp();
 
-                Environment.ExitCode = 10;
+                Console.WriteLine();
+                exception.Print();
+
+                Environment.ExitCode = (int)CommandLineResult.CommandLineException;
             }
+            catch (InvalidConfigurationException exception)
+            {
+                exception.Print();
 
-            return true;
+                Environment.ExitCode = (int)CommandLineResult.InvalidConfigurationException;
+            }
+            catch (Exception exception)
+            {
+                exception.Print(stackTrace: true);
+                exception.Save(helpText: "Create a bug report at https://github.com/patbec/Sinedo/issues and attach this file for help.");
+
+                Environment.ExitCode = (int)CommandLineResult.Exception;
+            }
         }
 
-        private static string GetErrorMessage(Exception exception, bool fullName = false)
+        private static void PrintHelp()
         {
-            if (exception == null)
+            foreach (string line in HELP_TEXT)
             {
-                return "";
+                Console.WriteLine(line);
             }
-
-            string typeName;
-            string errorMessage = exception.Message;
-
-            if (fullName)
-            {
-                typeName = exception.GetType().FullName;
-            }
-            else
-            {
-                typeName = exception.GetType().Name;
-            }
-
-            string message = $"{typeName}: ❌ {errorMessage}";
-
-            if (exception.InnerException != null)
-            {
-                message += Environment.NewLine + GetErrorMessage(exception.InnerException, true);
-            }
-
-            return message;
         }
 
         private static async Task SearchForServerAsync()
