@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Net;
-using System.Net.WebSockets;
-using System.Security.Authentication;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
 using Sinedo.Flags;
 using Sinedo.Singleton;
 
