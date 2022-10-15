@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using Sinedo.Components;
 using Sinedo.Flags;
 
@@ -32,6 +33,11 @@ namespace Sinedo.Models
         public DownloadState State { get; init; }
 
         /// <summary>
+        /// Aktuelle Warteschlange oder Task.
+        /// </summary>
+        public string Queue { get; init; }
+
+        /// <summary>
         /// Letzte Fehlermeldung.
         /// </summary>
         public string LastException { get; init; }
@@ -51,6 +57,12 @@ namespace Sinedo.Models
         /// Gelesene Bytes pro Sekunde.
         /// </summary>
         public long? BytesPerSecond { get; init; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonIgnore]
+        public CancellationTokenSource Cancellation { get; init; }
 
 
         public void Save(string folderPath)

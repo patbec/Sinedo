@@ -1,13 +1,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sinedo.Components;
@@ -17,16 +12,16 @@ namespace Sinedo.Background
 {
     public class Broadcaster : BackgroundService
     {
-        private readonly Queues queues;
+        private readonly BroadcastQueue queue;
         private readonly WebSocketConnections connections;
         private readonly ILogger<Broadcaster> logger;
 
         /// <summary>
         /// Erstellt einen neuen Dienst um Pakete an verbundene Clients zu senden.
         /// </summary>
-        public Broadcaster(Queues queues, WebSocketConnections connections, ILogger<Broadcaster> logger)
+        public Broadcaster(BroadcastQueue queue, WebSocketConnections connections, ILogger<Broadcaster> logger)
         {
-            this.queues = queues;
+            this.queue = queue;
             this.connections = connections;
             this.logger = logger;
         }
@@ -42,7 +37,7 @@ namespace Sinedo.Background
 
                 while (true)
                 {
-                    WebSocketPackage package = await GetDataAsync(stoppingToken);
+                    WebSocketPackage package = await queue.GetItemAsync(stoppingToken);
 
                     List<Task> tasks = new();
 
@@ -65,8 +60,6 @@ namespace Sinedo.Background
                 logger.LogInformation("Broadcaster stopped.");
             }
         }
-
-        private Task<WebSocketPackage> GetDataAsync(CancellationToken stoppingToken) => queues.BroadcastQueue.ReceiveAsync(stoppingToken);
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {

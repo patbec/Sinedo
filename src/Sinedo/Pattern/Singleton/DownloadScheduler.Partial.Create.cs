@@ -21,9 +21,9 @@ namespace Sinedo.Singleton
     /// <summary>
     /// 
     /// </summary>
-    public abstract class DownloadSchedulerCreate : DownloadSchedulerBase
+    public partial class DownloadScheduler
     {
-        protected DownloadRecord AddDownloadToRepository(string name, string[] files, string password = null)
+        private DownloadRecord AddDownloadToRepository(string name, string[] files, string password = null)
         {
             name = Sanitizer.Sanitize(name);
 

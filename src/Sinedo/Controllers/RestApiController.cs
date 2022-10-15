@@ -202,7 +202,7 @@ namespace Sinedo.Controllers
 
             try
             {
-                string createdDownload = await serviceScheduler.CreateNewDownload(name, files, password, autostart);
+                string createdDownload = await serviceScheduler.CreateAsync(name, files, password, autostart);
 
                 return CreatedAtAction(nameof(PostDownload), new { name = createdDownload });
             }

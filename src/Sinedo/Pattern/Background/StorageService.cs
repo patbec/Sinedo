@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,26 +13,17 @@ using Sinedo.Singleton;
 
 namespace Sinedo.Background
 {
-    public class DiskSpaceHelper
-    {
-        #region Properties
-
-        public DiskSpaceRecord DiskInfo { get; set; }
-
-        #endregion
-    }
-
     public class StorageService : IHostedService
     {
         private readonly List<ushort> _list;
-        private readonly DiskSpaceHelper _diskSpaceHelper;
-        private readonly WebSocketBroadcaster _broadcaster;
+        private readonly BroadcastQueue _queue;
+        private readonly SetupBuilder _setupBuilder;
         private readonly DownloadScheduler _scheduler;
         private readonly IConfiguration _configuration;
         private readonly ILogger<StorageService> _logger;
 
-        private DriveInfo _drive;
-        private StorageMonitor _monitor;
+        private DriveInfo drive;
+        private StorageMonitor monitor;
         private FileSystemWatcher fileWatcher;
 
         #region Constants
@@ -45,36 +35,37 @@ namespace Sinedo.Background
 
         #endregion
 
-        public StorageService(DiskSpaceHelper diskSpaceHelper, WebSocketBroadcaster broadcaster, DownloadScheduler scheduler, IConfiguration configuration, ILogger<StorageService> logger)
+        public StorageService(BroadcastQueue queue, SetupBuilder setupBuilder, DownloadScheduler scheduler, IConfiguration configuration, ILogger<StorageService> logger)
         {
             _list = new();
 
-            _diskSpaceHelper = diskSpaceHelper;
-            _broadcaster = broadcaster;
+            _setupBuilder = setupBuilder;
+            _queue = queue;
             _scheduler = scheduler;
             _configuration = configuration;
             _logger = logger;
 
-            _monitor = new(configuration.DownloadDirectory);
-            _monitor.StorageOnline += StorageOnline;
-            _monitor.StorageUpdate += StorageUpdate;
-            _monitor.StorageOffline += StorageOffline;
+            monitor = new(configuration.DownloadDirectory);
+            monitor.StorageOnline += StorageOnline;
+            monitor.StorageUpdate += StorageUpdate;
+            monitor.StorageOffline += StorageOffline;
 
             configuration.PropertyChanged += (s, p) =>
             {
                 lock (this)
                 {
                     _logger.LogInformation("Settings changed, new path is set.");
-                    _monitor.Stop();
-                    _monitor.StorageOnline -= StorageOnline;
-                    _monitor.StorageUpdate -= StorageUpdate;
-                    _monitor.StorageOffline -= StorageOffline;
 
-                    _monitor = new(configuration.DownloadDirectory);
-                    _monitor.StorageOnline += StorageOnline;
-                    _monitor.StorageUpdate += StorageUpdate;
-                    _monitor.StorageOffline += StorageOffline;
-                    _monitor.Start();
+                    monitor.Stop();
+                    monitor.StorageOnline -= StorageOnline;
+                    monitor.StorageUpdate -= StorageUpdate;
+                    monitor.StorageOffline -= StorageOffline;
+
+                    monitor = new(configuration.DownloadDirectory);
+                    monitor.StorageOnline += StorageOnline;
+                    monitor.StorageUpdate += StorageUpdate;
+                    monitor.StorageOffline += StorageOffline;
+                    monitor.Start();
                 }
             };
         }
@@ -110,17 +101,17 @@ namespace Sinedo.Background
         /// </summary>
         private void StorageUpdate()
         {
-            lock (this)
+            try
             {
-                try
+                lock (this)
                 {
                     // Im Speicherplatz-Verlauf einen neuen Wert hinzufügen und an verbundene Clients senden.
                     UpdateDiskSpace();
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Calculation of free space for path '{downloadDirectory}' failed.", _configuration.DownloadDirectory);
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Calculation of free space for path '{downloadDirectory}' failed.", _configuration.DownloadDirectory);
             }
         }
 
@@ -129,13 +120,23 @@ namespace Sinedo.Background
         /// </summary>
         private void StorageOffline()
         {
-            _logger.LogInformation("The path '{downloadDirectory}' is not accessible.", _configuration.DownloadDirectory);
+            try
+            {
+                _logger.LogInformation("The path '{downloadDirectory}' is not accessible.", _configuration.DownloadDirectory);
 
-            // Datenträgerüberwachung beenden.
-            DestroyDiskSpaceWatcher();
+                lock (this)
+                {
+                    // Datenträgerüberwachung beenden.
+                    DestroyDiskSpaceWatcher();
 
-            // Dateisystemüberwachung beenden.
-            DestroyFileSystemWatcher();
+                    // Dateisystemüberwachung beenden.
+                    DestroyFileSystemWatcher();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to release the resources.");
+            }
         }
 
         #endregion
@@ -145,30 +146,35 @@ namespace Sinedo.Background
         /// <summary>
         /// Der Dienst wird vom Server gestartet.
         /// </summary>
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            lock (this)
+            monitor.Start();
+
+            if (fileWatcher != null)
             {
-                _logger.LogInformation("The path '{downloadDirectory}' is being scanned for existing files.", _configuration.DownloadDirectory);
-
-                _monitor.Start();
-
-                if (fileWatcher != null)
+                try
                 {
+                    _logger.LogInformation("The path '{downloadDirectory}' is being scanned for existing files.", _configuration.DownloadDirectory);
+
                     // Vorhandene Dateien hinzufügen.
                     foreach (string filepath in Directory.GetFiles(
                         fileWatcher.Path,
                         fileWatcher.Filter, SearchOption.TopDirectoryOnly))
                     {
 
-                        AddToDownloads(filepath, false);
+                        await AddFileAsync(filepath, false);
                     }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical(ex, "The path '{downloadDirectory}' could not be searched for existing files. The restore of the last session failed.", _configuration.DownloadDirectory);
+                }
+                finally
+                {
                     // Monitor aktivieren.
                     fileWatcher.EnableRaisingEvents = true;
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -176,10 +182,8 @@ namespace Sinedo.Background
         /// </summary>
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            lock (this)
-            {
-                _monitor.Stop();
-            }
+            monitor.Stop();
+            fileWatcher.Dispose();
 
             return Task.CompletedTask;
         }
@@ -193,8 +197,8 @@ namespace Sinedo.Background
         /// </summary>
         private void CreateDiskSpaceWatcher(string path)
         {
-            _drive = null;
-            _drive = new(path);
+            drive = null;
+            drive = new(path);
 
             StorageUpdate();
         }
@@ -205,15 +209,15 @@ namespace Sinedo.Background
         private void DestroyDiskSpaceWatcher()
         {
             _list.Clear();
-            _drive = null;
+            drive = null;
 
             // Wenn kein Datenträger gefunden wurde, Anzeige in der Benutzeroberfläche offline schalten.
-            _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
+            _setupBuilder.DiskInfo = new DiskSpaceRecord()
             {
                 IsAvailable = false
             };
 
-            _broadcaster.Add(CommandFromServer.Disk, _diskSpaceHelper.DiskInfo);
+            _queue.Add(CommandFromServer.Disk, _setupBuilder.DiskInfo);
         }
 
         /// <summary>
@@ -221,10 +225,10 @@ namespace Sinedo.Background
         /// </summary>
         private void UpdateDiskSpace()
         {
-            if (_drive != null && _drive.IsReady)
+            if (drive != null && drive.IsReady)
             {
                 // Gesamtgröße des Datenträgers.
-                long totalBytes = _drive.TotalSize;
+                long totalBytes = drive.TotalSize;
 
                 if (totalBytes == 0)
                 {
@@ -232,7 +236,7 @@ namespace Sinedo.Background
                 }
 
                 // Freier Speicherplatz des Datenträgers.
-                long freeBytes = _drive.AvailableFreeSpace;
+                long freeBytes = drive.AvailableFreeSpace;
 
                 // Belegung des Datenträgers in Prozent.
                 ushort percent = (ushort)(100 - (100 * freeBytes / totalBytes));
@@ -250,7 +254,7 @@ namespace Sinedo.Background
                 }
 
                 // Ausgelesene Informationen in den Cache schreiben.
-                _diskSpaceHelper.DiskInfo = new DiskSpaceRecord()
+                _setupBuilder.DiskInfo = new DiskSpaceRecord()
                 {
                     IsAvailable = true,
                     TotalSize = totalBytes,
@@ -258,7 +262,7 @@ namespace Sinedo.Background
                     Data = _list.ToArray()
                 };
 
-                _broadcaster.Add(CommandFromServer.Disk, _diskSpaceHelper.DiskInfo);
+                _queue.Add(CommandFromServer.Disk, _setupBuilder.DiskInfo);
             }
         }
 
@@ -278,8 +282,8 @@ namespace Sinedo.Background
                 // Dateinamen und Veränderungen der Dateigröße überwachen.
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size
             };
-            fileWatcher.Created += OnCreated;
-            fileWatcher.Changed += OnCreated;
+            fileWatcher.Created += OnFileChanged;
+            fileWatcher.Changed += OnFileChanged;
             fileWatcher.IncludeSubdirectories = false;
 
         }
@@ -292,28 +296,39 @@ namespace Sinedo.Background
             // Ressourcen der vorherigen Dateiüberwachung freigeben.
             if (fileWatcher != null)
             {
+                fileWatcher.EnableRaisingEvents = false;
+                fileWatcher.Created -= OnFileChanged;
+                fileWatcher.Changed -= OnFileChanged;
                 fileWatcher.Dispose();
                 fileWatcher = null;
             }
         }
 
         /// <summary>
-        /// Eine gefundene Datei hinzufügen.
+        /// Eine gefundene Datei dem Aufgabenplaner geben.
         /// </summary>
         /// <param name="filePath">Der vollständige Pfad zur Datei.</param>
-        private void AddToDownloads(string filePath, bool autostart)
+        /// <param name="autostart">Gibt an ob der Download automatisch gestartet werden soll.</param>
+        private async Task AddFileAsync(string filePath, bool autostart)
         {
             try
             {
-                DownloadRecord savedFile = DownloadRecord.Load(filePath);
+                DownloadRecord download = DownloadRecord.Load(filePath);
 
-                if (savedFile.Files.Length == 0)
+                // Downloads ohne Inhalt werden ignoriert.
+                if (download.Files.Length == 0)
                 {
                     return;
                 }
 
-                _scheduler.CreateNewDownload(savedFile.Name, savedFile.Files, savedFile.Password, autostart).Wait();
-                _logger.LogDebug("The '{fileName}' file has been added.", savedFile.Name);
+                // Downloads mit gleichem Namen und Inhalt werden übersprungen.
+                await _scheduler.CreateAsync(
+                    download.Name,
+                    download.Files,
+                    download.Password,
+                    autostart);
+
+                _logger.LogDebug("The '{fileName}' file has been added.", download.Name);
             }
             catch (Exception ex)
             {
@@ -324,33 +339,23 @@ namespace Sinedo.Background
         /// <summary>
         /// Wird ausgelöst wenn eine neue Datei in dem überwachten Ordner gefunden wird.
         /// </summary>
-        private void OnCreated(object sender, FileSystemEventArgs fileSystemEventArgs)
+        private async void OnFileChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
         {
-            lock (this)
+            try
             {
-                switch (fileSystemEventArgs.ChangeType)
+                _logger.LogDebug("FileSystemMonitor has detected a file change: {path}'", fileSystemEventArgs.FullPath);
+
+                FileInfo fileInfo = new(fileSystemEventArgs.FullPath);
+
+                if (fileInfo.Exists && fileInfo.Length != 0)
                 {
-                    case WatcherChangeTypes.Created:
-                        {
-                            _logger.LogDebug("FileSystemMonitor: '{path}'", fileSystemEventArgs.FullPath);
-
-                            try
-                            {
-                                FileInfo fileInfo = new(fileSystemEventArgs.FullPath);
-
-                                if (fileInfo.Exists && fileInfo.Length != 0)
-                                {
-                                    AddToDownloads(fileInfo.FullName, true);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "FileSystemMonitor could not add the file '{fileName}'.", fileSystemEventArgs.Name);
-
-                            }
-                            break;
-                        }
+                    await AddFileAsync(fileInfo.FullName, true);
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "FileSystemMonitor could not add the file '{fileName}'.", fileSystemEventArgs.Name);
+
             }
         }
 

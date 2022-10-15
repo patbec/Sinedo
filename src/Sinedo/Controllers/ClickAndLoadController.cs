@@ -22,10 +22,10 @@ namespace Sinedo.Controllers
     {
         private readonly ILogger<ClickAndLoadController> logger;
         private readonly DownloadScheduler scheduler;
-        private readonly WebSocketBroadcaster broadcaster;
+        private readonly BroadcastQueue broadcaster;
 
 
-        public ClickAndLoadController(ILogger<ClickAndLoadController> logger, DownloadScheduler scheduler, WebSocketBroadcaster broadcaster)
+        public ClickAndLoadController(ILogger<ClickAndLoadController> logger, DownloadScheduler scheduler, BroadcastQueue broadcaster)
         {
             this.logger = logger;
             this.scheduler = scheduler;
@@ -71,7 +71,7 @@ namespace Sinedo.Controllers
                 }
 
                 // Dateien hinzufügen.
-                await scheduler.CreateNewDownload(
+                await scheduler.CreateAsync(
                     package,
                     urls,
                     passwords,
@@ -121,7 +121,7 @@ namespace Sinedo.Controllers
                     crypted);
 
                 // Dateien hinzufügen.
-                await scheduler.CreateNewDownload(
+                await scheduler.CreateAsync(
                     container.Name,
                     container.Urls,
                     null,

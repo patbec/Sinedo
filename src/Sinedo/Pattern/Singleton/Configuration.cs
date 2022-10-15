@@ -38,7 +38,7 @@ namespace Sinedo.Singleton
         }
 
         /// <summary>
-        /// Einige geänderte Einstellungen erfordern einen Serverneustart.
+        /// Einige geänderte Hosting-Einstellungen erfordern einen Serverneustart.
         /// </summary>
         /// <value></value>
         public bool NeedServerRestart

@@ -22,7 +22,7 @@ namespace Sinedo.Controllers
     public class LoginController : Controller
     {
         private readonly ILogger<LoginController> _logger;
-        private readonly Configuration _configuration;
+        private readonly IConfiguration _configuration;
 
         #region Properties
 
@@ -34,14 +34,14 @@ namespace Sinedo.Controllers
         /// <summary>
         /// Gibt den aktuellen Anbieter für Benutzereinstellungen zurück.
         /// </summary>
-        private Configuration Configuration => _configuration;
+        private IConfiguration Configuration => _configuration;
 
         #endregion
 
         /// <summary>
         /// Klasse mit Dependency-Injection erstellen.
         /// </summary>
-        public LoginController(Configuration configuration, ILogger<LoginController> logger)
+        public LoginController(IConfiguration configuration, ILogger<LoginController> logger)
         {
             _logger = logger;
             _configuration = configuration;
@@ -87,7 +87,7 @@ namespace Sinedo.Controllers
 
             try
             {
-                if (!Configuration.ComputeHash(password ?? "").SequenceEqual(Configuration.PasswordHash))
+                if (password == null || !Configuration.PasswordHash.SequenceEqual(Singleton.Configuration.ComputeHash(password)))
                 {
                     throw new InvalidPasswordException();
                 }
@@ -155,14 +155,14 @@ namespace Sinedo.Controllers
             // Prüfen ob der Benutzer angemeldet ist.
             if (!User.Identity.IsAuthenticated)
             {
-                return Redirect("/login?page=change");
+                return Redirect("/login?page=change"); // ToDo: Check
             }
 
             return View();
         }
 
         /// <summary>
-        /// Verarbeitet das neu eingegebene Kennwort.  
+        /// Verarbeitet das neu eingegebene Kennwort.
         /// </summary>
         /// <param name="newPassword">Das neue Kennwort.</param>
         [Route("change")]
@@ -190,7 +190,7 @@ namespace Sinedo.Controllers
                     throw new InvalidPasswordPolicyException();
                 }
 
-                Configuration.PasswordHash = Configuration.ComputeHash(newPassword);
+                Configuration.PasswordHash = Singleton.Configuration.ComputeHash(newPassword);
 
                 Logger.LogInformation("Password change was successful.");
                 return Redirect("/");

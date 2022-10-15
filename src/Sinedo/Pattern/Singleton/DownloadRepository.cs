@@ -13,14 +13,14 @@ namespace Sinedo.Singleton
 {
     public class DownloadRepository
     {
-        private readonly WebSocketBroadcaster _broadcaster;
+        private readonly BroadcastQueue _broadcaster;
         private readonly ILogger<DownloadRepository> _logger;
         private readonly Dictionary<string, DownloadRecord> _repository = new();
         private readonly AsyncReaderWriterLock _context = new();
 
         public AsyncReaderWriterLock Context => _context;
 
-        public DownloadRepository(WebSocketBroadcaster broadcaster, ILogger<DownloadRepository> logger)
+        public DownloadRepository(BroadcastQueue broadcaster, ILogger<DownloadRepository> logger)
         {
             _broadcaster = broadcaster;
             _logger = logger;

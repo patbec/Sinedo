@@ -1,22 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Sinedo.Background;
-using Sinedo.Components;
 using Sinedo.Components.Logging;
 using Sinedo.Middleware;
 using Sinedo.Singleton;
@@ -30,18 +23,20 @@ namespace Sinedo
         {
             services.AddSingleton<WebSocketRouter>()
                     .AddSingleton<WebSocketConnections>()
-                    .AddSingleton<WebSocketBroadcaster>()
+                    .AddSingleton<BroadcastQueue>()
                     .AddSingleton<WebSocketPing>()
                     .AddSingleton<DownloadRepository>()
                     .AddSingleton<DownloadScheduler>()
-                    .AddSingleton<DiskSpaceHelper>()
+                    .AddSingleton<SetupBuilder>()
                     .AddSingleton<HyperlinkManager>()
                     .AddSingleton<ServerControl>()
                     .AddSingleton<Singleton.IConfiguration>(Configuration.Current)
                     .AddSingleton<WebViewLoggerProvider>(WebViewLoggerProvider.Default);
 
             services.AddHostedService<StorageService>()
-                    .AddHostedService<AutoDiscovery>();
+                    .AddHostedService<AutoDiscovery>()
+                    .AddHostedService<Broadcaster>()
+                    .AddHostedService<Downloader>();
 
             AddLocalizationSupport(services);
 

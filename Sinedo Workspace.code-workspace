@@ -18,6 +18,7 @@
 			"**/.project": true,
 			"**/.settings": true,
 			"**/.factorypath": true
-		}
+		},
+		"task.allowAutomaticTasks": "on"
 	}
 }

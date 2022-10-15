@@ -20,7 +20,7 @@ namespace Sinedo.Singleton
     public class WebSocketPing
     {
         private readonly WebSocketConnections serviceConnections;
-        private readonly WebSocketBroadcaster serviceBroadcaster;
+        private readonly BroadcastQueue serviceBroadcaster;
         private readonly Timer timer;
 
         private readonly int KEEP_ALIVE_INTERVAL = 30000;
@@ -34,12 +34,12 @@ namespace Sinedo.Singleton
         /// <summary>
         /// Erstellt eine neues Modell um die Verbindung zum Client offen zu halten und den Ping zu messen.
         /// </summary>
-        public WebSocketPing(WebSocketConnections serviceConnections, WebSocketBroadcaster serviceBroadcaster)
+        public WebSocketPing(WebSocketConnections serviceConnections, BroadcastQueue serviceBroadcaster)
         {
             this.serviceConnections = serviceConnections;
             this.serviceBroadcaster = serviceBroadcaster;
 
-            this.timer = new Timer(TimerCallback, null, 7000, KEEP_ALIVE_INTERVAL);
+            //this.timer = new Timer(TimerCallback, null, 7000, KEEP_ALIVE_INTERVAL);
 
             data = new ClientRecord()
             {

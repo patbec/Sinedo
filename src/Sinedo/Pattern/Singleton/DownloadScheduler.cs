@@ -8,8 +8,10 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Sinedo.Background;
 using Sinedo.Components;
 using Sinedo.Components.Common;
 using Sinedo.Exceptions;
@@ -18,10 +20,7 @@ using Sinedo.Models;
 
 namespace Sinedo.Singleton
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public abstract class DownloadSchedulerBase
+    public partial class DownloadScheduler
     {
         #region Dependency Services
 
@@ -38,189 +37,29 @@ namespace Sinedo.Singleton
         /// <summary>
         /// Dienst um Benachrichtigungen an verbundene Clients zu senden.
         /// </summary>
-        protected WebSocketBroadcaster broadcaster;
+        protected BroadcastQueue queue;
 
         /// <summary>
         /// Dienst für Logs.
         /// </summary>
         protected ILogger<DownloadScheduler> logger;
 
-        /// <summary>
-        /// Dienst um Dateien herunterzuladen.
-        /// </summary>
-        protected Sharehosters sharehosters;
-
-        /// <summary>
-        /// Tokens um Hintergrund-Tasks zu beenden.
-        /// </summary>
-        protected IHostApplicationLifetime lifetime;
-
         #endregion
 
         /// <summary>
-        /// Aktualisiert den Zustand des angegebenen Downloads.
+        /// Warteschlange mit Downloads.
         /// </summary>
-        /// <param name="name">Name des Downloads.</param>
-        /// <param name="state">Neuer Zustand des Downloads.</param>
-        /// <param name="parameter">Optionaler Parameter für den Zustand.</param>
-        protected void SetState(string name, DownloadState state, object parameter = null)
+        private readonly BufferBlock<string> queueDownload = new();
+
+        public DownloadScheduler(DownloadRepository repository, IConfiguration configuration, BroadcastQueue queue, ILogger<DownloadScheduler> logger)
         {
-            DownloadRecord download = repository.Find(name);
-
-            switch (state)
-            {
-                case DownloadState.Canceled:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Canceled,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Completed:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Completed,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Deleting:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Deleting,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Failed:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Failed,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = parameter.GetType().ToString(),
-                        };
-
-                        break;
-                    }
-                case DownloadState.Idle:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Idle,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Queued:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Queued,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Running:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Running,
-                            // Meta = actionPack.Meta,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Stopping:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Stopping,
-                            // Meta = null,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = null,
-                        };
-
-                        break;
-                    }
-                case DownloadState.Unsupported:
-                    {
-                        download = download with
-                        {
-                            State = DownloadState.Unsupported,
-                            BytesPerSecond = null,
-                            SecondsToComplete = null,
-                            GroupPercent = null,
-                            LastException = parameter.GetType().ToString(),
-                        };
-
-                        break;
-                    }
-                default:
-                    {
-                        throw new StateMaschineException();
-                    }
-            }
-
-            repository.Update(download);
-        }
-    }
-
-    public sealed class DownloadScheduler : DownloadSchedulerMonitoring
-    {
-        public DownloadScheduler(DownloadRepository repository, IConfiguration configuration, WebSocketBroadcaster broadcaster, ILogger<DownloadScheduler> logger, IHostApplicationLifetime lifetime)
-        {
-            base.repository = repository;
-            base.configuration = configuration;
-            base.broadcaster = broadcaster;
-            base.logger = logger;
-            base.lifetime = lifetime;
-
-            // Anzahl von Tasks erstellen die in den Einstellungen hinterlegt sind.
-            CreateTasks();
-
-            // Einstellungen wurden aktualisiert. Prüfen ob neue Tasks erstellt werden sollen.
-            configuration.PropertyChanged += (s, p) => CreateTasks();
+            this.repository = repository;
+            this.configuration = configuration;
+            this.queue = queue;
+            this.logger = logger;
         }
 
-        public async Task<string> CreateNewDownload(string name, string[] files, string password = null, bool autostart = true)
+        public async Task<string> CreateAsync(string name, string[] files, string password = null, bool autostart = true)
         {
             using (await repository.Context.WriterLockAsync())
             {
@@ -228,7 +67,7 @@ namespace Sinedo.Singleton
 
                 if (autostart)
                 {
-                    AddDownloadToQueue(download);
+                    queueDownload.Post(download.Name);
                     SetState(name, DownloadState.Queued);
                 }
             }
@@ -239,7 +78,7 @@ namespace Sinedo.Singleton
         /// <summary>
         /// Startet alle Downloads.
         /// </summary>
-        public async Task Start()
+        public async Task StartAllAsync()
         {
             using (await repository.Context.WriterLockAsync())
             {
@@ -251,7 +90,7 @@ namespace Sinedo.Singleton
                         case DownloadState.Failed:
                         case DownloadState.Idle:
                             {
-                                AddDownloadToQueue(download);
+                                queueDownload.Post(download.Name);
                                 SetState(download.Name, DownloadState.Queued);
                                 break;
                             }
@@ -260,7 +99,7 @@ namespace Sinedo.Singleton
             };
         }
 
-        public async Task Start(string name)
+        public async Task StartAsync(string name)
         {
             using (await repository.Context.WriterLockAsync())
             {
@@ -273,7 +112,7 @@ namespace Sinedo.Singleton
                     case DownloadState.Idle:
                     case DownloadState.Completed:
                         {
-                            AddDownloadToQueue(download);
+                            queueDownload.Post(download.Name);
                             SetState(name, DownloadState.Queued);
 
                             break;
@@ -283,32 +122,31 @@ namespace Sinedo.Singleton
             };
         }
 
-        public async Task Stop()
+        public async Task StopAllAsync()
         {
             using (await repository.Context.WriterLockAsync())
             {
-                foreach (DownloadRecord download in repository.AsEnumerable())
+                foreach (DownloadRecord download in repository.AsEnumerable()) // ToDo: Nach Datum sortieren
                 {
                     switch (download.State)
                     {
                         case DownloadState.Queued:
                             {
-                                RemoveDownloadFromQueue(download);
                                 SetState(download.Name, DownloadState.Idle);
                                 break;
                             }
                         case DownloadState.Running:
                             {
                                 SetState(download.Name, DownloadState.Stopping);
-                                CancelDownload(download.Name);
+                                download.Cancellation.Cancel();
                                 break;
                             }
                     }
                 }
-            };
+            }
         }
 
-        public async Task Stop(string name)
+        public async Task StopAsync(string name)
         {
             using (await repository.Context.WriterLockAsync())
             {
@@ -318,22 +156,21 @@ namespace Sinedo.Singleton
                 {
                     case DownloadState.Queued:
                         {
-                            RemoveDownloadFromQueue(download);
                             SetState(name, DownloadState.Idle);
                             break;
                         }
                     case DownloadState.Running:
                         {
                             SetState(name, DownloadState.Stopping);
-                            CancelDownload(name);
+                            download.Cancellation.Cancel();
                             break;
                         }
                     default: throw new CommandNotAllowedException();
                 }
-            };
+            }
         }
 
-        public async Task Delete(string name)
+        public async Task DeleteAsync(string name)
         {
             using (await repository.Context.WriterLockAsync())
             {
@@ -353,6 +190,18 @@ namespace Sinedo.Singleton
                     default: throw new CommandNotAllowedException();
                 }
             };
+        }
+
+        public Task<string> ReceiveAsync(string queue, CancellationToken cancellationToken)
+        {
+            switch (queue)
+            {
+                case nameof(Downloader):
+                    {
+                        return queueDownload.ReceiveAsync(cancellationToken);
+                    }
+                default: throw new NotImplementedException("The requested queue does not exist.");
+            }
         }
     }
 }

@@ -38,10 +38,10 @@ namespace Sinedo.Components.Common
 
             // Prüfen ob die Zeichenfolgen einen reservierten Namen enthält.
             if (IsReserved(newName))
-                newName += placeholder + '0';
+                newName += placeholder + '_';
 
             // Neuen Name zurückgeben.
-            return newName.TrimEnd('.', ' ');
+            return newName.TrimEnd('.');
         }
 
         /// <summary>
@@ -49,6 +49,7 @@ namespace Sinedo.Components.Common
         /// </summary>
         /// <param name="paths">Zeichenfolgen die zu einem Pfad kombiniert werden sollen.</param>
         /// <returns>Gibt einen sicheren Pfad zurück.</returns>
+        [Obsolete("Fix Bug")]
         public static string Combine(params string[] paths)
         {
             string newPath = string.Empty;

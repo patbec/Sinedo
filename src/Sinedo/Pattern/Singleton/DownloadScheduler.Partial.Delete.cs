@@ -20,13 +20,8 @@ using Sinedo.Models;
 
 namespace Sinedo.Singleton
 {
-    public abstract class DownloadSchedulerFunctions : DownloadSchedulerWorker
+    public partial class DownloadScheduler
     {
-        protected void CancelDownload(string name)
-        {
-            throw new NotImplementedException();
-        }
-
         protected void DeleteFolderInBackground(string name)
         {
             logger.LogInformation("Download {downloadName} will be deleted.", name);
@@ -68,12 +63,14 @@ namespace Sinedo.Singleton
                 }
                 else
                 {
-                    // Diese Fehlermeldung wird in der UI übersetzt.
+                    // Diese Fehlermeldung wird in der Oberfläche übersetzt.
                     Exception exception = new DeletionFailedException(name, task.Exception);
+
+                    // Zustand fehlgeschlagen festlegen.
                     SetState(name, DownloadState.Failed, exception);
 
                     // Fehlermeldung an alle Clients senden.
-                    broadcaster.Add(CommandFromServer.Error, NotificationRecord.FromException(exception));
+                    queue.Add(CommandFromServer.Error, NotificationRecord.FromException(exception));
 
                     logger.LogError(exception, "Download {downloadName} could not be deleted.", name);
                 }

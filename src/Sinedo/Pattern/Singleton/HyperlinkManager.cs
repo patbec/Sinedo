@@ -13,13 +13,13 @@ namespace Sinedo.Singleton
 {
     public class HyperlinkManager
     {
-        private readonly WebSocketBroadcaster broadcaster;
+        private readonly BroadcastQueue broadcaster;
         private readonly ILogger<HyperlinkManager> logger;
         private readonly Serializer linksFile;
 
         private List<HyperlinkRecord> links = new();
 
-        public HyperlinkManager(WebSocketBroadcaster broadcaster, ILogger<HyperlinkManager> logger)
+        public HyperlinkManager(BroadcastQueue broadcaster, ILogger<HyperlinkManager> logger)
         {
             this.broadcaster = broadcaster;
             this.logger = logger;

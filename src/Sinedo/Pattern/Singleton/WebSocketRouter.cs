@@ -23,7 +23,7 @@ namespace Sinedo.Singleton
         private readonly DownloadScheduler serviceScheduler;
         private readonly DownloadRepository serviceRepository;
         private readonly HyperlinkManager serviceHyperlink;
-        private readonly DiskSpaceHelper serviceDiskSpaceHelper;
+        private readonly SetupBuilder serviceSetup;
         private readonly ServerControl serviceControl;
         private readonly ILogger<WebSocketRouter> serviceLogger;
 
@@ -32,22 +32,14 @@ namespace Sinedo.Singleton
         /// <summary>
         /// Erstellt eine neues Modell um Befehle an das Backend weiterzuleiten.
         /// </summary>
-        public WebSocketRouter(WebSocketConnections serviceConnections,
-                               WebSocketPing servicePing,
-                               DownloadScheduler serviceScheduler,
-                               DownloadRepository serviceRepository,
-                               HyperlinkManager serviceHyperlink,
-                               DiskSpaceHelper serviceDiskSpaceHelper,
-                               ServerControl serviceControl,
-                               ILogger<WebSocketRouter> serviceLogger)
+        public WebSocketRouter(WebSocketConnections serviceConnections, WebSocketPing servicePing, DownloadScheduler serviceScheduler, DownloadRepository serviceRepository, HyperlinkManager serviceHyperlink, SetupBuilder serviceSetup, ServerControl serviceControl, ILogger<WebSocketRouter> serviceLogger)
         {
-
             this.serviceConnections = serviceConnections;
             this.servicePing = servicePing;
             this.serviceScheduler = serviceScheduler;
             this.serviceRepository = serviceRepository;
             this.serviceHyperlink = serviceHyperlink;
-            this.serviceDiskSpaceHelper = serviceDiskSpaceHelper;
+            this.serviceSetup = serviceSetup;
             this.serviceControl = serviceControl;
             this.serviceLogger = serviceLogger;
         }
@@ -86,17 +78,16 @@ namespace Sinedo.Singleton
                 using (await serviceRepository.Context.ReaderLockAsync())
                 {
                     // Eine Kopie der Downloads für das Setup-Paket erstellen.
-                    DownloadRecord[] downloads = serviceRepository.AsEnumerable()
-                                                                  .ToArray();
+                    DownloadRecord[] downloads = serviceRepository.AsEnumerable().ToArray();
 
                     // Setup-Paket das an den Client gesendet wird.
                     SetupRecord setup = new()
                     {
                         SystemInfo = systemInfo,
                         Downloads = downloads,
-                        DiskInfo = serviceDiskSpaceHelper.DiskInfo,
+                        DiskInfo = serviceSetup.DiskInfo,
                         BandwidthInfo = null,
-                        Links = serviceHyperlink.GetData(), // ToDo: Fix Thread Safe Issue
+                        //Links = serviceSetup.Hyperlink, // ToDo: Fix Thread Safe Issue
                     };
 
                     WebSocketPackage webSocketPackage = new(CommandFromServer.Setup, WebSocketPackage.PARAMETER_UNSET, setup);
@@ -150,29 +141,29 @@ namespace Sinedo.Singleton
                 case CommandFromClient.Start:
                     {
                         var groupToStart = webSocketPackage.ReadContentAs<GroupActionRecord>();
-                        await serviceScheduler.Start(groupToStart.Name);
+                        await serviceScheduler.StartAsync(groupToStart.Name);
                         break;
                     }
                 case CommandFromClient.Stop:
                     {
                         var groupToStop = webSocketPackage.ReadContentAs<GroupActionRecord>();
-                        await serviceScheduler.Stop(groupToStop.Name);
+                        await serviceScheduler.StopAsync(groupToStop.Name);
                         break;
                     }
                 case CommandFromClient.Delete:
                     {
                         var groupToDelete = webSocketPackage.ReadContentAs<GroupActionRecord>();
-                        await serviceScheduler.Delete(groupToDelete.Name);
+                        await serviceScheduler.DeleteAsync(groupToDelete.Name);
                         break;
                     }
                 case CommandFromClient.StartAll:
                     {
-                        await serviceScheduler.Start();
+                        await serviceScheduler.StartAllAsync();
                         break;
                     }
                 case CommandFromClient.StopAll:
                     {
-                        await serviceScheduler.Stop();
+                        await serviceScheduler.StopAllAsync();
                         break;
                     }
                 case CommandFromClient.Restart:
@@ -185,7 +176,7 @@ namespace Sinedo.Singleton
                         var fileToUpload = webSocketPackage.ReadContentAs<UploadRecord>();
 
                         string name = Path.GetFileNameWithoutExtension(fileToUpload.FileName);
-                        await serviceScheduler.CreateNewDownload(name, fileToUpload.Files, fileToUpload.Password, fileToUpload.Autostart);
+                        await serviceScheduler.CreateAsync(name, fileToUpload.Files, fileToUpload.Password, fileToUpload.Autostart);
                         break;
                     }
                 case CommandFromClient.Links:
@@ -214,11 +205,8 @@ namespace Sinedo.Singleton
         /// </summary>
         private async void WebSocketEndpoint_CommandException(WebSocketEndpoint webSocketEndpoint, Exception exception)
         {
-            NotificationRecord clientNotification = NotificationRecord.FromException(exception);
+            WebSocketPackage webSocketPackage = new(CommandFromServer.Error, NotificationRecord.FromException(exception));
 
-            WebSocketPackage webSocketPackage = new(CommandFromServer.Error, WebSocketPackage.PARAMETER_UNSET, clientNotification);
-
-            // An den Client senden.
             await webSocketEndpoint.Send(webSocketPackage);
         }
     }

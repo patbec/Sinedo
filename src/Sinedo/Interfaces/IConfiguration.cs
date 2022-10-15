@@ -6,16 +6,16 @@ namespace Sinedo.Singleton
     {
         public bool IsSetupCompleted { get; }
         public bool NeedServerRestart { get; }
-        public byte[] PasswordHash { get; }
-        public string IPAddress { get; }
-        public int Port { get; }
-        public bool RedirectToHttps { get; }
-        public uint InternetConnectionInMbits { get; }
-        public uint ConcurrentDownloads { get; }
-        public string DownloadDirectory { get; }
-        public bool IsExtractingEnabled { get; }
-        public string ExtractingDirectory { get; }
-        public string ExternalUrl { get; }
-        public string ApplicationName { get; }
+        public byte[] PasswordHash { get; set; }
+        public string IPAddress { get; set; }
+        public int Port { get; set; }
+        public bool RedirectToHttps { get; set; }
+        public uint InternetConnectionInMbits { get; set; }
+        public uint ConcurrentDownloads { get; set; }
+        public string DownloadDirectory { get; set; }
+        public bool IsExtractingEnabled { get; set; }
+        public string ExtractingDirectory { get; set; }
+        public string ExternalUrl { get; set; }
+        public string ApplicationName { get; set; }
     }
 }

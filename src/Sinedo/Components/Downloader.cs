@@ -11,7 +11,8 @@ using Sinedo.Singleton;
 
 namespace Sinedo.Components
 {
-    public class Downloader : IDisposable
+    [Obsolete]
+    public class DownloaderOld : IDisposable
     {
         private readonly Dictionary<string, FileStream> fileHandles = new();
         private readonly Sharehosters sharehosters;
@@ -38,7 +39,7 @@ namespace Sinedo.Components
 
         private long bytesDownloaded, bytesTotal = 0;
 
-        public Downloader(Sharehosters sharehosters, string name, string targetPath, string[] filesToDownload)
+        public DownloaderOld(Sharehosters sharehosters, string name, string targetPath, string[] filesToDownload)
         {
             this.sharehosters = sharehosters;
             this.name = name;

@@ -1,11 +1,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -13,9 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nito.Disposables;
 using Sinedo.Components;
-using Sinedo.Middleware;
 using Sinedo.Models;
 using Sinedo.Singleton;
 
@@ -53,8 +49,7 @@ namespace Sinedo.Background
                     {
                         logger.LogWarning(se, "An error occurred while trying to send or receive broadcast packets. It will try again in 30 seconds, the service will not be available during this time.");
 
-                        // 30 Sekunden warten.
-                        await Task.Delay(30000, stoppingToken);
+                        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
                     }
                 }
             }
@@ -73,7 +68,7 @@ namespace Sinedo.Background
             var receiver = new BroadcasterReceiver(autoDiscoveryControlPort);
             var sender = new BroadcasterSender(autoDiscoveryMessagePort);
 
-            // Startpaket senden.
+            // Hallo-Paket senden.
             await sender.SendAsync(GetDiscoveryPackage(), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
@@ -103,7 +98,7 @@ namespace Sinedo.Background
 
         private byte[] GetDiscoveryPackage()
         {
-            // Die erste Url wird beim automatischen Verbinden bevorzugt.  
+            // Die erste Url wird beim automatischen Verbinden bevorzugt.
             var urls = new List<string>();
 
             if (!string.IsNullOrWhiteSpace(configuration.ExternalUrl))
@@ -147,7 +142,7 @@ namespace Sinedo.Background
         }
 
         /// <summary>
-        /// Sucht die angegebene Anzahl von Sekunden, im Netzwerk nach anderen Servern.
+        /// Sucht im Netzwerk solange nach anderen Servern bis das Abbruchtoken ausgelöst wurde.
         /// </summary>
         public static async IAsyncEnumerable<DiscoveryRecord> FindServerAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {

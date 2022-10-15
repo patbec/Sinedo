@@ -73,7 +73,17 @@ namespace Sinedo.Components
         /// Erstellt aus den angegebenen Parametern ein erweitertes WebSocket Paket.
         /// </summary>
         /// <param name="command">Kennung des Paketes.</param>
-        /// <param name="parameter">Parameter des Paketes. (optional)</param>
+        /// <param name="content">Inhalt des Paketes, das angegebene Objekt wird serialisiert.</param>
+        public WebSocketPackage(CommandFromServer command, object content) : this(command, PARAMETER_UNSET, content)
+        {
+
+        }
+
+        /// <summary>
+        /// Erstellt aus den angegebenen Parametern ein erweitertes WebSocket Paket.
+        /// </summary>
+        /// <param name="command">Kennung des Paketes.</param>
+        /// <param name="parameter">Parameter des Paketes. (Default 0)</param>
         /// <param name="content">Inhalt des Paketes, das angegebene Objekt wird serialisiert.</param>
         public WebSocketPackage(CommandFromServer command, int parameter, object content)
         {
@@ -103,7 +113,8 @@ namespace Sinedo.Components
         /// Gibt den zugrundeliegenden Buffer zurück.
         /// </summary>
         /// <returns>Byte-Array mit den Daten.</returns>
-        public byte[] GetBuffer() {
+        public byte[] GetBuffer()
+        {
             return buffer;
         }
 

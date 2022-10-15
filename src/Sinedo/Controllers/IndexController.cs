@@ -5,14 +5,14 @@ namespace Sinedo.Controllers
 {
     public class IndexController : Controller
     {
-        private readonly Configuration _configuration;
+        private readonly IConfiguration _configuration;
 
         #region Properties
 
         /// <summary>
         /// Gibt den aktuellen Anbieter für Benutzereinstellungen zurück.
         /// </summary>
-        private Configuration Configuration => _configuration;
+        private IConfiguration Configuration => _configuration;
 
 
         #endregion
@@ -20,7 +20,7 @@ namespace Sinedo.Controllers
         /// <summary>
         /// Klasse mit Dependency-Injection erstellen.
         /// </summary>
-        public IndexController(Configuration configuration)
+        public IndexController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -32,13 +32,13 @@ namespace Sinedo.Controllers
         public IActionResult Index()
         {
             // Umleiten wenn kein Passwort eingerichtet wurde.
-            if( ! Configuration.IsSetupCompleted)
+            if (!Configuration.IsSetupCompleted)
             {
                 return Redirect("/setup");
             }
 
             // Prüfen ob sich der Benutzer anmelden muss.
-            if ( ! User.Identity.IsAuthenticated)
+            if (!User.Identity.IsAuthenticated)
             {
                 return Redirect("/login");
             }
