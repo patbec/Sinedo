@@ -5,7 +5,7 @@
 A small application to download files from sharehosters like Rapidgator. This application is made to run on your own Linux home server. The interface is designed to be used from a PC, tablet or mobile phone.
 This software is a beta that is in the testing phase and may still contain bugs. 
 
-<img src="/screenshots/screencapture-desktop-title.png" alt="Screenshot Banner"/>
+<img src="screenshots/screencapture-desktop-title.png" alt="Screenshot Banner"/>
 
 <p align="right">
     <a href="/Screenshots.md">See more images</a>
@@ -23,7 +23,7 @@ sudo apt install ./sinedo.<version>.deb
 sudo yum install -y ./sinedo.<version>.rpm
 ```
 
-**Recommended:** To run the application with limited privileges, open the service file with the command `sudo nano /etc/systemd/system/sinedo.service` and enter the value `User=youruser` with your user name after a new line behind `[Service]`. Enter the command `systemctl daemon-reload` to complete the process. This will run the application as a normal user with limited privileges. Additionally, for safety, this application should not run with administrator privileges. ([Click here for an example](https://github.com/patbec/Sinedo/wiki/Service-File))
+**Recommended:** To run the application with limited privileges, open the service file with the command `systemctl edit sinedo` and enter the value `User=youruser` with your user name. Enter the command `systemctl daemon-reload` to complete the process. This will run the application as a normal user with limited privileges. Additionally, for safety, this application should not run with administrator privileges. ([Click here for an example](https://github.com/patbec/Sinedo/wiki/Service-File))
 
 ```
 # Enable autostart
@@ -55,6 +55,13 @@ In case of problems with paths, e.g. the download folder remains empty, the curr
 ```
 http://<hostname or ip>:2222/api/debug
 ```
+
+## Command-Line
+
+Supported command parameters for this application.
+
+Preview - not available in current release:
+<img src="screenshots/screencapture-cli.png" alt="Screenshot Banner"/>
 
 ## Features
 
